@@ -14,19 +14,16 @@
  *  limitations under the License
  */
 /*
- * @file        warzywko.cpp
+ * @file        common.h
  * @author      Lukasz Wojciechowski <l.wojciechow@partner.samsung.com>
  * @version     1.0
- * @brief       Dummy file - for initail commit
+ * @brief       This file bind includes from cynara common library
  */
 
-//TODO remove this file
-#include <iostream>
 
-using namespace std;
+#ifndef COMMON_H
+#define COMMON_H
 
-void libcynara_warzywko(void)
-{
-	cout << "I'm so void" << endl;
-}
+#include "attributes/attributes.h"
 
+#endif /* COMMON_H */
