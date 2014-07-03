@@ -49,10 +49,10 @@ extern "C" {
 #endif
 
 //todo comment
-const char *CYNARA_ADMIN_WILDCARD = "*";
+#define CYNARA_ADMIN_WILDCARD "*";
 
 //todo comment
-const char *CYNARA_ADMIN_DEFAULT_BUCKET = "";
+#define CYNARA_ADMIN_DEFAULT_BUCKET "";
 
 //todo comments
 #define CYNARA_ADMIN_DELETE -1
@@ -131,7 +131,7 @@ int cynara_admin_initialize(struct cynara_admin **pp_cynara_admin);
  *
  * \brief Release cynara-admin library.
  */
-int cynara_admin_finish(cynara_admin *p_cynara_admin);
+int cynara_admin_finish(struct cynara_admin *p_cynara_admin);
 
 /**
  * \par Description:
@@ -183,7 +183,8 @@ int cynara_admin_finish(cynara_admin *p_cynara_admin);
  *
  * \brief Insert, update or delete policies in cynara database.
  */
-int cynara_admin_set_policies(cynara_admin *p_cynara_admin, const cynara_admin_policy *policies);
+int cynara_admin_set_policies(struct cynara_admin *p_cynara_admin,
+                              const cynara_admin_policy *policies);
 
 /**
  * \par Description:
@@ -225,7 +226,7 @@ int cynara_admin_set_policies(cynara_admin *p_cynara_admin, const cynara_admin_p
  *
  * \brief Add, remove or update buckets in cynara database.
  */
-int cynara_admin_set_bucket(cynara_admin *p_cynara_admin, const char *bucket, int operation);
+int cynara_admin_set_bucket(struct cynara_admin *p_cynara_admin, const char *bucket, int operation);
 
 #ifdef __cplusplus
 }
