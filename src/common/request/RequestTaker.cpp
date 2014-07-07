@@ -34,4 +34,8 @@ void RequestTaker::execute(RequestContextPtr context UNUSED, CheckRequestPtr req
     throw NotImplementedException();
 }
 
+void RequestTaker::execute(RequestContextPtr context UNUSED, SignalRequestPtr request UNUSED) {
+    throw NotImplementedException();
+}
+
 } // namespace Cynara

@@ -27,6 +27,9 @@
 
 namespace Cynara {
 
+class SignalRequest;
+typedef std::shared_ptr<SignalRequest> SignalRequestPtr;
+
 class CheckRequest;
 typedef std::shared_ptr<CheckRequest> CheckRequestPtr;
 

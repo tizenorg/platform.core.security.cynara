@@ -23,10 +23,12 @@
 #include <log/log.h>
 #include <common.h>
 #include <exceptions/PluginNotFoundException.h>
+#include <signal.h>
 
 #include <main/Cynara.h>
 #include <request/CheckRequest.h>
 #include <request/RequestContext.h>
+#include <request/SignalRequest.h>
 #include <response/CheckResponse.h>
 #include <storage/Storage.h>
 
@@ -37,6 +39,17 @@ Logic::Logic() {
 }
 
 Logic::~Logic() {
+}
+
+void Logic::execute(RequestContextPtr context UNUSED, SignalRequestPtr request) {
+    LOGD("Processing signal: [%d]", request->signalNumber());
+
+    switch (request->signalNumber()) {
+    case SIGTERM:
+        LOGI("SIGTERM received!");
+        // TODO: terminate cynara service
+        break;
+    }
 }
 
 void Logic::execute(RequestContextPtr context, CheckRequestPtr request) {
