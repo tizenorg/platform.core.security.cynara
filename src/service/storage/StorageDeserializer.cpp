@@ -46,9 +46,9 @@ void StorageDeserializer::initBuckets(InMemoryStorageBackend::Buckets &buckets) 
             break;
 
         size_t beginToken = 0;
-        auto bucketId = StorageDeserializer::parseBucketId(line, beginToken);
-        auto policyType = BucketDeserializer::parsePolicyType(line, beginToken);
-        auto metadata = BucketDeserializer::parseMetadata(line, beginToken);
+        auto bucketId = parseBucketId(line, beginToken);
+        auto policyType = parsePolicyType(line, beginToken);
+        auto metadata = parseMetadata(line, beginToken);
 
         buckets[bucketId] = PolicyBucket(bucketId, PolicyResult(policyType, metadata));
     }
@@ -79,6 +79,30 @@ PolicyBucketId StorageDeserializer::parseBucketId(const std::string &line,
 
     // TODO: Should throw other exception
     throw BucketRecordCorruptedException(line);
+}
+
+PolicyType StorageDeserializer::parsePolicyType(const std::string &line, std::size_t &beginToken) {
+    PolicyType policyType;
+    try {
+        size_t newBegin = 0;
+        policyType = std::stoi(line.substr(beginToken), &newBegin, 16);
+        beginToken += newBegin;
+    } catch(...) {
+        throw BucketRecordCorruptedException(line);
+    }
+
+    return policyType;
+}
+
+PolicyResult::PolicyMetadata StorageDeserializer::parseMetadata(const std::string &line,
+                                                                std::size_t &beginToken) {
+    if (beginToken < line.size()) {
+        auto ret = line.substr(beginToken + 1);
+        beginToken = line.size();
+        return ret;
+    }
+
+    return std::string();
 }
 
 } /* namespace Cynara */
