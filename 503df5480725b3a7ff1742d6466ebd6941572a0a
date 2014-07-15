@@ -1,0 +1,8 @@
+Code-Review+2: Casey Schaufler <casey.schaufler@intel.com>
+Code-Review+1: Marcin Lis <m.lis@samsung.com>
+Verified+1: Marcin Lis <m.lis@samsung.com>
+Submitted-by: Casey Schaufler <casey.schaufler@intel.com>
+Submitted-at: Tue, 15 Jul 2014 06:19:38 -0700
+Reviewed-on: https://review.tizen.org/gerrit/24506
+Project: platform/core/security/cynara
+Branch: refs/heads/tizen
