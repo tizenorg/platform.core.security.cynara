@@ -42,6 +42,15 @@
 
 /*! \brief   service not available */
 #define CYNARA_ADMIN_API_SERVICE_NOT_AVAILABLE -3
+
+/*! \brief   service not available */
+#define CYNARA_ADMIN_API_UNEXPECTED_CLIENT_ERROR -4
+
+/*! \brief   service not available */
+#define CYNARA_ADMIN_API_OPERATION_NOT_ALLOWED -5
+
+/*! \brief   service not available */
+#define CYNARA_ADMIN_API_BUCKET_NOT_FOUND -6
 /** @}*/
 
 #ifdef __cplusplus
