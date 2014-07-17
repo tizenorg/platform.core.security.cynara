@@ -14,39 +14,31 @@
  *  limitations under the License
  */
 /*
- * @file        Logic.h
- * @author      Lukasz Wojciechowski <l.wojciechow@partner.samsung.com>
+ * @file        CacheInterface.h
+ * @author      Zofia Abramowska <z.abramowska@samsung.com>
  * @version     1.0
- * @brief       This file contains definition of Logic class - main libcynara-client class
+ * @brief       This file contains PolicyType naive interpreter implementation.
  */
 
-#ifndef SRC_CLIENT_LOGIC_LOGIC_H_
-#define SRC_CLIENT_LOGIC_LOGIC_H_
-
-#include <string>
-
-#include <sockets/SocketClient.h>
-
-#include <api/ApiInterface.h>
 #include <cache/CacheInterface.h>
 
 namespace Cynara {
-
-class Logic : public ApiInterface {
-private:
-    SocketClientPtr m_socketClient;
-    PluginCacheInterfacePtr m_cache;
-
-    void onDisconnected(void);
-
-public:
-    Logic();
-    virtual ~Logic() = default;
-
-    virtual cynara_api_result check(const std::string &client, const std::string &session,
-        const std::string &user, const std::string &privilege) noexcept;
+class NaiveInterpreter : public InterpreterInterface {
+    bool isUsable(const PolicyResult &result) noexcept {
+        (void)result;
+        return true;
+    }
+    bool isCacheable(const PolicyResult &result) noexcept {
+        (void)result;
+        return true;
+    }
+    cynara_api_result toResult(const PolicyResult &result) noexcept {
+        if (result.policyType() == PredefinedPolicyType::ALLOW)
+                return cynara_api_result::CYNARA_API_SUCCESS;
+        else
+            return cynara_api_result::CYNARA_API_ACCESS_DENIED;
+    }
 };
-
 } // namespace Cynara
 
-#endif /* SRC_CLIENT_LOGIC_LOGIC_H_ */
+

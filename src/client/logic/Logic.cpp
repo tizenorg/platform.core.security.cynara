@@ -34,9 +34,10 @@
 #include <response/pointers.h>
 #include <sockets/SocketClient.h>
 #include <types/PolicyKey.h>
-#include <types/PolicyResult.h>
 
-#include <cache/NoCache.h>
+#include <cache/CapacityCache.h>
+#include <cache/NaiveInterpreter.h>
+#include <cache/PolicyGetter.h>
 #include "Logic.h"
 
 namespace Cynara {
@@ -46,12 +47,10 @@ const std::string clientSocketPath("/run/cynara/cynara.socket");
 Logic::Logic() {
     m_socketClient = std::make_shared<SocketClient>(clientSocketPath,
                                                     std::make_shared<ProtocolClient>());
-    m_cache = std::make_shared<NoCache>();
-}
-
-ProtocolFrameSequenceNumber generateSequenceNumber(void) {
-    static ProtocolFrameSequenceNumber sequenceNumber = 0;
-    return ++sequenceNumber;
+    m_cache = std::make_shared<CapacityCache>(new PolicyGetter(m_socketClient));
+    m_cache->registerPlugin(PredefinedPolicyType::ALLOW, new NaiveInterpreter());
+    m_cache->registerPlugin(PredefinedPolicyType::DENY, new NaiveInterpreter());
+    m_cache->registerPlugin(PredefinedPolicyType::BUCKET, new NaiveInterpreter());
 }
 
 cynara_api_result Logic::check(const std::string &client, const std::string &session UNUSED,
@@ -59,41 +58,10 @@ cynara_api_result Logic::check(const std::string &client, const std::string &ses
 {
     PolicyKey key(client, user, privilege);
 
-    auto cacheResponse = m_cache->check(session, key);
-    if(cacheResponse != cynara_api_result::CYNARA_API_SERVICE_NOT_AVAILABLE)
-        return cacheResponse;
-
-    ProtocolFrameSequenceNumber sequenceNumber = generateSequenceNumber();
-
-    //Ask cynara service
-    CheckResponsePtr checkResponse;
-    try {
-        RequestPtr request = std::make_shared<CheckRequest>(key, sequenceNumber);
-        ResponsePtr response = m_socketClient->askCynaraServer(request);
-        if (!response) {
-            LOGW("Disconnected by cynara server.");
-            onDisconnected();
-            return cynara_api_result::CYNARA_API_SERVICE_NOT_AVAILABLE;
-        }
-        checkResponse = std::dynamic_pointer_cast<CheckResponse>(response);
-        if (!checkResponse) {
-            LOGC("Critical error. Casting Response to CheckResponse failed.");
-            throw UnexpectedErrorException("Error casting Response to CheckResponse");
-        }
-
-        LOGD("checkResponse: policyType = %d, metadata = %s",
-             (int)checkResponse->m_resultRef.policyType(),
-             checkResponse->m_resultRef.metadata().c_str());
-    } catch (const ServerConnectionErrorException &ex) {
-        LOGE("Cynara service not available.");
+    auto ret = m_cache->get(session, key);
+    if(ret == cynara_api_result::CYNARA_API_SERVICE_NOT_AVAILABLE)
         onDisconnected();
-        return cynara_api_result::CYNARA_API_SERVICE_NOT_AVAILABLE;
-    } catch (const std::exception &ex) {
-        LOGE("Error during check of privilege: %s", ex.what());
-        return cynara_api_result::CYNARA_API_ACCESS_DENIED;
-    }
-
-    return m_cache->updateAndCheck(session, key, checkResponse->m_resultRef);
+    return ret;
 }
 
 void Logic::onDisconnected(void) {
