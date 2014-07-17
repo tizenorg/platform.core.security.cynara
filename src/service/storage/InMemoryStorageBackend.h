@@ -23,24 +23,30 @@
 #ifndef INMEMORYSTORAGEBACKEND_H_
 #define INMEMORYSTORAGEBACKEND_H_
 
-#include "StorageBackend.h"
-#include <exceptions/NotImplementedException.h>
-#include <exceptions/BucketNotExistsException.h>
-#include <types/Policy.h>
-
-#include <unordered_map>
 #include <algorithm>
+#include <fstream>
 #include <functional>
 #include <iostream>
+#include <unordered_map>
+
+#include <exceptions/BucketNotExistsException.h>
+#include <exceptions/NotImplementedException.h>
+#include <storage/BucketDeserializer.h>
+#include <types/Policy.h>
+
+#include "StorageBackend.h"
 
 namespace Cynara {
 
-class InMemoryStorageBackend: public StorageBackend {
+class InMemoryStorageBackend : public StorageBackend {
 public:
     typedef std::unordered_map<PolicyBucketId, PolicyBucket> Buckets;
 
-    InMemoryStorageBackend();
-    virtual ~InMemoryStorageBackend();
+    InMemoryStorageBackend() = default;
+    virtual ~InMemoryStorageBackend() = default;
+
+    virtual void setStorageDir(const std::string &path);
+    virtual void load(void);
 
     virtual PolicyBucket searchDefaultBucket(const PolicyKey &key);
     virtual PolicyBucket searchBucket(const PolicyBucketId &bucketId, const PolicyKey &key);
@@ -52,7 +58,12 @@ public:
     virtual void deletePolicy(const PolicyBucketId &bucketId, const PolicyKey &key);
     virtual void deleteLinking(const PolicyBucketId &bucketId);
 
+protected:
+    void openFileStream(std::ifstream &stream, const std::string &filename);
+    std::shared_ptr<BucketDeserializer> bucketStreamOpener(const PolicyBucketId &bucketId);
+
 private:
+    std::string m_dbPath;
     Buckets m_buckets;
 
 protected:

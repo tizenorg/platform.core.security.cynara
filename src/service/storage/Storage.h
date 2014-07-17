@@ -26,6 +26,7 @@
 
 #include <map>
 #include <memory>
+#include <string>
 #include <tuple>
 #include <vector>
 
@@ -51,6 +52,9 @@ public:
 
     void addOrUpdateBucket(const PolicyBucketId &bucketId, const PolicyResult &defaultBucketPolicy);
     void deleteBucket(const PolicyBucketId &bucketId);
+
+    void setStorageDir(const std::string &path);
+    void load(void);
 
 protected:
     PolicyResult minimalPolicy(const PolicyBucket &bucket, const PolicyKey &key);

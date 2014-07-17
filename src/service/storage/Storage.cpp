@@ -121,4 +121,12 @@ void Storage::deletePolicies(const std::map<PolicyBucketId, std::vector<PolicyKe
     }
 }
 
+void Storage::setStorageDir(const std::string &path) {
+    m_backend.setStorageDir(path);
+}
+
+void Storage::load(void) {
+    m_backend.load();
+}
+
 } // namespace Cynara

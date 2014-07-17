@@ -34,6 +34,8 @@ private:
     StoragePtr m_storage;
     StorageBackendPtr m_storageBackend;
 
+    std::string storageDir(void);
+
 public:
     Cynara();
     ~Cynara();
