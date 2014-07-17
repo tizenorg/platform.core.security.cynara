@@ -34,8 +34,7 @@ namespace Cynara {
 
 class Logic : public ApiInterface {
 private:
-    SocketClientPtr m_socketClient;
-    CacheInterfacePtr m_cache;
+    PluginCacheInterfacePtr m_cache;
 
     void onDisconnected(void);
 

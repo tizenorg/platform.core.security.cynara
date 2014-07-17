@@ -16,37 +16,64 @@
 /*
  * @file        CacheInterface.h
  * @author      Lukasz Wojciechowski <l.wojciechow@partner.samsung.com>
+ * @author      Zofia Abramowska <z.abramowska@samsung.com>
  * @version     1.0
- * @brief       This file contains cache interface definition.
+ * @brief       This file contains cache interface definitions.
  */
 
-#ifndef SRC_CLIENT_CACHE_CACHEINTERFACE_H_
-#define SRC_CLIENT_CACHE_CACHEINTERFACE_H_
+#ifndef CACHEINTERFACE_H_
+#define CACHEINTERFACE_H_
 
 #include <memory>
+#include <map>
 #include <string>
 
+#include <cynara-client.h>
 #include <types/PolicyKey.h>
 #include <types/PolicyResult.h>
 
-#include <cynara-client.h>
-
 namespace Cynara {
 
-class CacheInterface;
-typedef std::shared_ptr<CacheInterface> CacheInterfacePtr;
+class InterpreterInterface;
+typedef std::shared_ptr<InterpreterInterface> InterpreterInterfacePtr;
 
-class CacheInterface {
+class PluginCacheInterface;
+typedef std::shared_ptr<PluginCacheInterface> PluginCacheInterfacePtr;
+
+class ResultGetterInterface;
+typedef std::shared_ptr<ResultGetterInterface> ResultGetterInterfacePtr;
+
+class ResultGetterInterface {
 public:
-    CacheInterface() = default;
-    virtual ~CacheInterface() = default;
+    virtual cynara_api_result requestResult(const PolicyKey &key, PolicyResult &result) noexcept = 0;
+    virtual ~ResultGetterInterface(void) = default;
+};
 
-    virtual cynara_api_result check(const std::string &session, const PolicyKey &key) = 0;
-    virtual cynara_api_result updateAndCheck(const std::string &session, const PolicyKey &key,
-                                             const PolicyResult &result) = 0;
-    virtual void clear(void) = 0;
+class InterpreterInterface {
+public:
+    virtual bool isCacheable(const PolicyResult &result) noexcept = 0;
+    virtual bool isUsable(const PolicyResult &result) noexcept = 0;
+    virtual cynara_api_result toResult(const PolicyResult &result) noexcept = 0;
+
+    virtual ~InterpreterInterface(void) = default;
+};
+
+class PluginCacheInterface {
+public:
+    PluginCacheInterface(ResultGetterInterfacePtr getter) : m_getter(getter) {}
+    virtual cynara_api_result get(const std::string &session, const PolicyKey &key) = 0;
+    void registerPlugin (const PolicyType policyType, InterpreterInterfacePtr plugin) {
+        m_plugins[policyType] = plugin;
+    }
+    virtual void clear(void) {
+        m_plugins.clear();
+    }
+    virtual ~PluginCacheInterface(void) = default;
+protected:
+    std::map<PolicyType, InterpreterInterfacePtr> m_plugins;
+    ResultGetterInterfacePtr m_getter;
 };
 
 } // namespace Cynara
 
-#endif /* SRC_CLIENT_CACHE_CACHEINTERFACE_H_ */
+#endif // CACHEINTERFACE_H_
