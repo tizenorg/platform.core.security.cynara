@@ -20,9 +20,20 @@
  * @brief       Implementation of InMemoryStorageBackend
  */
 
+#include <fstream>
+#include <functional>
+
+#include <exceptions/FileNotFoundException.h>
+#include <storage/BucketDeserializer.h>
+#include <storage/StorageDeserializer.h>
+#include <types/PolicyBucketId.h>
+
 #include "InMemoryStorageBackend.h"
 
 namespace Cynara {
+
+InMemoryStorageBackend::InMemoryStorageBackend(const std::string &dbPath) : m_dbPath(dbPath) {}
+
 
 InMemoryStorageBackend::InMemoryStorageBackend() {
     // Make sure, there's always default bucket
@@ -30,6 +41,21 @@ InMemoryStorageBackend::InMemoryStorageBackend() {
 }
 
 InMemoryStorageBackend::~InMemoryStorageBackend() {}
+
+void InMemoryStorageBackend::load(void) {
+    std::string indexFilename = m_dbPath + "buckets";
+
+    std::ifstream indexStream;
+    openFileStream(indexStream, indexFilename);
+
+    StorageDeserializer storageDeserializer(indexStream,
+        std::bind(&InMemoryStorageBackend::bucketStreamOpener, this, std::placeholders::_1));
+
+    storageDeserializer.initBuckets(buckets());
+    storageDeserializer.loadBuckets(buckets());
+
+    // TODO: Add default bucket if it wasn't loaded from file
+}
 
 PolicyBucket InMemoryStorageBackend::searchDefaultBucket(const PolicyKey &key) {
     return searchBucket(defaultPolicyBucketId, key);
@@ -111,6 +137,29 @@ void InMemoryStorageBackend::deleteLinking(const PolicyBucketId &bucketId) {
         auto &policies = bucket.policyCollection();
         policies.erase(remove_if(policies.begin(), policies.end(), bucketIdMatches),
                 policies.end());
+    }
+}
+
+void InMemoryStorageBackend::openFileStream(std::ifstream &stream, const std::string &filename) {
+    // TODO: Consider adding exceptions to streams and handling them:
+    // stream.exceptions(std::ifstream::failbit | std::ifstream::badbit);
+    stream.open(filename);
+
+    if (!stream.is_open()) {
+        throw FileNotFoundException(filename);
+        return;
+    }
+}
+
+std::shared_ptr<BucketDeserializer> InMemoryStorageBackend::bucketStreamOpener(
+        const PolicyBucketId &bucketId) {
+    std::string bucketFilename = m_dbPath + "_" + bucketId;
+    std::ifstream bucketStream;
+    try {
+        openFileStream(bucketStream, bucketFilename);
+        return std::make_shared<BucketDeserializer>(bucketStream);
+    } catch (const FileNotFoundException &) {
+        return nullptr;
     }
 }
 
