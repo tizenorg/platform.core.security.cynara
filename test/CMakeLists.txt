@@ -38,6 +38,7 @@ ADD_DEFINITIONS("-Werror")                      # Make all warnings into errors.
 ADD_DEFINITIONS("-Wall")                        # Generate all warnings
 ADD_DEFINITIONS("-Wextra")                      # Generate even more extra warnings
 ADD_DEFINITIONS("-DCYNARA_NO_LOGS")             # Disable building logs
+ADD_DEFINITIONS(-DCYNARA_DB_PATH="${CMAKE_CURRENT_SOURCE_DIR}/db/") # Fake db for tests
 
 MESSAGE(STATUS "CMAKE_BUILD_TYPE: ${CMAKE_BUILD_TYPE}")
 

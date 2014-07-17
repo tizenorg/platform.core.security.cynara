@@ -46,13 +46,15 @@ Cynara::~Cynara() {
 void Cynara::init(void) {
     m_logic = std::make_shared<Logic>();
     m_socketManager = std::make_shared<SocketManager>();
-    m_storageBackend = std::make_shared<InMemoryStorageBackend>();
+    m_storageBackend = std::make_shared<InMemoryStorageBackend>(CYNARA_DB_PATH);
     m_storage = std::make_shared<Storage>(*m_storageBackend);
 
     m_logic->bindStorage(m_storage);
     m_logic->bindSocketManager(m_socketManager);
 
     m_socketManager->bindLogic(m_logic);
+
+    m_storageBackend->load();
 }
 
 void Cynara::run(void) {
