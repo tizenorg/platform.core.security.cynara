@@ -33,6 +33,7 @@ namespace Cynara {
 typedef std::string ProtocolFrameSignature;
 typedef uint32_t ProtocolFrameLength;
 typedef uint16_t ProtocolFrameSequenceNumber;
+typedef uint16_t ProtocolFrameFieldsCount;
 
 } /* namespace Cynara */
 

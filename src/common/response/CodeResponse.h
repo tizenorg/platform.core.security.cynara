@@ -23,6 +23,8 @@
 #ifndef SRC_COMMON_RESPONSE_CODERESPONSE_H_
 #define SRC_COMMON_RESPONSE_CODERESPONSE_H_
 
+#include <cstddef>
+
 #include <request/pointers.h>
 #include <response/pointers.h>
 #include <response/Response.h>
@@ -31,8 +33,8 @@ namespace Cynara {
 
 class CodeResponse : public Response {
 public:
-    enum Code {
-        OK,
+    enum Code : uint16_t {
+        OK = 0,
         NO_BUCKET,
         NOT_ALLOWED
     };
