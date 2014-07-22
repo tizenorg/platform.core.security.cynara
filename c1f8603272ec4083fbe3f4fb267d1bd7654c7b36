@@ -1,0 +1,10 @@
+Code-Review+2: Zbigniew Jasinski <z.jasinski@samsung.com>
+Verified+1: Zbigniew Jasinski <z.jasinski@samsung.com>
+Code-Review+2: Adam Malinowski <a.malinowsk2@partner.samsung.com>
+Verified+1: Adam Malinowski <a.malinowsk2@partner.samsung.com>
+Code-Review+1: Build Bot <b.bot@partner.samsung.com>
+Submitted-by: Zbigniew Jasinski <z.jasinski@samsung.com>
+Submitted-at: Tue, 22 Jul 2014 02:55:27 -0700
+Reviewed-on: https://review.tizen.org/gerrit/24795
+Project: platform/core/security/cynara
+Branch: refs/heads/tizen
