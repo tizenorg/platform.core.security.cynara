@@ -22,7 +22,9 @@
 
 #include <map>
 #include <new>
+#include <signal.h>
 #include <string>
+#include <string.h>
 #include <vector>
 
 #include <common.h>
@@ -37,6 +39,8 @@
 
 #include <api/ApiInterface.h>
 #include <logic/Logic.h>
+
+static void ignore_sigpipe(void);
 
 struct cynara_admin {
     Cynara::ApiInterface *impl;
@@ -60,6 +64,8 @@ int cynara_admin_initialize(struct cynara_admin **pp_cynara_admin) {
     }
 
     init_log();
+
+    ignore_sigpipe();
 
     LOGD("Cynara admin initialized");
 
@@ -160,4 +166,15 @@ int cynara_admin_set_bucket(struct cynara_admin *p_cynara_admin, const char *buc
         default:
             return CYNARA_ADMIN_API_INVALID_PARAM;
     }
+}
+
+static void ignore_sigpipe(void)
+{
+    struct sigaction act;
+
+    memset(&act, 0, sizeof(act));
+    act.sa_handler = SIG_IGN;
+
+    if(sigaction(SIGPIPE, &act, NULL))
+        LOGE("sigaction failed during setting SIGPIPE handler to ignore");
 }
