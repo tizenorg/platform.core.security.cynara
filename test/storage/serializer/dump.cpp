@@ -20,18 +20,20 @@
  * @brief       Tests for dumping feature of Cynara::StorageSerializer
  */
 
-#include <gtest/gtest.h>
-#include <gmock/gmock.h>
-
-#include "storage/StorageSerializer.h"
-#include "types/PolicyBucket.h"
-#include "types/PolicyType.h"
-#include "types/PolicyKey.h"
-#include "types/Policy.h"
-
-#include "../../helpers.h"
 
 #include <sstream>
+#include <memory>
+
+#include <gmock/gmock.h>
+#include <gtest/gtest.h>
+
+#include <storage/StorageSerializer.h>
+#include <types/Policy.h>
+#include <types/PolicyBucket.h>
+#include <types/PolicyKey.h>
+#include <types/PolicyType.h>
+
+#include "../../helpers.h"
 
 using namespace Cynara;
 
@@ -46,13 +48,13 @@ static std::string expectedPolicyType(const PolicyType &type) {
 }
 
 TEST(serializer_dump, dump_empty_bucket) {
-    std::ostringstream oss;
+    auto oss = std::make_shared<std::ostringstream>();
     PolicyBucket bucket;
 
     StorageSerializer serializer(oss);
     serializer.dump(bucket);
 
-    ASSERT_EQ("", oss.str());
+    ASSERT_EQ("", oss->str());
 }
 
 TEST(serializer_dump, dump_bucket) {
@@ -62,7 +64,7 @@ TEST(serializer_dump, dump_bucket) {
     PolicyBucket bucket = {{ Policy::simpleWithKey(pk1, PredefinedPolicyType::ALLOW),
                              Policy::simpleWithKey(pk2, PredefinedPolicyType::DENY) }};
 
-    std::ostringstream outputStream;
+    auto outputStream = std::make_shared<std::ostringstream>();
     StorageSerializer serializer(outputStream);
     serializer.dump(bucket);
 
@@ -74,7 +76,7 @@ TEST(serializer_dump, dump_bucket) {
         << expectedPolicyKey(pk1) << ";" << expectedPolicyType(PredefinedPolicyType::ALLOW) << ";" << "\n"
         << expectedPolicyKey(pk2) << ";" << expectedPolicyType(PredefinedPolicyType::DENY) << ";" << "\n";
 
-    ASSERT_EQ(expected.str(), outputStream.str());
+    ASSERT_EQ(expected.str(), outputStream->str());
 }
 
 TEST(serializer_dump, dump_bucket_bucket) {
@@ -87,7 +89,7 @@ TEST(serializer_dump, dump_bucket_bucket) {
                              Policy::simpleWithKey(pk2, PredefinedPolicyType::DENY),
                              Policy::bucketWithKey(pk3, bucketId) }};
 
-    std::ostringstream outputStream;
+    auto outputStream = std::make_shared<std::ostringstream>();
     StorageSerializer serializer(outputStream);
     serializer.dump(bucket);
 
@@ -100,5 +102,5 @@ TEST(serializer_dump, dump_bucket_bucket) {
         << expectedPolicyKey(pk2) << ";" << expectedPolicyType(PredefinedPolicyType::DENY) << ";" << "\n"
         << expectedPolicyKey(pk3) << ";" << expectedPolicyType(PredefinedPolicyType::BUCKET) << ";" << bucketId << "\n";
 
-    ASSERT_EQ(expected.str(), outputStream.str());
+    ASSERT_EQ(expected.str(), outputStream->str());
 }
