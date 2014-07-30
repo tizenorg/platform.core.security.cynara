@@ -76,7 +76,7 @@ const std::string Backtrace::buildBacktrace(void) {
         getSourceInfo(ip);
 
         snprintf(btstr, sizeof(btstr), "ip = %p, sp = %p, %s, %s:%u\n",
-                ip, sp, realname ? realname : proc_name,
+                reinterpret_cast<void *>(ip), reinterpret_cast<void *>(sp), realname ? realname : proc_name,
                 m_fileName, m_lineNumber);
         free(realname);
         backtrace += btstr;
