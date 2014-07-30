@@ -26,6 +26,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
+#include <iostream>
+#include <sstream>
 
 #include <attributes/attributes.h>
 #include <log/log.h>
@@ -60,7 +62,6 @@ const std::string Backtrace::buildBacktrace(void) {
     unw_context_t uc;
     unw_word_t ip, sp;
     char proc_name[BUFSIZ];
-    char btstr[BUFSIZ];
     unw_word_t offp;
     int status;
 
@@ -75,11 +76,13 @@ const std::string Backtrace::buildBacktrace(void) {
         char *realname = abi::__cxa_demangle(proc_name, 0, 0, &status);
         getSourceInfo(ip);
 
-        snprintf(btstr, sizeof(btstr), "ip = %p, sp = %p, %s, %s:%u\n",
-                ip, sp, realname ? realname : proc_name,
-                m_fileName, m_lineNumber);
-        free(realname);
-        backtrace += btstr;
+        std::ostringstream ostr;
+        ostr << std::ios::hex << "ip = 0x" <<  ip << ", sp = 0x" << sp
+             << " ," << (realname ? realname : proc_name)
+             << " ," <<m_fileName
+             << ":" << std::ios::dec << m_lineNumber << std::endl;
+
+        backtrace += ostr.str();
     }
 
     return backtrace;
