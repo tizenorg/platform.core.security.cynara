@@ -21,6 +21,10 @@
  * @brief       This file contains implementation of UNIX client socket class
  */
 
+#ifndef _GNU_SOURCE
+#define _GNU_SOURCE
+#endif
+
 #include <errno.h>
 #include <fcntl.h>
 #include <poll.h>
@@ -203,13 +207,18 @@ bool Socket::sendToServer(BinaryQueue &queue) {
     return true;
 }
 
-bool Socket::receiveFromServer(BinaryQueue &queue)
+bool Socket::waitAndReceiveFromServer(BinaryQueue &queue)
 {
     if (!waitForSocket(POLLIN)) {
         LOGE("Error in poll(POLLIN)");
         throw ServerConnectionErrorException();
     }
 
+    return receiveFromServer(queue);
+}
+
+bool Socket::receiveFromServer(BinaryQueue &queue)
+{
     RawBuffer readBuffer(BUFSIZ);
     ssize_t size = TEMP_FAILURE_RETRY(read(m_sock, readBuffer.data(), BUFSIZ));
 

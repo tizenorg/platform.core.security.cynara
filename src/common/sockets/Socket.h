@@ -42,8 +42,9 @@ private:
     //returns true      if socket is ready
     //returns false     in case of timeout
     //throws            in critical situations
+public:
     bool waitForSocket(int event);
-
+private:
     //returns int       errorcode read from socket
     //throws            in critical situations
     int getSocketError(void);
@@ -66,6 +67,12 @@ public:
     //throws ServerConnectionErrorException     if cannot connect server (or timeout)
     //throws other exceptions                   in critical situations
     bool sendToServer(BinaryQueue &queue);
+
+    //returns true                              if data was successfully read from server
+    //returns false                             if connection was lost
+    //throws ServerConnectionErrorException     if cannot connect server (or timeout)
+    //throws other exceptions                   in critical situations
+    bool waitAndReceiveFromServer(BinaryQueue &queue);
 
     //returns true                              if data was successfully read from server
     //returns false                             if connection was lost
