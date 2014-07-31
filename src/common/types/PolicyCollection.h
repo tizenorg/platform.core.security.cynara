@@ -24,13 +24,27 @@
 #ifndef CYNARA_COMMON_TYPES_POLICYCOLLECTION_H
 #define CYNARA_COMMON_TYPES_POLICYCOLLECTION_H
 
-#include "types/pointers.h"
-
+#include <unordered_map>
 #include <vector>
+
+#include "types/pointers.h"
 
 namespace Cynara {
 
 typedef std::vector<PolicyPtr> PolicyCollection;
+typedef std::unordered_map<std::string, PolicyPtr> PolicyMap;
+
+class const_policy_iterator : public PolicyMap::const_iterator
+{
+  public:
+    const_policy_iterator() : PolicyMap::const_iterator() {};
+    const_policy_iterator(const PolicyMap::const_iterator &other)
+        : PolicyMap::const_iterator(other) {};
+
+    PolicyPtr operator*() {
+        return PolicyMap::const_iterator::operator*().second;
+    }
+};
 
 } // namespace Cynara
 
