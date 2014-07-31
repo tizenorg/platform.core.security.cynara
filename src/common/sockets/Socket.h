@@ -42,8 +42,9 @@ private:
     //returns true      if socket is ready
     //returns false     in case of timeout
     //throws            in critical situations
+public:
     bool waitForSocket(int event);
-
+private:
     //returns int       errorcode read from socket
     //throws            in critical situations
     int getSocketError(void);
