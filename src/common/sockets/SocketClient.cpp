@@ -20,7 +20,12 @@
  * @brief       This file contains implementation of cynara's socket client
  */
 
+#ifndef _GNU_SOURCE
+#define _GNU_SOURCE
+#endif
+
 #include <memory>
+#include <poll.h>
 #include <string>
 
 #include <log/log.h>
@@ -61,6 +66,13 @@ ResponsePtr SocketClient::askCynaraServer(RequestPtr request) {
             return response;
         }
     }
+}
+
+bool SocketClient::isConnected(void) {
+    bool a = m_socket.isConnected();
+    bool b = !m_socket.waitForSocket(POLLRDHUP);
+    LOGD("getsockopt version <%d>, poll version <%d>", a, b);
+    return a && b;
 }
 
 } // namespace Cynara

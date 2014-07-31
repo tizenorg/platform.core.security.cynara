@@ -21,6 +21,10 @@
  * @brief       This file contains implementation of UNIX client socket class
  */
 
+#ifndef _GNU_SOURCE
+#define _GNU_SOURCE
+#endif
+
 #include <errno.h>
 #include <fcntl.h>
 #include <poll.h>
