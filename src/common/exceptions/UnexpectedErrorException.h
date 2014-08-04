@@ -49,7 +49,7 @@ public:
         m_whatMessage = stream.str();
     }
 
-    virtual ~UnexpectedErrorException() = default;
+    virtual ~UnexpectedErrorException() throw () {};
 
     virtual const std::string message(void) const {
         return m_whatMessage;

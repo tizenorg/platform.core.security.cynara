@@ -46,7 +46,7 @@ public:
                             m_dbPath(path),
                             m_indexFileName("buckets") {
     }
-    virtual ~InMemoryStorageBackend() = default;
+    virtual ~InMemoryStorageBackend() {};
 
     virtual void load(void);
     virtual void save(void);

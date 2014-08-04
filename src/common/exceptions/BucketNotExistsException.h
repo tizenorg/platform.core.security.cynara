@@ -34,7 +34,7 @@ class BucketNotExistsException : public Exception {
 public:
     BucketNotExistsException() = delete;
     BucketNotExistsException(const PolicyBucketId &bucketId) : m_bucketId(bucketId) {}
-    virtual ~BucketNotExistsException() = default;
+    virtual ~BucketNotExistsException() throw () {};
 
     virtual const std::string message(void) const {
         return "BucketNotExistsException";

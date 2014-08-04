@@ -30,6 +30,7 @@ namespace Cynara {
 class BucketDeserializationException : public DatabaseException {
 public:
     BucketDeserializationException(const PolicyBucketId &bucketId) : m_bucketId(bucketId) {}
+    ~BucketDeserializationException() throw () {};
 
     const std::string message(void) const {
         if (m_message.empty()) {

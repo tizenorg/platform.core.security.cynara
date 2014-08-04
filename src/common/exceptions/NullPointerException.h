@@ -42,7 +42,7 @@ public:
                   + std::string(">");
     }
 
-    virtual ~NullPointerException() = default;
+    virtual ~NullPointerException() throw () {};
 
     virtual const std::string message(void) const {
         return m_whatMsg;

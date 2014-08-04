@@ -32,7 +32,7 @@ namespace Cynara {
 class FileNotFoundException : public DatabaseException {
 public:
     FileNotFoundException(const std::string &filename) : m_filename(filename) {};
-    virtual ~FileNotFoundException() = default;
+    virtual ~FileNotFoundException() throw () {};
 
     const std::string message(void) const {
         if (m_message.empty()) {

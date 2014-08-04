@@ -45,7 +45,7 @@ public:
         m_whatMessage = stream.str();
     }
 
-    virtual ~PluginNotFoundException() = default;
+    virtual ~PluginNotFoundException() throw () {};
 
     virtual const std::string message(void) const {
         return m_whatMessage;

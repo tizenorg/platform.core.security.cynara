@@ -32,7 +32,7 @@ namespace Cynara {
 class DefaultBucketDeletionException : public Exception {
 public:
     DefaultBucketDeletionException() = default;
-    virtual ~DefaultBucketDeletionException() = default;
+    virtual ~DefaultBucketDeletionException() throw () {};
 
     virtual const std::string message(void) const {
         return "DefaultBucketDeletionException";

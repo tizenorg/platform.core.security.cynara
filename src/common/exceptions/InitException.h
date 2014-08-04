@@ -32,7 +32,7 @@ namespace Cynara {
 class InitException : public Exception {
 public:
     InitException() = default;
-    virtual ~InitException() = default;
+    virtual ~InitException() throw () {};
 
     virtual const std::string message(void) const {
         return "InitException";
