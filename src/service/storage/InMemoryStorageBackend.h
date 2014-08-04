@@ -42,7 +42,9 @@ namespace Cynara {
 
 class InMemoryStorageBackend : public StorageBackend {
 public:
-    InMemoryStorageBackend(const std::string &path) : m_dbPath(path) {
+    InMemoryStorageBackend(const std::string &path) :
+                            m_dbPath(path),
+                            m_indexFileName("buckets") {
     }
     virtual ~InMemoryStorageBackend() = default;
 
@@ -60,7 +62,7 @@ public:
     virtual void deleteLinking(const PolicyBucketId &bucketId);
 
 protected:
-    InMemoryStorageBackend() {}
+    InMemoryStorageBackend() : m_indexFileName("buckets") {}
     void openFileStream(std::shared_ptr<std::ifstream> stream, const std::string &filename);
     std::shared_ptr<BucketDeserializer> bucketStreamOpener(const PolicyBucketId &bucketId);
 
@@ -70,7 +72,7 @@ protected:
 private:
     std::string m_dbPath;
     Buckets m_buckets;
-    const std::string m_indexFileName = "buckets";
+    const std::string m_indexFileName;
 
 protected:
     virtual Buckets &buckets(void) {
