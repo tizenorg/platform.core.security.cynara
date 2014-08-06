@@ -22,6 +22,7 @@
 
 #include <cinttypes>
 
+#include <cynara-client.h>
 #include <log/log.h>
 
 #include <cache/CapacityCache.h>
@@ -129,7 +130,10 @@ int CapacityCache::update(const PolicyKey &key) {
             m_keyValue[keyToString(key)] = std::make_pair(result, m_keyUsage.begin());
         }
     }
-    return plugin->toResult(result);
+    if (!plugin->toResult(result))
+        return CYNARA_API_ACCESS_DENIED;
+    return CYNARA_API_SUCCESS;
+
 }
 
 } // namespace Cynara
