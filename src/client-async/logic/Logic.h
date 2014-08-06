@@ -24,16 +24,25 @@
 #ifndef SRC_CLIENT_ASYNC_LOGIC_LOGIC_H_
 #define SRC_CLIENT_ASYNC_LOGIC_LOGIC_H_
 
+#include <map>
+
+#include <cache/CacheInterface.h>
 #include <sockets/SocketClientAsync.h>
+#include <types/PolicyType.h>
 
 #include <api/ApiInterface.h>
+#include <checks/CheckContainer.h>
 #include <cynara-client-async.h>
 
 namespace Cynara {
 
 class Logic : public ApiInterface {
 private:
+    typedef std::map<PolicyType, InterpreterInterfacePtr> PolicyMap;
+
     SocketClientAsyncPtr m_socket;
+    CheckContainer m_checkContainer;
+    PolicyMap m_plugins;
 
     void onDisconnected(void);
 

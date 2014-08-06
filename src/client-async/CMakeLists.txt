@@ -23,6 +23,7 @@ SET(CYNARA_LIB_CYNARA_ASYNC_PATH ${CYNARA_PATH}/client-async)
 
 SET(LIB_CYNARA_ASYNC_SOURCES
     ${CYNARA_LIB_CYNARA_ASYNC_PATH}/api/client-async-api.cpp
+    ${CYNARA_LIB_CYNARA_ASYNC_PATH}/checks/CheckContainer.cpp
     ${CYNARA_LIB_CYNARA_ASYNC_PATH}/logic/Logic.cpp
     )
 

@@ -43,17 +43,20 @@
 /*! \brief   indicating that answer was not yet received */
 #define CYNARA_ASYNC_API_ANSWER_NOT_READY      -2
 
+/*! \brief   indicating too many pending checks */
+#define CYNARA_ASYNC_API_MAX_PENDING_CHECKS    -3
+
 /*! \brief   indicating that client is already connected */
-#define CYNARA_ASYNC_API_ALREADY_CONNECTED     -3
+#define CYNARA_ASYNC_API_ALREADY_CONNECTED     -4
 
 /*! \brief   indicating system is running out of memory state */
-#define CYNARA_ASYNC_API_OUT_OF_MEMORY         -4
+#define CYNARA_ASYNC_API_OUT_OF_MEMORY         -5
 
 /*! \brief   indicating the API's parameter is malformed */
-#define CYNARA_ASYNC_API_INVALID_PARAM         -5
+#define CYNARA_ASYNC_API_INVALID_PARAM         -6
 
 /*! \brief   service not available */
-#define CYNARA_ASYNC_API_SERVICE_NOT_AVAILABLE -6
+#define CYNARA_ASYNC_API_SERVICE_NOT_AVAILABLE -7
 
 /** @}*/
 
@@ -207,8 +210,8 @@ int cynara_async_connect(cynara_async *p_cynara, int *p_sock_fd);
  * \param[out] p_check_id Placeholder for check id.
  *
  * \return CYNARA_ASYNC_API_SUCCESS on success (access granted), CYNARA_API_ACCESS_DENIED
- * on access denial, CYNARA_ASYNC_API_ANSWER_NOT_READY on asynchronous request sent
- * or other error code on error.
+ * on access denial, CYNARA_ASYNC_API_ANSWER_NOT_READY on asynchronous request sent,
+ * CYNARA_ASYNC_API_MAX_PENDING_CHECKS on too many pending checks, or other error code on error.
  */
 int cynara_async_check(cynara_async *p_cynara,
                        const char *client, const char *client_session,
