@@ -178,11 +178,6 @@ bool Socket::sendToServer(BinaryQueue &queue) {
     queue.flattenConsume(buffer.data(), queue.size());
 
     do {
-        if (!connect()) {
-            LOGE("Error connecting to socket");
-            throw ServerConnectionErrorException();
-        }
-
         retry = false;
         ssize_t done = 0;
         while ((buffer.size() - done) > 0) {
