@@ -29,6 +29,8 @@
 
 #include <containers/BinaryQueue.h>
 #include <protocol/Protocol.h>
+#include <request/pointers.h>
+#include <response/pointers.h>
 #include <sockets/Socket.h>
 
 namespace Cynara {
@@ -49,6 +51,14 @@ public:
     virtual ~SocketClientAsync() {};
 
     bool connect(int &sockFd);
+
+    //returns true on success
+    //        or false when connection to cynara service is lost
+    bool askCynaraServer(RequestPtr request);
+
+    //returns true on success
+    //        or false when connection to cynara service is lost
+    bool getAnswerFromCynaraServer(ResponsePtr &response);
 
     bool isConnected(void);
 };
