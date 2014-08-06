@@ -24,19 +24,32 @@
 #ifndef SRC_COMMON_PROTOCOL_PROTOCOLCLIENTASYNC_H_
 #define SRC_COMMON_PROTOCOL_PROTOCOLCLIENTASYNC_H_
 
+#include <protocol/ProtocolFrameHeader.h>
+#include <request/pointers.h>
+#include <response/pointers.h>
+#include <types/ProtocolFields.h>
+
 #include "Protocol.h"
 
 namespace Cynara {
 
 class ProtocolClientAsync : public Protocol {
 public:
-    ProtocolClientAsync();
-    virtual ~ProtocolClientAsync();
+    ProtocolClientAsync() = default;
+    virtual ~ProtocolClientAsync() {}
 
     virtual ProtocolPtr clone(void);
 
     virtual RequestPtr extractRequestFromBuffer(BinaryQueue &bufferQueue);
     virtual ResponsePtr extractResponseFromBuffer(BinaryQueue &bufferQueue);
+
+    virtual void execute(RequestContextPtr context, CheckRequestPtr request);
+    virtual void execute(RequestContextPtr context, CheckResponsePtr response);
+
+private:
+    RequestPtr deserializeCheckRequest(ProtocolFrameHeader &frame);
+    ResponsePtr deserializeCheckResponse(ProtocolFrameHeader &frame);
+
 };
 
 } // namespace Cynara

@@ -21,9 +21,8 @@
                 client
  */
 
-#include <memory>
-
 #include <log/log.h>
+#include <request/Request.h>
 #include <request/RequestContext.h>
 
 #include "SocketClientAsync.h"
@@ -39,6 +38,30 @@ SocketClientAsync::SocketClientAsync(const std::string &socketPath,
 bool SocketClientAsync::connect(int &sockFd)
 {
     return m_socket.connect(sockFd);
+}
+
+bool SocketClientAsync::askCynaraServer(RequestPtr request)
+{
+    //pass request to protocol
+    RequestContextPtr context = std::make_shared<RequestContext>(ResponseTakerPtr(), m_writeQueue);
+    request->execute(request, m_protocol, context);
+
+    //send request to cynara
+    if (!m_socket.sendToServer(m_writeQueue)) {
+        LOGW("Error sending request to Cynara. Service not available.");
+        return false;
+    }
+    return true;
+}
+
+bool SocketClientAsync::getAnswerFromCynaraServer(ResponsePtr &response)
+{
+    if (!m_socket.receiveFromServer(m_readQueue)) {
+        LOGW("Error receiving response from Cynara. Service not available.");
+        return false;
+    }
+    response = m_protocol->extractResponseFromBuffer(m_readQueue);
+    return true;
 }
 
 bool SocketClientAsync::isConnected(void)

@@ -28,7 +28,6 @@
 #include <memory>
 #include <string>
 
-#include <cynara-client.h>
 #include <types/PolicyKey.h>
 #include <types/PolicyResult.h>
 #include <types/PolicyType.h>
@@ -54,7 +53,7 @@ class InterpreterInterface {
 public:
     virtual bool isCacheable(const PolicyResult &result) noexcept = 0;
     virtual bool isUsable(const PolicyResult &result) noexcept = 0;
-    virtual int toResult(const PolicyResult &result) noexcept = 0;
+    virtual bool toResult(const PolicyResult &result) noexcept = 0;
 
     virtual ~InterpreterInterface() {};
 };

@@ -21,33 +21,136 @@
                 asynchronous client
  */
 
-#include <attributes/attributes.h>
+#include <common.h>
+#include <exceptions/InvalidProtocolException.h>
+#include <log/log.h>
+#include <protocol/ProtocolFrameSerializer.h>
+#include <protocol/ProtocolOpCode.h>
+#include <protocol/ProtocolSerialization.h>
+#include <request/CheckRequest.h>
+#include <request/RequestContext.h>
+#include <response/CheckResponse.h>
+#include <types/PolicyKey.h>
+#include <types/PolicyResult.h>
+#include <types/PolicyType.h>
 
 #include "ProtocolClientAsync.h"
 
 namespace Cynara {
-
-ProtocolClientAsync::ProtocolClientAsync()
-{
-}
-
-ProtocolClientAsync::~ProtocolClientAsync()
-{
-}
 
 ProtocolPtr ProtocolClientAsync::clone(void)
 {
     return std::make_shared<ProtocolClientAsync>();
 }
 
-RequestPtr ProtocolClientAsync::extractRequestFromBuffer(BinaryQueue &bufferQueue UNUSED)
+RequestPtr ProtocolClientAsync::deserializeCheckRequest(ProtocolFrameHeader &frame)
 {
+    std::string clientId, userId, privilegeId;
+
+    ProtocolDeserialization::deserialize(frame, clientId);
+    ProtocolDeserialization::deserialize(frame, userId);
+    ProtocolDeserialization::deserialize(frame, privilegeId);
+
+    LOGD("Deserialized CheckRequest: client = %s, user = %s, privilege = %s",
+         clientId.c_str(), userId.c_str(), privilegeId.c_str());
+
+    return std::make_shared<CheckRequest>(PolicyKey(clientId, userId, privilegeId),
+                                          frame.sequenceNumber());
+}
+
+RequestPtr ProtocolClientAsync::extractRequestFromBuffer(BinaryQueue &bufferQueue)
+{
+    ProtocolFrameSerializer::deserializeHeader(m_frameHeader, bufferQueue);
+
+    if (m_frameHeader.isFrameComplete()) {
+        ProtocolOpCode opCode;
+
+        m_frameHeader.resetState();
+        ProtocolDeserialization::deserialize(m_frameHeader, opCode);
+        LOGD("Deserialized opCode [%u]", static_cast<unsigned int>(opCode));
+
+        switch (opCode) {
+        case OpCheckPolicy:
+            return deserializeCheckRequest(m_frameHeader);
+        default:
+            throw InvalidProtocolException(InvalidProtocolException::WrongOpCode);
+            break;
+        }
+    }
+
     return nullptr;
 }
 
-ResponsePtr ProtocolClientAsync::extractResponseFromBuffer(BinaryQueue &bufferQueue UNUSED)
+ResponsePtr ProtocolClientAsync::deserializeCheckResponse(ProtocolFrameHeader &frame)
 {
+    PolicyType result;
+    PolicyResult::PolicyMetadata additionalInfo;
+
+    ProtocolDeserialization::deserialize(frame, result);
+    ProtocolDeserialization::deserialize(frame, additionalInfo);
+
+    const PolicyResult policyResult(result, additionalInfo);
+
+    LOGD("Deserialized CheckResponse: result = %u, metadata = %s",
+         static_cast<unsigned int>(policyResult.policyType()),
+         policyResult.metadata().c_str());
+
+    return std::make_shared<CheckResponse>(policyResult, frame.sequenceNumber());
+}
+
+ResponsePtr ProtocolClientAsync::extractResponseFromBuffer(BinaryQueue &bufferQueue)
+{
+    ProtocolFrameSerializer::deserializeHeader(m_frameHeader, bufferQueue);
+
+    if (m_frameHeader.isFrameComplete()) {
+        ProtocolOpCode opCode;
+
+        m_frameHeader.resetState();
+        ProtocolDeserialization::deserialize(m_frameHeader, opCode);
+        LOGD("Deserialized opCode = %u", static_cast<unsigned int>(opCode));
+        switch (opCode) {
+        case OpCheckPolicy:
+            return deserializeCheckResponse(m_frameHeader);
+        default:
+            throw InvalidProtocolException(InvalidProtocolException::WrongOpCode);
+            break;
+        }
+    }
+
     return nullptr;
+}
+
+void ProtocolClientAsync::execute(RequestContextPtr context, CheckRequestPtr request)
+{
+    ProtocolFramePtr frame = ProtocolFrameSerializer::startSerialization(request->sequenceNumber());
+
+    LOGD("Serializing CheckRequest: client = %s, user = %s, privilege = %s",
+         request->key().client().value().c_str(),
+         request->key().user().value().c_str(),
+         request->key().privilege().value().c_str());
+
+    ProtocolSerialization::serialize(*frame, OpCheckPolicy);
+    ProtocolSerialization::serialize(*frame, request->key().client().value());
+    ProtocolSerialization::serialize(*frame, request->key().user().value());
+    ProtocolSerialization::serialize(*frame, request->key().privilege().value());
+
+    ProtocolFrameSerializer::finishSerialization(frame, context->responseQueue());
+}
+
+void ProtocolClientAsync::execute(RequestContextPtr context, CheckResponsePtr response)
+{
+    ProtocolFramePtr frame = ProtocolFrameSerializer::startSerialization(response->sequenceNumber());
+
+    LOGD("Serializing CheckResponse: op [%u], policyType [%u], metadata <%s>",
+         static_cast<unsigned int>(OpCheckPolicy),
+         static_cast<unsigned int>(response->m_resultRef.policyType()),
+         response->m_resultRef.metadata().c_str());
+
+    ProtocolSerialization::serialize(*frame, OpCheckPolicy);
+    ProtocolSerialization::serialize(*frame, response->m_resultRef.policyType());
+    ProtocolSerialization::serialize(*frame, response->m_resultRef.metadata());
+
+    ProtocolFrameSerializer::finishSerialization(frame, context->responseQueue());
 }
 
 } // namespace Cynara
