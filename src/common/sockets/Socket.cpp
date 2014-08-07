@@ -163,6 +163,14 @@ bool Socket::connect(void) {
     return isConnected();
 }
 
+bool Socket::connect(int &sockFd) {
+    if (!connect()) {
+        return false;
+    }
+    sockFd = m_sock;
+    return true;
+}
+
 bool Socket::sendToServer(BinaryQueue &queue) {
     bool retry = false;
 
