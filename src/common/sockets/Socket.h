@@ -61,6 +61,11 @@ public:
     //throws            in critical situations
     bool connect(void);
 
+    //returns true      if connection succeeded
+    //returns false     if connection was timeout or no one is listening
+    //throws            in critical situations
+    bool connect(int &sockFd);
+
     //returns true                              if data was successfully send to server
     //returns false                             if connection was lost
     //throws ServerConnectionErrorException     if cannot connect server (or timeout)

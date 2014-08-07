@@ -45,6 +45,7 @@
 #include <main/Cynara.h>
 #include <protocol/ProtocolAdmin.h>
 #include <protocol/ProtocolClient.h>
+#include <protocol/ProtocolClientAsync.h>
 #include <protocol/ProtocolSignal.h>
 #include <request/pointers.h>
 #include <request/RequestContext.h>
@@ -70,11 +71,17 @@ void SocketManager::run(void) {
 void SocketManager::init(void) {
     LOGI("SocketManger init start");
     const std::string clientSocketPath("/run/cynara/cynara.socket");
+    const std::string clientAsyncSocketPath("/run/cynara/cynara-async.socket");
     const std::string adminSocketPath("/run/cynara/cynara-admin.socket");
     const mode_t clientSocketUMask(0);
+    const mode_t clientAsyncSocketUMask(0);
     const mode_t adminSocketUMask(0077);
 
     createDomainSocket(std::make_shared<ProtocolClient>(), clientSocketPath, clientSocketUMask,
+                       true);
+    createDomainSocket(std::make_shared<ProtocolClientAsync>(),
+                       clientAsyncSocketPath,
+                       clientAsyncSocketUMask,
                        true);
     createDomainSocket(std::make_shared<ProtocolAdmin>(), adminSocketPath, adminSocketUMask, false);
     createSignalSocket(std::make_shared<ProtocolSignal>());

@@ -20,6 +20,7 @@ INSTALL(FILES
     ${CMAKE_SOURCE_DIR}/systemd/cynara.service
     ${CMAKE_SOURCE_DIR}/systemd/cynara.target
     ${CMAKE_SOURCE_DIR}/systemd/cynara.socket
+    ${CMAKE_SOURCE_DIR}/systemd/cynara-async.socket
     ${CMAKE_SOURCE_DIR}/systemd/cynara-admin.socket
     DESTINATION
     /usr/lib/systemd/system

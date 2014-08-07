@@ -133,6 +133,7 @@ rm -rf %{buildroot}
 mkdir -p %{buildroot}/usr/lib/systemd/system/sockets.target.wants
 mkdir -p %{buildroot}/%{state_path}
 ln -s ../cynara.socket %{buildroot}/usr/lib/systemd/system/sockets.target.wants/cynara.socket
+ln -s ../cynara-async.socket %{buildroot}/usr/lib/systemd/system/sockets.target.wants/cynara-async.socket
 ln -s ../cynara-admin.socket %{buildroot}/usr/lib/systemd/system/sockets.target.wants/cynara-admin.socket
 
 %pre
@@ -211,6 +212,8 @@ fi
 %attr(-,root,root) /usr/lib/systemd/system/cynara.target
 %attr(-,root,root) /usr/lib/systemd/system/sockets.target.wants/cynara.socket
 %attr(-,root,root) /usr/lib/systemd/system/cynara.socket
+%attr(-,root,root) /usr/lib/systemd/system/sockets.target.wants/cynara-async.socket
+%attr(-,root,root) /usr/lib/systemd/system/cynara-async.socket
 %attr(-,root,root) /usr/lib/systemd/system/sockets.target.wants/cynara-admin.socket
 %attr(-,root,root) /usr/lib/systemd/system/cynara-admin.socket
 %dir %attr(700,cynara,cynara) %{state_path}
