@@ -22,13 +22,28 @@
  */
 
 #include <common.h>
+#include <protocol/ProtocolClientAsync.h>
 
 #include "Logic.h"
 
 namespace Cynara {
 
-int Logic::connect(int &sockFd UNUSED) noexcept
+const std::string clientAsyncSocketPath("/run/cynara/cynara-async.socket");
+
+Logic::Logic()
 {
+    m_socket = std::make_shared<SocketClientAsync>(
+        clientAsyncSocketPath, std::make_shared<ProtocolClientAsync>());
+}
+
+int Logic::connect(int &sockFd) noexcept
+{
+    if (m_socket->isConnected())
+        return CYNARA_ASYNC_API_ALREADY_CONNECTED;
+
+    onDisconnected();
+    if (!m_socket->connect(sockFd))
+        return CYNARA_ASYNC_API_SERVICE_NOT_AVAILABLE;
     return CYNARA_ASYNC_API_SUCCESS;
 }
 
@@ -47,6 +62,11 @@ int Logic::receive(cynara_check_id &checkId UNUSED) noexcept
 int Logic::cancel(const cynara_check_id checkId UNUSED) noexcept
 {
     return CYNARA_ASYNC_API_SUCCESS;
+}
+
+void Logic::onDisconnected(void)
+{
+
 }
 
 } // namespace Cynara

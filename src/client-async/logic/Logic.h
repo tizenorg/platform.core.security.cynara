@@ -24,14 +24,21 @@
 #ifndef SRC_CLIENT_ASYNC_LOGIC_LOGIC_H_
 #define SRC_CLIENT_ASYNC_LOGIC_LOGIC_H_
 
+#include <sockets/SocketClientAsync.h>
+
 #include <api/ApiInterface.h>
 #include <cynara-client-async.h>
 
 namespace Cynara {
 
 class Logic : public ApiInterface {
+private:
+    SocketClientAsyncPtr m_socket;
+
+    void onDisconnected(void);
+
 public:
-    Logic() = default;
+    Logic();
     virtual ~Logic() {};
 
     virtual int connect(int &sockFd) noexcept;
