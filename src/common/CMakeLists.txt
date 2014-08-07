@@ -26,6 +26,7 @@ SET(COMMON_SOURCES
     ${COMMON_PATH}/log/log.cpp
     ${COMMON_PATH}/protocol/ProtocolAdmin.cpp
     ${COMMON_PATH}/protocol/ProtocolClient.cpp
+    ${COMMON_PATH}/protocol/ProtocolClientAsync.cpp
     ${COMMON_PATH}/protocol/ProtocolFrame.cpp
     ${COMMON_PATH}/protocol/ProtocolFrameHeader.cpp
     ${COMMON_PATH}/protocol/ProtocolFrameSerializer.cpp
@@ -42,6 +43,7 @@ SET(COMMON_SOURCES
     ${COMMON_PATH}/response/ResponseTaker.cpp
     ${COMMON_PATH}/sockets/Socket.cpp
     ${COMMON_PATH}/sockets/SocketClient.cpp
+    ${COMMON_PATH}/sockets/SocketClientAsync.cpp
     ${COMMON_PATH}/types/PolicyBucket.cpp
     ${COMMON_PATH}/types/PolicyKey.cpp
     ${COMMON_PATH}/types/PolicyKeyHelpers.cpp
