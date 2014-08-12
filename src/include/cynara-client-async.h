@@ -286,6 +286,146 @@ int cynara_async_receive(cynara_async *p_cynara, cynara_check_id *p_check_id);
  */
 int cynara_async_cancel(cynara_async *p_cynara, cynara_check_id check_id);
 
+/**
+ * Usage example
+ */
+
+/**
+ * #include <.h>
+ *
+ * void read_from_cynara()
+ * {
+ *     int end = 0;
+ *     int retval;
+ *     while (!end)
+ *     {
+ *         cynara_check_id check_id;
+ *         retval = cynara_async_receive(cyn, &check_id);
+ *         switch (retval)
+ *         {
+ *         case CYNARA_ASYNC_API_SUCCESS:
+ *             ...
+ *             remove_check(check_id, ...);
+ *             break;
+ *         case CYNARA_API_ACCESS_DENIED:
+ *             ...
+ *             remove_check(check_id, ...);
+ *             break;
+ *         case CYNARA_ASYNC_API_ANSWER_NOT_READY:
+ *             end = 1;
+ *             break;
+ *         default:
+ *             cynara_async_finish(cyn);
+ *             printf("%s", "Error has occurred\n");
+ *             exit(0);
+ *         }
+ *     }
+ * }
+ *
+ * int main()
+ * {
+ *     int retval;
+ *     cynara_async *cyn;
+ *     int cyn_sock_fd;
+ *
+ *     ...
+ *
+ *     retval = cynara_async_initialize(&cyn, NULL);
+ *     if (retval != CYNARA_ASYNC_API_SUCCESS)
+ *     {
+ *         printf("%s", "Error has occurred\n");
+ *         exit(0);
+ *     }
+ *
+ *     retval = cynara_async_connect(cyn, &cyn_sock_fd);
+ *     if (retval != CYNARA_ASYNC_API_SUCCESS)
+ *     {
+ *         cynara_async_finish(cyn);
+ *         printf("%s", "Error has occurred\n");
+ *         exit(0);
+ *     }
+ *     while (true)
+ *     {
+ *         FD_ZERO(&rfds);
+ *         FD_SET(cyn_sock_fd, &rfds);
+ *         FD_SET(another_sock_fd, &rfds);
+ *
+ *         ...
+ *
+ *         retval = select(nfds, &rfds, NULL, NULL, NULL);
+ *         if (retval == -1)
+ *         {
+ *             printf("%s", "Error has occurred\n");
+ *             cynara_async_finish(cyn);
+ *             exit(0);
+ *         }
+ *         else
+ *         {
+ *             if(FD_ISSET(cyn_sock_fd, &rfds))
+ *             {
+ *                 read_from_cynara();
+ *             }
+ *             if(FD_ISSET(another_sock_fd, &rfds))
+ *             {
+ *                 const char* client;
+ *                 const char* session;
+ *                 const char* user;
+ *                 const char* privilege;
+ *
+ *                 ...
+ *
+ *                 cynara_check_id check_id;
+ *                 retval = cynara_async_check(cyn,
+ *                                             client, session, user, privilege,
+ *                                             &check_id);
+ *                 switch (retval)
+ *                 {
+ *                     case CYNARA_ASYNC_API_SUCCESS:
+ *                         ...
+ *                         remove_check(check_id, ...);
+ *                         break;
+ *                     case CYNARA_API_ACCESS_DENIED:
+ *                         ...
+ *                         remove_check(check_id, ...);
+ *                         break;
+ *                     case CYNARA_ASYNC_API_ANSWER_NOT_READY:
+ *                         if (checks_still_pending())
+ *                         {
+ *                             add_check(check_id, ...);
+ *                             read_from_cynara();
+ *                         }
+ *                         else
+ *                         {
+ *                             add_check(check_id, ...);
+ *                         }
+ *                         break;
+ *                     default:
+ *                         cynara_async_finish(cyn);
+ *                         printf("%s", "Error has occurred\n");
+ *                         exit(0);
+ *                 }
+ *
+ *                 if (some_check_waits_too_long(&check_id))
+ *                 {
+ *                     retval = cynara_async_cancel(check_id);
+ *                     if (retval != CYNARA_ASYNC_API_SUCCESS)
+ *                     {
+ *                         cynara_async_finish(cyn);
+ *                         printf("%s", "Error has occurred\n");
+ *                         exit(0);
+ *                     }
+ *                 }
+ *
+ *                 ...
+ *
+ *             }
+ *         }
+ *     }
+ *
+ *     ...
+ *
+ * }
+ */
 
 #ifdef __cplusplus
 }
