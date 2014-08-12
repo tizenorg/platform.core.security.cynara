@@ -25,7 +25,12 @@
 #ifndef CYNARA_CLIENT_ASYNC_H
 #define CYNARA_CLIENT_ASYNC_H
 
+#ifdef __cplusplus
 #include <cstdint>
+#else
+#include <stdint.h>
+#endif
+
 
 /**
  * \name Return Codes
