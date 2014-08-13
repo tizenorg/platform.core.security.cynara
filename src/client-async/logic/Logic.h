@@ -44,6 +44,9 @@ private:
     SequenceContainer m_sequenceContainer;
     PolicyMap m_plugins;
 
+    int receiveCheck(CheckResponsePtr &response);
+    void receiveCancel(CancelResponsePtr &response);
+
     void onDisconnected(void);
 
 public:

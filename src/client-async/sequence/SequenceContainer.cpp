@@ -32,6 +32,25 @@ const ProtocolFrameSequenceNumber SequenceContainer::msc_maxSequenceNumber = sta
 
 bool SequenceContainer::generateCheck(ProtocolFrameSequenceNumber &sequenceNumber)
 {
+    // there always needs to be space for cancel
+    if (m_checkCount == msc_maxSequenceNumber)
+        return false;
+    sequenceNumber = 0;
+    for (auto it = m_sequenceSet.begin(); it != m_sequenceSet.end(); ++it) {
+        if (*it != sequenceNumber) {
+            m_sequenceSet.insert(it, sequenceNumber);
+            ++m_checkCount;
+            return true;
+        }
+        ++sequenceNumber;
+    }
+    m_sequenceSet.insert(m_sequenceSet.end(), sequenceNumber);
+    ++m_checkCount;
+    return true;
+}
+
+bool SequenceContainer::generateCancel(ProtocolFrameSequenceNumber &sequenceNumber)
+{
     sequenceNumber = 0;
     for (auto it = m_sequenceSet.begin(); it != m_sequenceSet.end(); ++it) {
         if (*it != sequenceNumber) {
@@ -47,6 +66,14 @@ bool SequenceContainer::generateCheck(ProtocolFrameSequenceNumber &sequenceNumbe
 }
 
 bool SequenceContainer::removeCheck(ProtocolFrameSequenceNumber sequenceNumber)
+{
+    bool ret = m_sequenceSet.erase(sequenceNumber) == 1;
+    if (ret)
+        --m_checkCount;
+    return ret;
+}
+
+bool SequenceContainer::removeCancel(ProtocolFrameSequenceNumber sequenceNumber)
 {
     return m_sequenceSet.erase(sequenceNumber) == 1;
 }
