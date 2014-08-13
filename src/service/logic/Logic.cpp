@@ -29,6 +29,7 @@
 
 #include <main/Cynara.h>
 #include <request/CheckRequest.h>
+#include <request/CancelRequest.h>
 #include <request/InsertOrUpdateBucketRequest.h>
 #include <request/RemoveBucketRequest.h>
 #include <request/RequestContext.h>
@@ -58,6 +59,10 @@ void Logic::execute(RequestContextPtr context UNUSED, SignalRequestPtr request) 
         m_socketManager->mainLoopStop();
         break;
     }
+}
+
+void Logic::execute(RequestContextPtr context UNUSED, CancelRequestPtr request UNUSED)
+{
 }
 
 void Logic::execute(RequestContextPtr context, CheckRequestPtr request) {

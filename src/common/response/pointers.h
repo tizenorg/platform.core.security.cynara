@@ -30,6 +30,9 @@ namespace Cynara {
 class CheckResponse;
 typedef std::shared_ptr<CheckResponse> CheckResponsePtr;
 
+class CancelResponse;
+typedef std::shared_ptr<CancelResponse> CancelResponsePtr;
+
 class CodeResponse;
 typedef std::shared_ptr<CodeResponse> CodeResponsePtr;
 

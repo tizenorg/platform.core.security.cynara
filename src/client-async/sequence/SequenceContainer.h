@@ -33,6 +33,7 @@ namespace Cynara {
 class SequenceContainer {
 private:
     const static ProtocolFrameSequenceNumber msc_maxSequenceNumber;
+    ProtocolFrameSequenceNumber m_checkCount;
     std::set<ProtocolFrameSequenceNumber> m_sequenceSet;
 
 public:
@@ -40,7 +41,9 @@ public:
     virtual ~SequenceContainer() {}
 
     bool generateCheck(ProtocolFrameSequenceNumber &sequenceNumber);
+    bool generateCancel(ProtocolFrameSequenceNumber &sequenceNumber);
     bool removeCheck(ProtocolFrameSequenceNumber sequenceNumber);
+    bool removeCancel(ProtocolFrameSequenceNumber sequenceNumber);
     void clear();
 };
 
