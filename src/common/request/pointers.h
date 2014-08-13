@@ -30,6 +30,9 @@ namespace Cynara {
 class CheckRequest;
 typedef std::shared_ptr<CheckRequest> CheckRequestPtr;
 
+class CancelRequest;
+typedef std::shared_ptr<CancelRequest> CancelRequestPtr;
+
 class InsertOrUpdateBucketRequest;
 typedef std::shared_ptr<InsertOrUpdateBucketRequest> InsertOrUpdateBucketRequestPtr;
 

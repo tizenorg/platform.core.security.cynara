@@ -45,11 +45,14 @@ public:
 
     virtual void execute(RequestContextPtr context, CheckRequestPtr request);
     virtual void execute(RequestContextPtr context, CheckResponsePtr response);
+    virtual void execute(RequestContextPtr context, CancelRequestPtr request);
+    virtual void execute(RequestContextPtr context, CancelResponsePtr response);
 
 private:
     RequestPtr deserializeCheckRequest(ProtocolFrameHeader &frame);
     ResponsePtr deserializeCheckResponse(ProtocolFrameHeader &frame);
-
+    RequestPtr deserializeCancelRequest(ProtocolFrameHeader &frame);
+    ResponsePtr deserializeCancelResponse(ProtocolFrameHeader &frame);
 };
 
 } // namespace Cynara

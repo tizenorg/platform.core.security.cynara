@@ -28,8 +28,10 @@
 #include <protocol/ProtocolOpCode.h>
 #include <protocol/ProtocolSerialization.h>
 #include <request/CheckRequest.h>
+#include <request/CancelRequest.h>
 #include <request/RequestContext.h>
 #include <response/CheckResponse.h>
+#include <response/CancelResponse.h>
 #include <types/PolicyKey.h>
 #include <types/PolicyResult.h>
 #include <types/PolicyType.h>
@@ -58,6 +60,18 @@ RequestPtr ProtocolClientAsync::deserializeCheckRequest(ProtocolFrameHeader &fra
                                           frame.sequenceNumber());
 }
 
+RequestPtr ProtocolClientAsync::deserializeCancelRequest(ProtocolFrameHeader &frame)
+{
+    ProtocolFrameSequenceNumber checkId;
+
+    ProtocolDeserialization::deserialize(frame, checkId);
+
+    LOGD("Deserialized CancelRequest: checkId = %" PRIu16,
+         checkId);
+
+    return std::make_shared<CancelRequest>(checkId, frame.sequenceNumber());
+}
+
 RequestPtr ProtocolClientAsync::extractRequestFromBuffer(BinaryQueue &bufferQueue)
 {
     ProtocolFrameSerializer::deserializeHeader(m_frameHeader, bufferQueue);
@@ -72,6 +86,8 @@ RequestPtr ProtocolClientAsync::extractRequestFromBuffer(BinaryQueue &bufferQueu
         switch (opCode) {
         case OpCheckPolicy:
             return deserializeCheckRequest(m_frameHeader);
+        case OpCancelCheck:
+            return deserializeCancelRequest(m_frameHeader);
         default:
             throw InvalidProtocolException(InvalidProtocolException::WrongOpCode);
             break;
@@ -98,6 +114,19 @@ ResponsePtr ProtocolClientAsync::deserializeCheckResponse(ProtocolFrameHeader &f
     return std::make_shared<CheckResponse>(policyResult, frame.sequenceNumber());
 }
 
+ResponsePtr ProtocolClientAsync::deserializeCancelResponse(ProtocolFrameHeader &frame)
+{
+    ProtocolFrameSequenceNumber checkId;
+
+    ProtocolDeserialization::deserialize(frame, checkId);
+
+    LOGD("Deserialized CancelResponse: checkId = %" PRIu16,
+         checkId);
+
+    return std::make_shared<CancelResponse>(checkId, frame.sequenceNumber());
+}
+
+
 ResponsePtr ProtocolClientAsync::extractResponseFromBuffer(BinaryQueue &bufferQueue)
 {
     ProtocolFrameSerializer::deserializeHeader(m_frameHeader, bufferQueue);
@@ -111,6 +140,8 @@ ResponsePtr ProtocolClientAsync::extractResponseFromBuffer(BinaryQueue &bufferQu
         switch (opCode) {
         case OpCheckPolicy:
             return deserializeCheckResponse(m_frameHeader);
+        case OpCancelCheck:
+            return deserializeCancelResponse(m_frameHeader);
         default:
             throw InvalidProtocolException(InvalidProtocolException::WrongOpCode);
             break;
@@ -149,6 +180,32 @@ void ProtocolClientAsync::execute(RequestContextPtr context, CheckResponsePtr re
     ProtocolSerialization::serialize(*frame, OpCheckPolicy);
     ProtocolSerialization::serialize(*frame, response->m_resultRef.policyType());
     ProtocolSerialization::serialize(*frame, response->m_resultRef.metadata());
+
+    ProtocolFrameSerializer::finishSerialization(frame, context->responseQueue());
+}
+
+void ProtocolClientAsync::execute(RequestContextPtr context, CancelRequestPtr request)
+{
+    ProtocolFramePtr frame = ProtocolFrameSerializer::startSerialization(request->sequenceNumber());
+
+    LOGD("Serializing CheckRequest: checkId = %" PRIu16, request->checkId());
+
+    ProtocolSerialization::serialize(*frame, OpCancelCheck);
+    ProtocolSerialization::serialize(*frame, request->checkId());
+
+    ProtocolFrameSerializer::finishSerialization(frame, context->responseQueue());
+}
+
+void ProtocolClientAsync::execute(RequestContextPtr context, CancelResponsePtr response)
+{
+    ProtocolFramePtr frame = ProtocolFrameSerializer::startSerialization(response->sequenceNumber());
+
+    LOGD("Serializing CancelResponse: op [%u], checkId = %" PRIu16,
+         static_cast<unsigned int>(OpCancelCheck),
+         response->m_checkId);
+
+    ProtocolSerialization::serialize(*frame, OpCancelCheck);
+    ProtocolSerialization::serialize(*frame, response->m_checkId);
 
     ProtocolFrameSerializer::finishSerialization(frame, context->responseQueue());
 }
