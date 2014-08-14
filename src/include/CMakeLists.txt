@@ -17,13 +17,13 @@
 #
 
 INSTALL(FILES
-    ${CYNARA_PATH}/include/cynara-client.h
-    ${CYNARA_PATH}/include/cynara-client-error.h
-    DESTINATION ${INCLUDE_INSTALL_DIR}/cynara
-    )
-
-INSTALL(FILES
     ${CYNARA_PATH}/include/cynara-admin.h
     ${CYNARA_PATH}/include/cynara-admin-error.h
+    ${CYNARA_PATH}/include/cynara-client.h
+    ${CYNARA_PATH}/include/cynara-client-error.h
+    ${CYNARA_PATH}/include/cynara-helper-credentials.h
+    ${CYNARA_PATH}/include/cynara-helper-credentials-dbus.h
+    ${CYNARA_PATH}/include/cynara-helper-credentials-socket.h
+    ${CYNARA_PATH}/include/cynara-helper-session.h
     DESTINATION ${INCLUDE_INSTALL_DIR}/cynara
     )
