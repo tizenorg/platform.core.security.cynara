@@ -18,3 +18,6 @@
 
 ADD_SUBDIRECTORY(cynara-client)
 ADD_SUBDIRECTORY(cynara-admin)
+ADD_SUBDIRECTORY(cynara-helper-session)
+ADD_SUBDIRECTORY(cynara-helper-socket-credentials)
+ADD_SUBDIRECTORY(cynara-helper-dbus-credentials)

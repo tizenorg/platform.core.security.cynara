@@ -43,9 +43,12 @@ INCLUDE_DIRECTORIES(
     ${CYNARA_PATH}/include
     ${CYNARA_PATH}/common
     )
-
+    
 ADD_SUBDIRECTORY(include)
 ADD_SUBDIRECTORY(common)
 ADD_SUBDIRECTORY(client)
 ADD_SUBDIRECTORY(admin)
 ADD_SUBDIRECTORY(service)
+ADD_SUBDIRECTORY(helpers/dbus-credentials)
+ADD_SUBDIRECTORY(helpers/socket-credentials)
+ADD_SUBDIRECTORY(helpers/session)
