@@ -14,6 +14,7 @@
 #
 # @file        CMakeLists.txt
 # @author      Lukasz Wojciechowski <l.wojciechow@partner.samsung.com>
+# @author      Radoslaw Bartosiak <r.bartosiak@samsung.com>
 #
 
 ############################# Check minimum CMake version #####################
@@ -58,6 +59,10 @@ SET(TARGET_LIB_CYNARA "cynara-client")
 SET(TARGET_LIB_CYNARA_ADMIN "cynara-admin")
 SET(TARGET_CYNARA_COMMON "cynara-commons")
 SET(TARGET_CYNARA_TESTS "cynara-tests")
+SET(TARGET_LIB_HELPER_CREDENTIALS "cynara-helper-credentials")
+SET(TARGET_LIB_HELPER_CREDENTIALS_DBUS "cynara-helper-credentials-dbus")
+SET(TARGET_LIB_HELPER_CREDENTIALS_SOCKET "cynara-helper-credentials-socket")
+SET(TARGET_LIB_HELPER_SESSION "cynara-helper-session")
 
 ADD_SUBDIRECTORY(src)
 ADD_SUBDIRECTORY(test)
