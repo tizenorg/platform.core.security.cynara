@@ -8,6 +8,9 @@ Source0:    %{name}-%{version}.tar.gz
 Source1001:    cynara.manifest
 Source1002:    libcynara-client.manifest
 Source1003:    libcynara-admin.manifest
+Source1004:    libhelper-session.manifest
+Source1005:    libhelper-socket-credentials.manifest
+Source1006:    libhelper-dbus-credentials.manifest
 Requires:      default-ac-domains
 BuildRequires: cmake
 BuildRequires: zip
@@ -66,6 +69,59 @@ Requires:   libcynara-admin = %{version}-%{release}
 admin client library (devel) for setting, listing and removing policies
 
 #######################################################
+%package -n libhelper-session
+Summary:    Helper client session string creation library
+###Requires:   cynara = %{version}-%{release}
+Requires(post): /sbin/ldconfig
+Requires(postun): /sbin/ldconfig
+
+%description -n libhelper-session
+helper client session string creation library
+
+%package -n libhelper-session-devel
+Summary:    Helper client session string creation library (devel)
+Requires:   libhsession = %{version}-%{release}
+
+%description -n libhelper-session-devel
+helper client session string creation library (devel)
+
+#######################################################
+%package -n libhelper-socket-credentials
+Summary:    Helper credentials socket library
+### Requires:   cynara = %{version}-%{release}
+Requires(post): /sbin/ldconfig
+Requires(postun): /sbin/ldconfig
+
+%description -n libhelper-socket-credentials
+helper credential socket library
+
+%package -n libhelper-socket-credentials-devel
+Summary:    Helper credential socket library (devel)
+Requires:   libhelper-socket-credential = %{version}-%{release}
+
+%description -n libhelper-socket-credentials-devel
+helper socket credentials library (devel)
+
+#######################################################
+%package -n libhelper-dbus-credentials
+Summary:    Helper credentials dbus library
+### Requires:   cynara = %{version}-%{release}
+Requires(post): /sbin/ldconfig
+Requires(postun): /sbin/ldconfig
+
+%description -n libhelper-dbus-credentials
+helper credential dbus library
+
+%package -n libhelper-dbus-credentials-devel
+Summary:    Helper credential dbus library (devel)
+Requires:   libhelper-dbus-credential = %{version}-%{release}
+
+%description -n libhelper-dbus-credentials-devel
+helper dbus credentials library (devel)
+
+
+
+#######################################################
 %package -n cynara-devel
 Summary:    Cynara service (devel)
 Requires:   cynara = %{version}-%{release}
@@ -78,6 +134,9 @@ service (devel version)
 cp -a %{SOURCE1001} .
 cp -a %{SOURCE1002} .
 cp -a %{SOURCE1003} .
+cp -a %{SOURCE1004} .
+cp -a %{SOURCE1005} .
+cp -a %{SOURCE1006} .
 
 %build
 %if 0%{?sec_build_binary_debug_enable}
@@ -163,6 +222,30 @@ fi
 
 %postun -n libcynara-admin-devel -p /sbin/ldconfig
 
+%post -n libhelper-session -p /sbin/ldconfig
+
+%postun -n libhelper-session -p /sbin/ldconfig
+
+%post -n libhelper-session-devel -p /sbin/ldconfig
+
+%postun -n libhelper-session-devel -p /sbin/ldconfig
+
+%post -n libhelper-socket-credentials -p /sbin/ldconfig
+
+%postun -n libhelper-socket-credentials -p /sbin/ldconfig
+
+%post -n libhelper-socket-credentials-devel -p /sbin/ldconfig
+
+%postun -n libhelper-socket-credentials-devel -p /sbin/ldconfig
+
+%post -n libhelper-dbus-credentials -p /sbin/ldconfig
+
+%postun -n libhelper-dbus-credentials -p /sbin/ldconfig
+
+%post -n libhelper-dbus-credentials-devel -p /sbin/ldconfig
+
+%postun -n libhelper-dbus-credentials-devel -p /sbin/ldconfig
+
 %files -n cynara
 %manifest cynara.manifest
 %license LICENSE
@@ -199,3 +282,43 @@ fi
 %{_includedir}/cynara/cynara-admin.h
 %{_libdir}/libcynara-admin.so
 %{_libdir}/pkgconfig/cynara-admin.pc
+
+
+%files -n libhelper-session
+%manifest libhelper-session.manifest
+%license LICENSE
+%defattr(-,root,root,-)
+%{_libdir}/libsession.so.*
+
+%files -n libhelper-session-devel
+%defattr(-,root,root,-)
+%{_includedir}/cynara/helper-session.h
+%{_libdir}/pkgconfig/helper-session.pc
+%{_libdir}/libsession.so
+
+
+%files -n libhelper-socket-credentials
+%manifest libhelper-socket-credentials.manifest
+%license LICENSE
+%defattr(-,root,root,-)
+%{_libdir}/libsocket-credentials.*
+
+%files -n libhelper-socket-credentials-devel
+%defattr(-,root,root,-)
+%{_includedir}/cynara/socket-credentials-helper.h
+%{_libdir}/pkgconfig/helper-socket-credentials.pc
+%{_libdir}/libsocket-credentials.so
+
+%files -n libhelper-dbus-credentials
+%manifest libhelper-dbus-credentials.manifest
+%license LICENSE
+%defattr(-,root,root,-)
+%{_libdir}/libdbus-credentials.*
+
+%files -n libhelper-dbus-credentials-devel
+%defattr(-,root,root,-)
+%{_includedir}/cynara/dbus-credentials-helper.h
+%{_libdir}/pkgconfig/helper-dbus-credentials.pc
+%{_libdir}/libdbus-credentials.so
+
+
