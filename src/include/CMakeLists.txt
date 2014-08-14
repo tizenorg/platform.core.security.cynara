@@ -25,3 +25,19 @@ INSTALL(FILES
     ${CYNARA_PATH}/include/cynara-admin.h
     DESTINATION ${INCLUDE_INSTALL_DIR}/cynara
     )
+
+INSTALL(FILES
+    ${CYNARA_PATH}/include/cynara-dbus-credentials-helper.h
+    DESTINATION ${INCLUDE_INSTALL_DIR}/cynara
+    )
+
+INSTALL(FILES
+    ${CYNARA_PATH}/include/cynara-socket-credentials-helper.h
+    DESTINATION ${INCLUDE_INSTALL_DIR}/cynara
+    )
+
+INSTALL(FILES
+    ${CYNARA_PATH}/include/cynara-helper-session.h
+    DESTINATION ${INCLUDE_INSTALL_DIR}/cynara
+    )
+

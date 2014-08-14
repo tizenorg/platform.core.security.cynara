@@ -9,6 +9,9 @@ Source1001:    cynara.manifest
 Source1002:    libcynara-client.manifest
 Source1003:    libcynara-admin.manifest
 Source1004:    cynara-tests.manifest
+Source1005:    libcynara-helper-session.manifest
+Source1006:    libcynara-helper-socket-credentials.manifest
+Source1007:    libcynara-helper-dbus-credentials.manifest
 Requires:      default-ac-domains
 BuildRequires: cmake
 BuildRequires: zip
@@ -30,8 +33,9 @@ BuildRequires: pkgconfig(libunwind)
 %endif
 
 %description
-service, client libraries (libcynara-client, libcynara-admin)
-and tests (cynara-tests)
+Service, client libraries (libcynara-client, libcynara-admin),
+helper libraries (libcynara-helper-session, libcynara-helper-socket,
+libcynara-helper-dbus) and tests (cynara-tests)
 
 #######################################################
 %package -n libcynara-client
@@ -41,14 +45,14 @@ Requires(post): /sbin/ldconfig
 Requires(postun): /sbin/ldconfig
 
 %description -n libcynara-client
-client library for checking policies
+Client library for checking policies
 
 %package -n libcynara-client-devel
 Summary:    Cynara - client library (devel)
 Requires:   libcynara-client = %{version}-%{release}
 
 %description -n libcynara-client-devel
-client library (devel) for checking policies
+Client library (devel) for checking policies
 
 #######################################################
 %package -n libcynara-admin
@@ -58,14 +62,68 @@ Requires(post): /sbin/ldconfig
 Requires(postun): /sbin/ldconfig
 
 %description -n libcynara-admin
-admin client library for setting, listing and removing policies
+Admin client library for setting, listing and removing policies
 
 %package -n libcynara-admin-devel
 Summary:    Cynara - admin client library (devel)
 Requires:   libcynara-admin = %{version}-%{release}
 
 %description -n libcynara-admin-devel
-admin client library (devel) for setting, listing and removing policies
+Admin client library (devel) for setting, listing and removing policies
+
+#######################################################
+%package -n libcynara-helper-session
+Summary:    Helper client session string creation library
+Requires(post): /sbin/ldconfig
+Requires(postun): /sbin/ldconfig
+
+%description -n libcynara-helper-session
+Helper client session string creation library
+
+%package -n libcynara-helper-session-devel
+Summary:    Helper client session string creation library (devel)
+Requires:   libcynara-helper-session = %{version}-%{release}
+
+%description -n libcynara-helper-session-devel
+Helper client session string creation library (devel)
+
+#######################################################
+%package -n libcynara-helper-socket-credentials
+Summary:    Helper credentials socket library
+BuildRequires: pkgconfig(libsmack)
+Requires:   smack
+Requires(post): /sbin/ldconfig
+Requires(postun): /sbin/ldconfig
+
+%description -n libcynara-helper-socket-credentials
+Helper credentials socket library
+
+%package -n libcynara-helper-socket-credentials-devel
+Summary:    Helper credentials socket library (devel)
+Requires:   libcynara-helper-socket-credentials = %{version}-%{release}
+
+%description -n libcynara-helper-socket-credentials-devel
+Helper socket credentials library (devel)
+
+#######################################################
+%package -n libcynara-helper-dbus-credentials
+Summary:    Helper credentials dbus library
+BuildRequires: dbus-1
+BuildRequires: pkgconfig(dbus-glib-1)
+Requires:   dbus-1
+Requires: pkgconfig(dbus-glib-1)
+Requires(post): /sbin/ldconfig
+Requires(postun): /sbin/ldconfig
+
+%description -n libcynara-helper-dbus-credentials
+Helper credentials dbus library
+
+%package -n libcynara-helper-dbus-credentials-devel
+Summary:    Helper credentials sdbus library (devel)
+Requires:   libcynara-helper-dbus-credentials = %{version}-%{release}
+
+%description -n libcynara-helper-dbus-credentials-devel
+Helper dbus credentials library (devel)
 
 #######################################################
 %package -n cynara-tests
@@ -90,6 +148,9 @@ cp -a %{SOURCE1001} .
 cp -a %{SOURCE1002} .
 cp -a %{SOURCE1003} .
 cp -a %{SOURCE1004} .
+cp -a %{SOURCE1005} .
+cp -a %{SOURCE1006} .
+cp -a %{SOURCE1007} .
 
 %build
 %if 0%{?sec_build_binary_debug_enable}
@@ -175,10 +236,34 @@ fi
 
 %postun -n libcynara-admin-devel -p /sbin/ldconfig
 
+%post -n libcynara-helper-session -p /sbin/ldconfig
+
+%postun -n libcynara-helper-session -p /sbin/ldconfig
+
+%post -n libcynara-helper-session-devel -p /sbin/ldconfig
+
+%postun -n libcynara-helper-session-devel -p /sbin/ldconfig
+
+%post -n libcynara-helper-socket-credentials -p /sbin/ldconfig
+
+%postun -n libcynara-helper-socket-credentials -p /sbin/ldconfig
+
+%post -n libcynara-helper-socket-credentials-devel -p /sbin/ldconfig
+
+%postun -n libcynara-helper-socket-credentials-devel -p /sbin/ldconfig
+
+%post -n libcynara-helper-dbus-credentials -p /sbin/ldconfig
+
+%postun -n libcynara-helper-dbus-credentials -p /sbin/ldconfig
+
+%post -n libcynara-helper-dbus-credentials-devel -p /sbin/ldconfig
+
+%postun -n libcynara-helper-dbus-credentials-devel -p /sbin/ldconfig
+
 %files -n cynara
 %manifest cynara.manifest
-%license LICENSE
 %attr(755,root,root) /usr/bin/cynara
+%license LICENSE
 %{_libdir}/libcynara-commons.so*
 %attr(-,root,root) /usr/lib/systemd/system/cynara.service
 %attr(-,root,root) /usr/lib/systemd/system/cynara.target
@@ -190,8 +275,8 @@ fi
 
 %files -n libcynara-client
 %manifest libcynara-client.manifest
-%license LICENSE
 %defattr(-,root,root,-)
+%license LICENSE
 %{_libdir}/libcynara-client.so.*
 
 %files -n libcynara-client-devel
@@ -202,8 +287,8 @@ fi
 
 %files -n libcynara-admin
 %manifest libcynara-admin.manifest
-%license LICENSE
 %defattr(-,root,root,-)
+%license LICENSE
 %{_libdir}/libcynara-admin.so.*
 
 %files -n libcynara-admin-devel
@@ -215,3 +300,40 @@ fi
 %files -n cynara-tests
 %manifest cynara-tests.manifest
 %attr(755,root,root) /usr/bin/cynara-tests
+
+%files -n libcynara-helper-session
+%manifest libcynara-helper-session.manifest
+%defattr(-,root,root,-)
+%license LICENSE
+%{_libdir}/libcynara-helper-session.so.*
+
+%files -n libcynara-helper-session-devel
+%defattr(-,root,root,-)
+%{_includedir}/cynara/cynara-helper-session.h
+%{_libdir}/pkgconfig/cynara-helper-session.pc
+%{_libdir}/libcynara-helper-session.so
+
+%files -n libcynara-helper-socket-credentials
+%manifest libcynara-helper-socket-credentials.manifest
+%defattr(-,root,root,-)
+%license LICENSE
+%{_libdir}/libcynara-helper-socket-credentials.*
+
+%files -n libcynara-helper-socket-credentials-devel
+%defattr(-,root,root,-)
+%{_includedir}/cynara/cynara-socket-credentials-helper.h
+%{_libdir}/pkgconfig/cynara-helper-socket-credentials.pc
+%{_libdir}/libcynara-helper-socket-credentials.so
+
+%files -n libcynara-helper-dbus-credentials
+%manifest libcynara-helper-dbus-credentials.manifest
+%defattr(-,root,root,-)
+%license LICENSE
+%{_libdir}/libcynara-helper-dbus-credentials.*
+
+%files -n libcynara-helper-dbus-credentials-devel
+%defattr(-,root,root,-)
+%{_includedir}/cynara/cynara-dbus-credentials-helper.h
+%{_libdir}/pkgconfig/cynara-helper-dbus-credentials.pc
+%{_libdir}/libcynara-helper-dbus-credentials.so
+
