@@ -14,7 +14,6 @@
 #
 # @file        CMakeLists.txt
 # @author      Lukasz Wojciechowski <l.wojciechow@partner.samsung.com>
-# @brief
 #
 
 CONFIGURE_FILE(cynara-client.pc.in cynara-client.pc @ONLY)

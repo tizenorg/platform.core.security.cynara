@@ -13,31 +13,14 @@
 #    limitations under the License.
 #
 # @file        CMakeLists.txt
-# @author      Lukasz Wojciechowski <l.wojciechow@partner.samsung.com>
+# @author      Aleksander Zdyb <a.zdyb@partner.samsung.com>
+# @author      Radoslaw Bartosiak <r.bartosiak@samsung.com>
 #
 
-INSTALL(FILES
-    ${CYNARA_PATH}/include/cynara-client.h
-    DESTINATION ${INCLUDE_INSTALL_DIR}/cynara
-    )
+CONFIGURE_FILE(helper-session.pc.in helper-session.pc @ONLY)
 
 INSTALL(FILES
-    ${CYNARA_PATH}/include/cynara-admin.h
-    DESTINATION ${INCLUDE_INSTALL_DIR}/cynara
+    ${CMAKE_BINARY_DIR}/build/helper-session/helper-session.pc
+    DESTINATION
+    ${LIB_INSTALL_DIR}/pkgconfig
     )
-
-INSTALL(FILES
-    ${CYNARA_PATH}/include/dbus-credentials-helper.h
-    DESTINATION ${INCLUDE_INSTALL_DIR}/cynara
-    )
-
-INSTALL(FILES
-    ${CYNARA_PATH}/include/socket-credentials-helper.h
-    DESTINATION ${INCLUDE_INSTALL_DIR}/cynara
-    )
-
-INSTALL(FILES
-    ${CYNARA_PATH}/include/helper-session.h
-    DESTINATION ${INCLUDE_INSTALL_DIR}/cynara
-    )
-
