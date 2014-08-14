@@ -19,6 +19,7 @@
 SET(COMMON_DEPS
     libsystemd-daemon
     libsystemd-journal
+    dbus-1
     )
 
 IF (CMAKE_BUILD_TYPE MATCHES "DEBUG")
@@ -43,9 +44,12 @@ INCLUDE_DIRECTORIES(
     ${CYNARA_PATH}/include
     ${CYNARA_PATH}/common
     )
-
+INCLUDE(FindPkgConfig)
 ADD_SUBDIRECTORY(include)
 ADD_SUBDIRECTORY(common)
 ADD_SUBDIRECTORY(client)
 ADD_SUBDIRECTORY(admin)
 ADD_SUBDIRECTORY(service)
+ADD_SUBDIRECTORY(helpers/dbus-credentials)
+ADD_SUBDIRECTORY(helpers/socket-credentials)
+ADD_SUBDIRECTORY(helpers/session)
