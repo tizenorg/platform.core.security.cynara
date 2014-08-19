@@ -34,11 +34,12 @@ public:
     ApiInterface() = default;
     virtual ~ApiInterface() {};
 
-    virtual int connect(int &sockFd) = 0;
     virtual int check(const std::string &client, const std::string &session,
                       const std::string &user, const std::string &privilege,
-                      cynara_check_id &checkId) = 0;
-    virtual int receive(cynara_check_id &checkId) = 0;
+                      cynara_check_id &checkId,
+                      cynara_check_callback cbCheck,
+                      void * const data) = 0;
+    virtual int process() = 0;
     virtual int cancel(const cynara_check_id checkId) = 0;
 };
 

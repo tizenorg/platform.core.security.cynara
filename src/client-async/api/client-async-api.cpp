@@ -42,9 +42,13 @@ struct cynara_async {
 
 CYNARA_API
 int cynara_async_initialize(cynara_async **pp_cynara,
-                            const cynara_async_configuration *p_conf UNUSED)
+                            const cynara_async_configuration *p_conf UNUSED,
+                            cynara_change_status_callback cb_change_status,
+                            void * const data UNUSED)
 {
     if (!pp_cynara)
+        return CYNARA_ASYNC_API_INVALID_PARAM;
+    if (!cb_change_status)
         return CYNARA_ASYNC_API_INVALID_PARAM;
 
     try {
@@ -69,21 +73,12 @@ int cynara_async_finish(cynara_async *p_cynara)
 }
 
 CYNARA_API
-int cynara_async_connect(cynara_async *p_cynara, int *p_sock_fd)
-{
-    if (!p_cynara || !p_cynara->impl)
-        return CYNARA_ASYNC_API_INVALID_PARAM;
-    if (!p_sock_fd)
-        return CYNARA_ASYNC_API_INVALID_PARAM;
-
-    return p_cynara->impl->connect(*p_sock_fd);
-}
-
-CYNARA_API
 int cynara_async_check(cynara_async *p_cynara,
                        const char *client, const char *client_session,
                        const char *user, const char *privilege,
-                       cynara_check_id *p_check_id)
+                       cynara_check_id *p_check_id,
+                       cynara_check_callback cb_check,
+                       void * const data)
 {
     if (!p_cynara || !p_cynara->impl)
         return CYNARA_ASYNC_API_INVALID_PARAM;
@@ -91,21 +86,23 @@ int cynara_async_check(cynara_async *p_cynara,
         return CYNARA_ASYNC_API_INVALID_PARAM;
     if (!p_check_id)
         return CYNARA_ASYNC_API_INVALID_PARAM;
+    if (!cb_check)
+        return CYNARA_ASYNC_API_INVALID_PARAM;
 
     return p_cynara->impl->check(client, client_session,
                                  user, privilege,
-                                 *p_check_id);
+                                 *p_check_id,
+                                 cb_check,
+                                 data);
 }
 
 CYNARA_API
-int cynara_async_receive(cynara_async *p_cynara, cynara_check_id *p_check_id)
+int cynara_async_process(cynara_async *p_cynara)
 {
     if (!p_cynara || !p_cynara->impl)
         return CYNARA_ASYNC_API_INVALID_PARAM;
-    if (!p_check_id)
-        return CYNARA_ASYNC_API_INVALID_PARAM;
 
-    return p_cynara->impl->receive(*p_check_id);
+    return p_cynara->impl->process();
 }
 
 CYNARA_API

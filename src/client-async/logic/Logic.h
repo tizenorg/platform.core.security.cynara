@@ -34,11 +34,12 @@ public:
     Logic() = default;
     virtual ~Logic() {};
 
-    virtual int connect(int &sockFd) noexcept;
     virtual int check(const std::string &client, const std::string &session,
                       const std::string &user, const std::string &privilege,
-                      cynara_check_id &checkId) noexcept;
-    virtual int receive(cynara_check_id &checkId) noexcept;
+                      cynara_check_id &checkId,
+                      cynara_check_callback cbCheck,
+                      void * const data) noexcept;
+    virtual int process() noexcept;
     virtual int cancel(const cynara_check_id checkId) noexcept;
 };
 

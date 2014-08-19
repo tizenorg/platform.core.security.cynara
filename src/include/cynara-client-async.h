@@ -43,8 +43,8 @@
 /*! \brief   indicating that answer was not yet received */
 #define CYNARA_ASYNC_API_ANSWER_NOT_READY      -2
 
-/*! \brief   indicating that client is already connected */
-#define CYNARA_ASYNC_API_ALREADY_CONNECTED     -3
+/*! \brief   indicating too many pending checks */
+#define CYNARA_ASYNC_API_MAX_PENDING_CHECKS    -3
 
 /*! \brief   indicating system is running out of memory state */
 #define CYNARA_ASYNC_API_OUT_OF_MEMORY         -4
@@ -57,6 +57,25 @@
 
 /** @}*/
 
+/**
+ * \name Flags
+ * Flags passed to change_status_callback.
+ * Indicate which socket events should be monitored.
+ * @{
+ */
+
+/*! \brief   no socket events to monitor */
+#define CYNARA_ASYNC_FLAG_NONE  0
+
+/*! \brief   monitor socket read events */
+#define CYNARA_ASYNC_FLAG_READ  1
+
+/*! \brief   monitor socket write events */
+#define CYNARA_ASYNC_FLAG_WRITE 2
+
+/** @}*/
+
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -67,14 +86,40 @@ typedef uint16_t cynara_check_id;
 
 /**
  * \par Description:
+ * Called when answer on check request is received.
+ *
+ * \param[in] check_id Check id passed to cynara_async_check.
+ * \param[in] response CYNARA_ASYNC_API_SUCCESS on access granted.
+ *                     CYNARA_ASYNC_API_ACCESS_DENIED on access denied.
+ * \param[in] data Placeholder for client specified structure used in callback functions. Should
+ * provide variables needed by this callback.
+ */
+typedef void (* const cynara_check_callback) (cynara_check_id check_id, int response, void * const data);
+
+/**
+ * \par Description:
+ * Called when flags and/or cynara socket descriptor is changed.
+ *
+ * \param[in] old_fd Old cynara file descriptor - may be same as new_fd param, when only flags
+ * are changed.
+ * \param[in] new_fd New file descriptor - may be same as old_fd param, when only flags
+ * are changed.
+ * \param[in] flags Flags indicating on which events socket should be monitored.
+ * \param[in] data Placeholder for client specified structure used in callback functions. Should
+ * provide variables needed by this callback.
+ */
+typedef void (* const cynara_change_status_callback) (int old_fd, int new_fd, int flags, void * const data);
+
+/**
+ * \par Description:
  * Initialize cynara-async-client library with given configuration.
  * Create structure used in following API calls.
  *
  * \par Purpose:
- * This API must be used prior to calling cynara_async_connect function.
+ * This API must be used prior to calling cynara_async_check function.
  *
  * \par Typical use case:
- * Once before a service can call cynara_async_connect.
+ * Once before a service can call cynara_async_check.
  *
  * \par Method of function operation:
  * This API initializes inner library structures and in case of success creates
@@ -89,16 +134,19 @@ typedef uint16_t cynara_check_id;
  *
  * \par Important notes:
  * Structure cynara_async created by cynara_async_initialize call should be released
- * with cynara_async_finish.
+ * with cynara_async_finish. This function calls cynara_change_status_callback.
  *
  * \param[out] pp_cynara Placeholder for created cynara_async structure.
  * \param[in] p_conf Configuration for cynara-async-client library. NULL for default parameters.
+ * \param[in] cb_change_status Change status callback. See typedef.
+ * \param[in] data Data passed to change status callback.
  *
  * \return CYNARA_ASYNC_API_SUCCESS on success, or error code on error.
  */
-
 int cynara_async_initialize(cynara_async **pp_cynara,
-                            const cynara_async_configuration *p_conf);
+                            const cynara_async_configuration *p_conf,
+                            cynara_change_status_callback cb_change_status,
+                            void * const data);
 
 /**
  * \par Description:
@@ -123,6 +171,7 @@ int cynara_async_initialize(cynara_async **pp_cynara,
  *
  * \par Important notes:
  * No other call to cynara-async-client library should be made after call to cynara_async_finish.
+ * This function calls cynara_change_status_callback.
  *
  * \param[in] p_cynara cynara_async structure.
  *
@@ -132,50 +181,17 @@ int cynara_async_finish(cynara_async *p_cynara);
 
 /**
  * \par Description:
- * Connect with cynara server.
- *
- * \par Purpose:
- * This API must be used prior to calling cynara_async_check and cynara_async_receive.
- *
- * \par Typical use case:
- * After initiating cynara_async structure and after connection with cynara server has been lost.
- *
- * \par Method of function operation:
- * This API connects to cynara server and provides socket descriptor of this connection.
- *
- * \par Sync (or) Async:
- * This is a synchronous API.
- *
- * \par Thread-safety:
- * This function is NOT thread-safe. If functions from described API are called by multithreaded
- * application from different threads, they must be put into protected critical section.
- *
- * \par Important notes:
- * Call to cynara_async_check needs cynara_async structure to be created first by
- * cynara_async_initialize.
- *
- * \param[in] p_cynara cynara_async structure.
- * \param[out] p_sock_fd Placeholder for connection socket descriptor.
- *
- * \return CYNARA_ASYNC_API_SUCCESS on success, CYNARA_ASYNC_API_ALREADY_CONNECTED when client is
- * already connected or error code on error.
- */
-int cynara_async_connect(cynara_async *p_cynara, int *p_sock_fd);
-
-/**
- * \par Description:
  * Check client, user access for given privilege.
  *
  * \par Purpose:
- * This API should be used to check if a user running application identified as client
- * has access to a privilege.
+ * This API should be used to create check request (if a user running application identified
+ * as client has access to a privilege) or answer it in this call using cynara_check_callback
+ * if answer is available.
  *
  * \par Typical use case:
  * A service wants to ask Cynara daemon, if a client demanding access to some privilege
- * has proper rights. Despite the fact that the final response has been received, if there are
- * still some pending checks, cynara_async_receive MUST be called after this call until not ready
- * answer is returned. If service does not get answer after this sequence, it may get it
- * asynchronously by calling cynara_async_receive.
+ * has proper rights. If service does not get answer in this call, it may get it
+ * asynchronously by calling cynara_async_process.
  *
  * \par Method of function operation:
  * Client (a process / application) demanding access to a privilege is running as some user.
@@ -183,8 +199,8 @@ int cynara_async_connect(cynara_async *p_cynara, int *p_sock_fd);
  * Depending on defined policy, an external application may be launched to ask user a question,
  * e.g. if [s]he wants to allow client to use a privilege. Additional parameter client_session
  * may be used to distinguish between client session (e.g. for allowing access only for this
- * particular application launch). If final answer is not returned, id of current check should
- * be received.
+ * particular application launch). If final answer is not given in check_callback, id of current
+ * check should be received.
  *
  * \par Sync (or) Async:
  * This is an asynchronous API.
@@ -197,39 +213,41 @@ int cynara_async_connect(cynara_async *p_cynara, int *p_sock_fd);
  * An external application may be launched to allow user interaction in granting or denying access.
  * Call cynara_async_cancel to cancel pending request. Call to cynara_async_check needs
  * cynara_async structure to be created first and connected with cynara daemon. To do that call
- * cynara_async_initialize and cynara_async_connect.
+ * cynara_async_initialize. This function may call cynara_change_status_callback
+ * and cynara_check_callback.
  *
  * \param[in] p_cynara cynara_async structure.
  * \param[in] client Application or process identifier.
  * \param[in] client_session Session of client (connection, launch).
  * \param[in] user User running client.
  * \param[in] privilege Privilege that is a subject of a check.
- * \param[out] p_check_id Placeholder for check id.
+ * \param[in] check_id Unique identifier of check.
+ * \param[in] cb_check Check callback. See typedef.
+ * \param[in] data Data passed to check callback.
  *
- * \return CYNARA_ASYNC_API_SUCCESS on success (access granted), CYNARA_API_ACCESS_DENIED
- * on access denial, CYNARA_ASYNC_API_ANSWER_NOT_READY on asynchronous request sent
- * or other error code on error.
+ * \return CYNARA_ASYNC_API_SUCCESS on success, CYNARA_ASYNC_API_ANSWER_NOT_READY on answer not yet
+ * received, or other error code on error.
  */
 int cynara_async_check(cynara_async *p_cynara,
                        const char *client, const char *client_session,
                        const char *user, const char *privilege,
-                       cynara_check_id *p_check_id);
+                       cynara_check_id check_id,
+                       cynara_check_callback cb_check,
+                       void * const data);
 
 /**
  * \par Description:
- * Receive answer of cynara_async_check call from cynara daemon.
+ * Receives answers of cynara_async_check call from cynara daemon and sends check requests.
  *
  * \par Purpose:
- * This API should be used to receive answer on single check not answered by cynara_async_check.
+ * This API should be used to react to write and read event on cynara socket.
  *
  * \par Typical use case:
- * After calling cynara_async_check, if there are still pending checks, this function MUST be
- * called until not ready answer is returned. After that, answer can be received by this call
- * if a read event occurs on socket received by cynara_async_connect. It MUST be called then
- * the same way as after cynara_async_check.
+ * After receiving write or read event on socket.
  *
  * \par Method of function operation:
- * Receives answer sent by cynara daemon in response to cynara_async_check call.
+ * Receives answer sent by cynara daemon in response to cynara_async_check call and sends requests
+ * to cynara of checks created by cynara_async_check.
  *
  * \par Sync (or) Async:
  * This is an asynchronous API.
@@ -240,19 +258,15 @@ int cynara_async_check(cynara_async *p_cynara,
  *
  * \par Important notes:
  * An external application may be launched to allow user interaction in granting or denying access.
- * Call cynara_async_cancel to cancel pending request. Call to cynara_async_receive needs
- * cynara_async structure to be created first and connected with cynara daemon. To do that call
- * cynara_async_initialize and cynara_async_connect. As multiple answers can be available at once,
- * cynara_async_receive MUST be called until not ready answer is returned.
+ * Call cynara_async_cancel to cancel pending request. Call to cynara_async_process needs
+ * cynara_async structure to be initialized. To do that call cynara_async_initialize. This function
+ * may call cynara_change_status_callback and cynara_check_callback.
  *
  * \param[in] p_cynara cynara_async structure.
- * \param[out] p_check_id Placeholder for check id.
  *
- * \return CYNARA_ASYNC_API_SUCCESS on success (access granted), CYNARA_API_ACCESS_DENIED
- * on access denial, CYNARA_ASYNC_API_ANSWER_NOT_READY on answer not yet fully received
- * or other error code on error.
+ * \return CYNARA_ASYNC_API_SUCCESS on success, or other error code on error.
  */
-int cynara_async_receive(cynara_async *p_cynara, cynara_check_id *p_check_id);
+int cynara_async_process(cynara_async *p_cynara);
 
 /**
  * \par Description:
@@ -276,8 +290,8 @@ int cynara_async_receive(cynara_async *p_cynara, cynara_check_id *p_check_id);
  * application from different threads, they must be put into protected critical section.
  *
  * \par Important notes:
- * Call to cynara_async_cancel needs cynara_async structure to be created first and connected
- * with cynara daemon. To do that call cynara_async_initialize and cynara_async_connect.
+ * Call to cynara_async_cancel needs cynara_async structure to be initialized. To do that call
+ * cynara_async_initialize.
  *
  * \param[in] p_cynara cynara_async structure.
  * \param[in] check_id Check id to be cancelled
