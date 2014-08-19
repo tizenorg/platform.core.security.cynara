@@ -69,17 +69,6 @@ int cynara_async_finish(cynara_async *p_cynara)
 }
 
 CYNARA_API
-int cynara_async_connect(cynara_async *p_cynara, int *p_sock_fd)
-{
-    if (!p_cynara || !p_cynara->impl)
-        return CYNARA_ASYNC_API_INVALID_PARAM;
-    if (!p_sock_fd)
-        return CYNARA_ASYNC_API_INVALID_PARAM;
-
-    return p_cynara->impl->connect(*p_sock_fd);
-}
-
-CYNARA_API
 int cynara_async_check(cynara_async *p_cynara,
                        const char *client, const char *client_session,
                        const char *user, const char *privilege,
@@ -98,14 +87,12 @@ int cynara_async_check(cynara_async *p_cynara,
 }
 
 CYNARA_API
-int cynara_async_receive(cynara_async *p_cynara, cynara_check_id *p_check_id)
+int cynara_async_process(cynara_async *p_cynara)
 {
     if (!p_cynara || !p_cynara->impl)
         return CYNARA_ASYNC_API_INVALID_PARAM;
-    if (!p_check_id)
-        return CYNARA_ASYNC_API_INVALID_PARAM;
 
-    return p_cynara->impl->receive(*p_check_id);
+    return p_cynara->impl->process();
 }
 
 CYNARA_API

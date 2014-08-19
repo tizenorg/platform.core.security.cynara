@@ -27,11 +27,6 @@
 
 namespace Cynara {
 
-int Logic::connect(int &sockFd UNUSED) noexcept
-{
-    return CYNARA_ASYNC_API_SUCCESS;
-}
-
 int Logic::check(const std::string &client UNUSED, const std::string &session UNUSED,
                  const std::string &user UNUSED, const std::string &privilege UNUSED,
                  cynara_check_id &checkId UNUSED) noexcept
@@ -39,7 +34,7 @@ int Logic::check(const std::string &client UNUSED, const std::string &session UN
     return CYNARA_ASYNC_API_SUCCESS;
 }
 
-int Logic::receive(cynara_check_id &checkId UNUSED) noexcept
+int Logic::process() noexcept
 {
     return CYNARA_ASYNC_API_SUCCESS;
 }
