@@ -16,7 +16,7 @@
 # @author      Aleksander Zdyb <a.zdyb@partner.samsung.com>
 # @brief       Cmake for tests
 #
-PKG_CHECK_MODULES(PKGS REQUIRED gmock)
+PKG_CHECK_MODULES(PKGS REQUIRED gmock_main)
 
 ADD_DEFINITIONS("-DCYNARA_NO_LOGS")
 SET(CYNARA_SRC ${PROJECT_SOURCE_DIR}/src)
@@ -36,7 +36,6 @@ SET(CYNARA_SOURCES_FOR_TESTS
 SET(CYNARA_TESTS_SOURCES
     common/exceptions/bucketrecordcorrupted.cpp
     types/policykey.cpp
-    storage/performance/bucket.cpp
     storage/storage/policies.cpp
     storage/storage/check.cpp
     storage/storage/buckets.cpp
@@ -50,8 +49,6 @@ SET(CYNARA_TESTS_SOURCES
     storage/serializer/serialize.cpp
     common/types/policybucket.cpp
     helpers.cpp
-    TestEventListenerProxy.cpp
-    tests.cpp
 )
 
 INCLUDE_DIRECTORIES(
