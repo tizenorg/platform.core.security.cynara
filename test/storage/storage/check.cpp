@@ -189,3 +189,55 @@ TEST(storage, checkNonrecursive) {
 
     ASSERT_EQ(PredefinedPolicyType::ALLOW, storage.checkPolicy(pk, bucketId, false));
 }
+
+/*
+ * bucket1 contains policy (with key pk) pointing to bucket2
+ * bucket2 is empty and it's default policy is NONE
+ * Because NONE policy in bucket2, check should yield default policy of bucket1 and not of bucket2
+ */
+TEST(storage, noneBucket) {
+    using ::testing::ReturnPointee;
+    using PredefinedPolicyType::ALLOW;
+    using PredefinedPolicyType::NONE;
+
+    auto pk = Helpers::generatePolicyKey();
+
+    PolicyBucket bucket2("bucket-2", NONE);
+    PolicyBucket bucket1("bucket-1", ALLOW, { Policy::bucketWithKey(pk, bucket2.id()) });
+
+    FakeStorageBackend backend;
+    Cynara::Storage storage(backend);
+
+    EXPECT_CALL(backend, searchBucket(bucket1.id(), pk))
+        .WillOnce(ReturnPointee(&bucket1));
+    EXPECT_CALL(backend, searchBucket(bucket2.id(), pk))
+        .WillOnce(ReturnPointee(&bucket2));
+
+    ASSERT_EQ(ALLOW, storage.checkPolicy(pk, bucket1.id(), true));
+}
+
+/*
+ * Scenario similar to noneBucket, but bucket2 contains matching policy.
+ * In this case this policy should be returned.
+ */
+TEST(storage, noneBucketNotEmpty) {
+    using ::testing::ReturnPointee;
+    using PredefinedPolicyType::ALLOW;
+    using PredefinedPolicyType::DENY;
+    using PredefinedPolicyType::NONE;
+
+    auto pk = Helpers::generatePolicyKey();
+
+    PolicyBucket bucket2("bucket-2", NONE, { Policy::simpleWithKey(pk, DENY) });
+    PolicyBucket bucket1("bucket-1", ALLOW, { Policy::bucketWithKey(pk, bucket2.id()) });
+
+    FakeStorageBackend backend;
+    Cynara::Storage storage(backend);
+
+    EXPECT_CALL(backend, searchBucket(bucket1.id(), pk))
+        .WillOnce(ReturnPointee(&bucket1));
+    EXPECT_CALL(backend, searchBucket(bucket2.id(), pk))
+        .WillOnce(ReturnPointee(&bucket2));
+
+    ASSERT_EQ(DENY, storage.checkPolicy(pk, bucket1.id(), true));
+}

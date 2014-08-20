@@ -69,7 +69,9 @@ PolicyResult Storage::minimalPolicy(const PolicyBucket &bucket, const PolicyKey 
                     if (recursive == true) {
                         auto bucketResults = m_backend.searchBucket(policyResult.metadata(), key);
                         auto minimumOfBucket = minimalPolicy(bucketResults, key, true);
-                        proposeMinimal(minimumOfBucket);
+                        if (minimumOfBucket != PredefinedPolicyType::NONE) {
+                            proposeMinimal(minimumOfBucket);
+                        }
                     }
                     continue;
                 }
