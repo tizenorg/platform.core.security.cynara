@@ -29,4 +29,8 @@ bool operator ==(const PolicyType &policyType, const PolicyResult &policyResult)
     return policyResult == policyType;
 }
 
+bool operator !=(const PolicyType &policyType, const PolicyResult &policyResult) {
+    return !(policyResult == policyType);
+}
+
 }  // namespace Cynara
