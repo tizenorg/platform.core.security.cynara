@@ -61,7 +61,7 @@ int PolicyGetter::requestResult(const PolicyKey &key, PolicyResult &result) noex
     }
 
     result = checkResponse->m_resultRef;
-    return CYNARA_API_SUCCESS;
+    return CYNARA_API_ACCESS_ALLOWED;
 }
 
 } // namespace Cynara
