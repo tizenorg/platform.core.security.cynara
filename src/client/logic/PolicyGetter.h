@@ -20,12 +20,13 @@
  * @brief       This file contains Cynara PolicyResult getter implementation.
  */
 
-#ifndef SRC_CLIENT_CACHE_POLICYGETTER_H_
-#define SRC_CLIENT_CACHE_POLICYGETTER_H_
+#ifndef SRC_CLIENT_LOGIC_POLICYGETTER_H_
+#define SRC_CLIENT_LOGIC_POLICYGETTER_H_
 
 #include <log/log.h>
 
 #include <cache/CacheInterface.h>
+#include <logic/ResultGetterInterface.h>
 #include <sockets/SocketClient.h>
 
 
@@ -47,7 +48,7 @@ private:
 
 } //namespace Cynara
 
-#endif // SRC_CLIENT_CACHE_POLICYGETTER_H_
+#endif // SRC_CLIENT_LOGIC_POLICYGETTER_H_
 
 
 

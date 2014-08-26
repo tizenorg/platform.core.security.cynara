@@ -21,8 +21,8 @@
  * @brief       This file contains cache interface definitions.
  */
 
-#ifndef SRC_CLIENT_CACHE_CACHEINTERFACE_H_
-#define SRC_CLIENT_CACHE_CACHEINTERFACE_H_
+#ifndef SRC_CLIENT_COMMON_CACHE_CACHEINTERFACE_H_
+#define SRC_CLIENT_COMMON_CACHE_CACHEINTERFACE_H_
 
 #include <map>
 #include <memory>
@@ -30,35 +30,15 @@
 
 #include <cynara-client.h>
 #include <types/ClientSession.h>
+#include <plugins/PluginInterface.h>
 #include <types/PolicyKey.h>
 #include <types/PolicyResult.h>
 #include <types/PolicyType.h>
 
 namespace Cynara {
 
-class InterpreterInterface;
-typedef std::shared_ptr<InterpreterInterface> InterpreterInterfacePtr;
-
 class PluginCache;
 typedef std::shared_ptr<PluginCache> PluginCachePtr;
-
-class ResultGetterInterface;
-typedef std::shared_ptr<ResultGetterInterface> ResultGetterInterfacePtr;
-
-class ResultGetterInterface {
-public:
-    virtual int requestResult(const PolicyKey &key, PolicyResult &result) noexcept = 0;
-    virtual ~ResultGetterInterface() {};
-};
-
-class InterpreterInterface {
-public:
-    virtual bool isCacheable(const PolicyResult &result) noexcept = 0;
-    virtual bool isUsable(const PolicyResult &result) noexcept = 0;
-    virtual int toResult(const PolicyResult &result) noexcept = 0;
-
-    virtual ~InterpreterInterface() {};
-};
 
 class PluginCache {
 public:
@@ -84,4 +64,4 @@ protected:
 
 } // namespace Cynara
 
-#endif // SRC_CLIENT_CACHE_CACHEINTERFACE_H_
+#endif // SRC_CLIENT_COMMON_CACHE_CACHEINTERFACE_H_
