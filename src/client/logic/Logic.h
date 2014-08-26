@@ -28,17 +28,18 @@
 #include <api/ApiInterface.h>
 #include <cache/CacheInterface.h>
 #include <sockets/SocketClient.h>
+#include <types/PolicyKey.h>
+#include <types/PolicyResult.h>
 
 namespace Cynara {
 
 class Logic : public ApiInterface {
 private:
     SocketClientPtr m_socket;
-    ResultGetterInterfacePtr m_resultGetter;
     PluginCachePtr m_cache;
 
     void onDisconnected(void);
-
+    int requestResult(const PolicyKey &key, PolicyResult &result) noexcept;
 public:
     Logic();
     virtual ~Logic() {};
