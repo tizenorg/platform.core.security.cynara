@@ -1,0 +1,43 @@
+
+/*
+ *  Copyright (c) 2014 Samsung Electronics Co., Ltd All Rights Reserved
+ *
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License
+ */
+/*
+ * @file        CacheInterface.h
+ * @author      Zofia Abramowska <z.abramowska@samsung.com>
+ * @version     1.0
+ * @brief       This file contains Result Getter Interface definitions
+ */
+
+#ifndef SRC_CLIENT_LOGIC_RESULTGETTERINTERFACE_H_
+#define SRC_CLIENT_LOGIC_RESULTGETTERINTERFACE_H_
+
+#include <types/PolicyKey.h>
+#include <types/PolicyResult.h>
+
+namespace Cynara {
+
+class ResultGetterInterface;
+typedef std::shared_ptr<ResultGetterInterface> ResultGetterInterfacePtr;
+
+class ResultGetterInterface {
+public:
+    virtual int requestResult(const PolicyKey &key, PolicyResult &result) noexcept = 0;
+    virtual ~ResultGetterInterface() {};
+};
+
+}
+
+#endif // SRC_CLIENT_LOGIC_RESULTGETTERINTERFACE_H_
