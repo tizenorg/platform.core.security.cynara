@@ -25,10 +25,9 @@
 
 #include <string>
 
-#include <sockets/SocketClient.h>
-
 #include <api/ApiInterface.h>
 #include <cache/CacheInterface.h>
+#include <sockets/SocketClient.h>
 
 namespace Cynara {
 
@@ -44,7 +43,7 @@ public:
     Logic();
     virtual ~Logic() {};
 
-    virtual int check(const std::string &client, const std::string &session,
+    virtual int check(const std::string &client, const ClientSession &session,
                       const std::string &user, const std::string &privilege) noexcept;
 };
 
