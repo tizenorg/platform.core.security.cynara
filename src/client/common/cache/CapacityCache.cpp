@@ -43,7 +43,7 @@ int CapacityCache::get(const ClientSession &session, const PolicyKey &key) {
                 key.client().toString().c_str(),
                 key.user().toString().c_str(),
                 key.privilege().toString().c_str());
-        return CYNARA_API_CACHE_MISS;
+        return CYNARA_API_INVALID_PARAM;
     } else {
         LOGD("Entry available for client=%s user=%s privilege=%s",
                 key.client().toString().c_str(),
@@ -69,7 +69,7 @@ int CapacityCache::get(const ClientSession &session, const PolicyKey &key) {
         auto usageIt = resultIt->second.second;
         m_keyUsage.erase(usageIt);
         m_keyValue.erase(resultIt);
-        return CYNARA_API_CACHE_MISS;
+        return CYNARA_API_INVALID_PARAM;
     }
 }
 

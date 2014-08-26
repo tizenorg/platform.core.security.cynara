@@ -29,9 +29,9 @@
 #include <types/PolicyKey.h>
 
 #include <cache/CapacityCache.h>
-#include <cache/NaiveInterpreter.h>
-#include <cache/PolicyGetter.h>
-#include "Logic.h"
+#include <logic/PolicyGetter.h>
+#include <logic/Logic.h>
+#include <plugins/NaiveInterpreter.h>
 
 namespace Cynara {
 

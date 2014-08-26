@@ -30,7 +30,7 @@
 #include <response/CheckResponse.h>
 #include <response/pointers.h>
 
-#include <cache/PolicyGetter.h>
+#include <logic/PolicyGetter.h>
 
 
 namespace Cynara {
