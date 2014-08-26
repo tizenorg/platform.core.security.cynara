@@ -22,6 +22,7 @@
 
 #include <cinttypes>
 
+#include <cynara-client-error.h>
 #include <exceptions/ServerConnectionErrorException.h>
 #include <log/log.h>
 #include <request/CheckRequest.h>
@@ -30,6 +31,7 @@
 #include <response/pointers.h>
 
 #include <cache/PolicyGetter.h>
+
 
 namespace Cynara {
 
