@@ -23,8 +23,10 @@
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
 
-#include "exceptions/DefaultBucketDeletionException.h"
 #include "exceptions/BucketNotExistsException.h"
+#include "exceptions/BucketDeserializationException.h"
+#include "exceptions/DefaultBucketDeletionException.h"
+#include "exceptions/FileNotFoundException.h"
 #include "storage/InMemoryStorageBackend.h"
 #include "storage/StorageBackend.h"
 #include "types/PolicyCollection.h"
@@ -185,4 +187,58 @@ TEST_F(InMemeoryStorageBackendFixture, deletePolicyFromNonexistentBucket) {
 
     EXPECT_THROW(backend.deletePolicy("non-existent", Helpers::generatePolicyKey()),
                  BucketNotExistsException);
+}
+
+// Database dir is empty
+TEST_F(InMemeoryStorageBackendFixture, load_no_db) {
+    using ::testing::ReturnRef;
+    auto testDbPath = std::string(CYNARA_STATE_PATH) + "db1/";
+    FakeInMemoryStorageBackend backend(testDbPath);
+    EXPECT_CALL(backend, buckets()).WillRepeatedly(ReturnRef(m_buckets));
+    backend.load();
+    ASSERT_DB_VIRGIN(m_buckets);
+}
+
+// Database dir contains index with default bucket, but no file for this bucket
+TEST_F(InMemeoryStorageBackendFixture, load_no_default) {
+    using ::testing::ReturnRef;
+    auto testDbPath = std::string(CYNARA_STATE_PATH) + "db2/";
+    FakeInMemoryStorageBackend backend(testDbPath);
+    EXPECT_CALL(backend, buckets()).WillRepeatedly(ReturnRef(m_buckets));
+    backend.load();
+    ASSERT_DB_VIRGIN(m_buckets);
+}
+
+// Database contains index with default bucket and an empty bucket file
+TEST_F(InMemeoryStorageBackendFixture, load_default_only) {
+    using ::testing::ReturnRef;
+    auto testDbPath = std::string(CYNARA_STATE_PATH) + "db3/";
+    FakeInMemoryStorageBackend backend(testDbPath);
+    EXPECT_CALL(backend, buckets()).WillRepeatedly(ReturnRef(m_buckets));
+    backend.load();
+    ASSERT_DB_VIRGIN(m_buckets);
+}
+
+// Database contains index with default bucket and an additional bucket
+// There are files for both buckets present
+TEST_F(InMemeoryStorageBackendFixture, load_2_buckets) {
+    using ::testing::ReturnRef;
+    using ::testing::IsEmpty;
+
+    auto testDbPath = std::string(CYNARA_STATE_PATH) + "db4/";
+
+    FakeInMemoryStorageBackend backend(testDbPath);
+    EXPECT_CALL(backend, buckets()).WillRepeatedly(ReturnRef(m_buckets));
+    backend.load();
+
+    std::vector<std::string> bucketIds = { "", "additional" };
+
+    for(const auto &bucketId : bucketIds) {
+        SCOPED_TRACE(bucketId);
+        const auto bucketIter = m_buckets.find(bucketId);
+        ASSERT_NE(m_buckets.end(), bucketIter);
+
+        const auto &bucketPolicies = bucketIter->second;
+        ASSERT_THAT(bucketPolicies, IsEmpty());
+    }
 }
