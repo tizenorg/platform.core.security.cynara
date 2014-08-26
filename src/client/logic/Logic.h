@@ -27,6 +27,7 @@
 
 #include <api/ApiInterface.h>
 #include <cache/CacheInterface.h>
+#include <logic/ResultGetterInterface.h>
 #include <sockets/SocketClient.h>
 
 namespace Cynara {

@@ -193,6 +193,7 @@ fi
 %license LICENSE
 %defattr(-,root,root,-)
 %{_libdir}/libcynara-client.so.*
+%{_libdir}/libcynara-client-commons.so*
 
 %files -n libcynara-client-devel
 %defattr(-,root,root,-)
