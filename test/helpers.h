@@ -34,6 +34,7 @@ namespace Helpers {
 
 PolicyKey generatePolicyKey(const PolicyKeyFeature::ValueType &sufix = "");
 PolicyBucketId generateBucketId(const PolicyBucketId &sufix = "");
+bool fileExists(const std::string &fileName);
 
 template <class Collection>
 Collection pickFromCollection(const Collection &original, const std::vector<unsigned> &idx) {
