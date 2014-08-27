@@ -29,6 +29,7 @@
 #include <string.h>
 #include <sys/stat.h>
 #include <sys/types.h>
+#include <unistd.h>
 #include <unordered_map>
 #include <vector>
 
@@ -50,12 +51,21 @@
 namespace Cynara {
 
 const std::string InMemoryStorageBackend::m_indexFileName = "buckets";
+const std::string InMemoryStorageBackend::m_lockFileName = "lock";
+const std::string InMemoryStorageBackend::m_backupFileNameSuffix = "~";
+const std::string InMemoryStorageBackend::m_bucketFileNamePrefix = "_";
 
 void InMemoryStorageBackend::load(void) {
-    std::string indexFilename = m_dbPath + m_indexFileName;
+    if (backupGuardExists()) {
+        createPrimaryHardLinks();
+        //backup should no longer be guarded or kept
+        deleteHardLink(m_dbPath + m_lockFileName);
+        deleteBuckupHardLinks();
+    }
 
     try {
         auto indexStream = std::make_shared<std::ifstream>();
+        std::string indexFilename = m_dbPath + m_indexFileName;
         openFileStream(indexStream, indexFilename);
 
         StorageDeserializer storageDeserializer(indexStream,
@@ -68,8 +78,8 @@ void InMemoryStorageBackend::load(void) {
     }
 
     if (!hasBucket(defaultPolicyBucketId)) {
-            LOGN("Creating defaultBucket.");
-            this->buckets().insert({ defaultPolicyBucketId, PolicyBucket() });
+        LOGN("Creating defaultBucket.");
+        this->buckets().insert({ defaultPolicyBucketId, PolicyBucket() });
     }
 }
 
@@ -87,11 +97,20 @@ void InMemoryStorageBackend::save(void) {
     }
 
     auto indexStream = std::make_shared<std::ofstream>();
-    openDumpFileStream(indexStream, m_dbPath + m_indexFileName);
+    std::string indexFileName = m_dbPath + m_indexFileName;
+    openDumpFileStream(indexStream, indexFileName + m_backupFileNameSuffix);
 
     StorageSerializer storageSerializer(indexStream);
     storageSerializer.dump(buckets(), std::bind(&InMemoryStorageBackend::bucketDumpStreamOpener,
                            this, std::placeholders::_1));
+
+    //successfully wrote data to backup database (~), enable lockdown
+    createLockFile();
+    createPrimaryHardLinks();
+
+    //disable lockdown, backup should no longer be guarded or kept
+    deleteHardLink(m_dbPath + m_lockFileName);
+    deleteBuckupHardLinks();
 }
 
 PolicyBucket InMemoryStorageBackend::searchDefaultBucket(const PolicyKey &key) {
@@ -194,7 +213,7 @@ void InMemoryStorageBackend::openDumpFileStream(std::shared_ptr<std::ofstream> s
 
 std::shared_ptr<BucketDeserializer> InMemoryStorageBackend::bucketStreamOpener(
         const PolicyBucketId &bucketId) {
-    std::string bucketFilename = m_dbPath + "_" + bucketId;
+    std::string bucketFilename = m_dbPath + m_bucketFileNamePrefix + bucketId;
     auto bucketStream = std::make_shared<std::ifstream>();
     try {
         openFileStream(bucketStream, bucketFilename);
@@ -206,11 +225,92 @@ std::shared_ptr<BucketDeserializer> InMemoryStorageBackend::bucketStreamOpener(
 
 std::shared_ptr<StorageSerializer> InMemoryStorageBackend::bucketDumpStreamOpener(
         const PolicyBucketId &bucketId) {
-    std::string bucketFilename = m_dbPath + "_" + bucketId;
+    std::string bucketFilename = m_dbPath + m_bucketFileNamePrefix +
+                                 bucketId + m_backupFileNameSuffix;
     auto bucketStream = std::make_shared<std::ofstream>();
 
     openDumpFileStream(bucketStream, bucketFilename);
     return std::make_shared<StorageSerializer>(bucketStream);
+}
+
+void InMemoryStorageBackend::createHardLink(const std::string &oldName,
+                                            const std::string &newName) {
+    int ret = link(oldName.c_str(), newName.c_str());
+
+    if (ret < 0) {
+        int err = errno;
+        LOGE("'link' function error [%d] : <%s>", err, strerror(err));
+        throw UnexpectedErrorException(err, strerror(err));
+    }
+}
+
+void InMemoryStorageBackend::deleteHardLink(const std::string &fileName) {
+    int ret = unlink(fileName.c_str());
+
+    if (ret < 0) {
+        int err = errno;
+        if (err != ENOENT) {
+            LOGE("'unlink' function error [%d] : <%s>", err, strerror(err));
+            throw UnexpectedErrorException(err, strerror(err));
+        } else {
+            LOGN("Trying to unlink non-existent file.");
+        }
+    }
+}
+
+bool InMemoryStorageBackend::backupGuardExists(void) const {
+    struct stat buffer;
+    std::string lockFileName = m_dbPath + m_lockFileName;
+
+    int ret = stat(lockFileName.c_str(), &buffer);
+
+    if (ret == 0) {
+        return true;
+    } else {
+        int err = errno;
+        if (err != ENOENT) {
+            LOGE("'stat' function error [%d] : <%s>", err, strerror(err));
+            throw UnexpectedErrorException(err, strerror(err));
+        }
+        return false;
+    }
+}
+
+void InMemoryStorageBackend::createLockFile(void) const {
+    std::string lockFileName = m_dbPath + m_lockFileName;
+    std::ofstream lockStream(lockFileName, std::ofstream::out | std::ofstream::trunc);
+
+    if (!lockStream.is_open()) {
+        throw CannotCreateFileException(lockFileName);
+    }
+
+    lockStream.close();
+}
+
+void InMemoryStorageBackend::deleteBuckupHardLinks(void) {
+    for (const auto &bucketIter : buckets()) {
+        const auto &bucketId = bucketIter.first;
+        const auto &bucketFileName = m_dbPath + m_bucketFileNamePrefix +
+                                     bucketId + m_backupFileNameSuffix;
+
+        deleteHardLink(bucketFileName);
+    }
+
+    deleteHardLink(m_dbPath + m_indexFileName + m_backupFileNameSuffix);
+}
+
+void InMemoryStorageBackend::createPrimaryHardLinks(void) {
+    for (const auto &bucketIter : buckets()) {
+        const auto &bucketId = bucketIter.first;
+        const auto &bucketFileName = m_dbPath + m_bucketFileNamePrefix + bucketId;
+
+        deleteHardLink(bucketFileName);
+        createHardLink(bucketFileName + m_backupFileNameSuffix, bucketFileName);
+    }
+
+    std::string indexFileName = m_dbPath + m_indexFileName;
+    deleteHardLink(indexFileName);
+    createHardLink(indexFileName + m_backupFileNameSuffix, indexFileName);
 }
 
 } /* namespace Cynara */

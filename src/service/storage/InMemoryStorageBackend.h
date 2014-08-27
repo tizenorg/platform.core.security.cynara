@@ -67,10 +67,21 @@ protected:
     void openDumpFileStream(std::shared_ptr<std::ofstream> stream, const std::string &filename);
     std::shared_ptr<StorageSerializer> bucketDumpStreamOpener(const PolicyBucketId &bucketId);
 
+    static void createHardLink(const std::string &oldName, const std::string &newName);
+    static void deleteHardLink(const std::string &filename);
+    // Accesses non-static class member (m_dbPath)
+    bool backupGuardExists(void) const;
+    void createLockFile(void) const;
+    void deleteBuckupHardLinks(void);
+    void createPrimaryHardLinks(void);
+
 private:
     std::string m_dbPath;
     Buckets m_buckets;
     static const std::string m_indexFileName;
+    static const std::string m_lockFileName;
+    static const std::string m_backupFileNameSuffix;
+    static const std::string m_bucketFileNamePrefix;
 
 protected:
     virtual Buckets &buckets(void) {
