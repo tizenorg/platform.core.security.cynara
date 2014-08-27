@@ -40,6 +40,9 @@
 
 using namespace Cynara;
 
+const std::string InMemeoryStorageBackendFixture::m_indexFileName = "buckets";
+const std::string InMemeoryStorageBackendFixture::m_backupFileNameSuffix = "~";
+
 TEST_F(InMemeoryStorageBackendFixture, defaultPolicyIsDeny) {
     using ::testing::ReturnRef;
 
@@ -192,9 +195,12 @@ TEST_F(InMemeoryStorageBackendFixture, deletePolicyFromNonexistentBucket) {
 // Database dir is empty
 TEST_F(InMemeoryStorageBackendFixture, load_no_db) {
     using ::testing::ReturnRef;
+    using ::testing::Return;
     auto testDbPath = std::string(CYNARA_TESTS_DIR) + "/db1/";
     FakeInMemoryStorageBackend backend(testDbPath);
+    EXPECT_CALL(backend, backupGuardExists()).WillOnce(Return(false));
     EXPECT_CALL(backend, buckets()).WillRepeatedly(ReturnRef(m_buckets));
+    EXPECT_CALL(backend, deleteNonIndexedFiles()).WillOnce(Return());
     backend.load();
     ASSERT_DB_VIRGIN(m_buckets);
 }
@@ -202,9 +208,12 @@ TEST_F(InMemeoryStorageBackendFixture, load_no_db) {
 // Database dir contains index with default bucket, but no file for this bucket
 TEST_F(InMemeoryStorageBackendFixture, load_no_default) {
     using ::testing::ReturnRef;
+    using ::testing::Return;
     auto testDbPath = std::string(CYNARA_TESTS_DIR) + "/db2/";
     FakeInMemoryStorageBackend backend(testDbPath);
+    EXPECT_CALL(backend, backupGuardExists()).WillOnce(Return(false));
     EXPECT_CALL(backend, buckets()).WillRepeatedly(ReturnRef(m_buckets));
+    EXPECT_CALL(backend, deleteNonIndexedFiles()).WillOnce(Return());
     backend.load();
     ASSERT_DB_VIRGIN(m_buckets);
 }
@@ -212,9 +221,12 @@ TEST_F(InMemeoryStorageBackendFixture, load_no_default) {
 // Database contains index with default bucket and an empty bucket file
 TEST_F(InMemeoryStorageBackendFixture, load_default_only) {
     using ::testing::ReturnRef;
+    using ::testing::Return;
     auto testDbPath = std::string(CYNARA_TESTS_DIR) + "/db3/";
     FakeInMemoryStorageBackend backend(testDbPath);
+    EXPECT_CALL(backend, backupGuardExists()).WillOnce(Return(false));
     EXPECT_CALL(backend, buckets()).WillRepeatedly(ReturnRef(m_buckets));
+    EXPECT_CALL(backend, deleteNonIndexedFiles()).WillOnce(Return());
     backend.load();
     ASSERT_DB_VIRGIN(m_buckets);
 }
@@ -223,12 +235,15 @@ TEST_F(InMemeoryStorageBackendFixture, load_default_only) {
 // There are files for both buckets present
 TEST_F(InMemeoryStorageBackendFixture, load_2_buckets) {
     using ::testing::ReturnRef;
+    using ::testing::Return;
     using ::testing::IsEmpty;
 
     auto testDbPath = std::string(CYNARA_TESTS_DIR) + "/db4/";
 
     FakeInMemoryStorageBackend backend(testDbPath);
+    EXPECT_CALL(backend, backupGuardExists()).WillOnce(Return(false));
     EXPECT_CALL(backend, buckets()).WillRepeatedly(ReturnRef(m_buckets));
+    EXPECT_CALL(backend, deleteNonIndexedFiles()).WillOnce(Return());
     backend.load();
 
     std::vector<std::string> bucketIds = { "", "additional" };
@@ -246,9 +261,86 @@ TEST_F(InMemeoryStorageBackendFixture, load_2_buckets) {
 // Database contains index with 2 buckets; 1st bucket is valid, but second is corrupted
 TEST_F(InMemeoryStorageBackendFixture, second_bucket_corrupted) {
     using ::testing::ReturnRef;
+    using ::testing::Return;
     auto testDbPath = std::string(CYNARA_TESTS_DIR) + "/db5/";
     FakeInMemoryStorageBackend backend(testDbPath);
+    EXPECT_CALL(backend, backupGuardExists()).WillOnce(Return(false));
     EXPECT_CALL(backend, buckets()).WillRepeatedly(ReturnRef(m_buckets));
+    EXPECT_CALL(backend, deleteNonIndexedFiles()).WillOnce(Return());
     backend.load();
     ASSERT_DB_VIRGIN(m_buckets);
+}
+
+/**
+ * @brief   Database was corrupted, restore from backup (which is present)
+ * @test     Scenario:
+ * - There still is guard file in earlier prepared Cynara's policy database directory (db6)
+ * - Execution of load() should use backup files (present, with different contents than primaries)
+ * - We make sure backupGuardExists() and revalidatePrimaryDatabase() are being called
+ *   (it's crucial they are, implemented integrity mechanism depend on it)
+ * - Loaded database is checked - backup files were empty, so should recently loaded policies
+ */
+TEST_F(InMemeoryStorageBackendFixture, load_from_backup) {
+    using ::testing::ReturnRef;
+    using ::testing::Return;
+    using ::testing::IsEmpty;
+    using ::testing::InSequence;
+
+    auto testDbPath = std::string(CYNARA_TESTS_DIR) + "/db6/";
+    FakeInMemoryStorageBackend backend(testDbPath);
+
+    {
+        // Calls are expected in a specific order
+        InSequence s;
+
+        EXPECT_CALL(backend, backupGuardExists()).WillOnce(Return(true));
+        EXPECT_CALL(backend, buckets()).WillRepeatedly(ReturnRef(m_buckets));
+        EXPECT_CALL(backend, revalidatePrimaryDatabase()).WillOnce(Return());
+        EXPECT_CALL(backend, deleteNonIndexedFiles()).WillOnce(Return());
+        backend.load();
+    }
+
+    std::vector<std::string> bucketIds = { "", "additional" };
+    for(const auto &bucketId : bucketIds) {
+        SCOPED_TRACE(bucketId);
+        const auto bucketIter = m_buckets.find(bucketId);
+        ASSERT_NE(m_buckets.end(), bucketIter);
+
+        const auto &bucketPolicies = bucketIter->second;
+        ASSERT_THAT(bucketPolicies, IsEmpty());
+    }
+}
+
+/**
+ * @brief   Database successfully dumped to storage
+ * @test    Scenario:
+ * - We call explicitly save method on backend
+ * - We make sure following subroutines are executed in proper order:
+ *         * openDumpFileStream with initialized output stream and proper output filename
+ *         * buckets() which must return reference to m_buckets once
+ *         * createBackupGuard()
+ *         * revalidatePrimaryDatabase()
+ * - Test passes once save() successfully returns.
+ */
+TEST_F(InMemeoryStorageBackendFixture, save_assuring_db_integrity) {
+    using ::testing::NotNull;
+    using ::testing::ReturnRef;
+    using ::testing::Return;
+    using ::testing::InSequence;
+    using PredefinedPolicyType::ALLOW;
+
+    auto testDbPath = std::string(CYNARA_TESTS_DIR) + "/db7/";
+    auto indexFileName = testDbPath + m_indexFileName + m_backupFileNameSuffix;
+    FakeInMemoryStorageBackend backend(testDbPath);
+
+    {
+        // Calls are expected in a specific order
+        InSequence s;
+
+        EXPECT_CALL(backend, openDumpFileStream(NotNull(), indexFileName)).WillOnce(Return());
+        EXPECT_CALL(backend, buckets()).WillOnce(ReturnRef(m_buckets));
+        EXPECT_CALL(backend, createBackupGuard()).WillOnce(Return());
+        EXPECT_CALL(backend, revalidatePrimaryDatabase()).WillOnce(Return());
+        backend.save();
+    }
 }
