@@ -20,6 +20,7 @@
  * @brief       Implementation of Cynara::StorageSerializer methods
  */
 
+#include <ostream>
 #include <fstream>
 #include <memory>
 #include <ios>
@@ -50,6 +51,7 @@ void StorageSerializer::dump(const Buckets &buckets,
         dumpFields(bucket.id(), bucket.defaultPolicy().policyType(),
                    bucket.defaultPolicy().metadata());
     }
+    flush();
 
     for (const auto bucketIter : buckets) {
         const auto &bucketId = bucketIter.first;
@@ -58,6 +60,7 @@ void StorageSerializer::dump(const Buckets &buckets,
 
         if (bucketSerializer != nullptr) {
             bucketSerializer->dump(bucket);
+            bucketSerializer->flush();
         } else {
             throw BucketSerializationException(bucketId);
         }
@@ -90,6 +93,10 @@ void StorageSerializer::dump(const PolicyCollection::value_type &policy) {
     const auto &result = policy->result();
 
     dumpFields(key.client(), key.user(), key.privilege(), result.policyType(), result.metadata());
+}
+
+void StorageSerializer::flush(void){
+    *m_outStream << std::flush;
 }
 
 } /* namespace Cynara */

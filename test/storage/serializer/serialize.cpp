@@ -50,6 +50,7 @@ class FakeStorageSerializer : public Cynara::StorageSerializer {
 public:
     FakeStorageSerializer() : Cynara::StorageSerializer(outStream),
                               outStream(new std::ostringstream()) {}
+    MOCK_METHOD0(flush, void(void));
     MOCK_METHOD1(dump, void(const Cynara::PolicyBucket &bucket));
     std::shared_ptr<std::ostringstream> outStream;
 };
@@ -97,6 +98,9 @@ TEST_F(StorageSerializerFixture, dump_buckets) {
     // Make sure stream was opened for each bucket
     EXPECT_CALL(fakeStreamOpener, streamForBucketId(_))
         .Times(buckets.size()).WillRepeatedly(Return(fakeBucketSerializer));
+
+    // Make sure stream is flushed for each bucket
+    EXPECT_CALL(*fakeBucketSerializer, flush()).Times(buckets.size()).WillRepeatedly(Return());
 
     // Make sure every bucket was dumped
     for (const auto &bucket : buckets) {

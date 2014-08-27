@@ -51,6 +51,8 @@ public:
                       BucketStreamOpener streamOpener);
     virtual void dump(const PolicyBucket &bucket);
 
+    virtual void flush(void);
+
 protected:
     template<typename Arg1, typename... Args>
     inline void dumpFields(const Arg1 &arg1, const Args&... args) {
