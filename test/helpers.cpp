@@ -24,6 +24,10 @@
 #include "helpers.h"
 #include "types/PolicyKey.h"
 
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <unistd.h>
+
 namespace Cynara {
 namespace Helpers {
 
@@ -37,6 +41,16 @@ PolicyKey generatePolicyKey(const PolicyKeyFeature::ValueType &sufix) {
 
 PolicyBucketId generateBucketId(const PolicyBucketId &sufix) {
     return "bucket" + sufix;
+}
+
+bool fileExists(const std::string &fileName) {
+    struct stat buffer;
+    int ret = stat(fileName.c_str(), &buffer);
+    if (ret == 0) {
+        return true;
+    } else {
+        return false;
+    }
 }
 
 } // namespace Helpers
