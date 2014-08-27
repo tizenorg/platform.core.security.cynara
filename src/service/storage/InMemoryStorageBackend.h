@@ -62,15 +62,25 @@ public:
 protected:
     InMemoryStorageBackend() {}
     void openFileStream(std::shared_ptr<std::ifstream> stream, const std::string &filename);
-    std::shared_ptr<BucketDeserializer> bucketStreamOpener(const PolicyBucketId &bucketId);
+    std::shared_ptr<BucketDeserializer> bucketStreamOpener(const PolicyBucketId &bucketId,
+                                                           const std::string &fileNameSuffix);
 
     void openDumpFileStream(std::shared_ptr<std::ofstream> stream, const std::string &filename);
     std::shared_ptr<StorageSerializer> bucketDumpStreamOpener(const PolicyBucketId &bucketId);
+
+    static void createHardLink(const std::string &oldName, const std::string &newName);
+    static void deleteHardLink(const std::string &filename);
+    // Accesses non-static class member (m_dbPath)
+    bool backupGuardExists(void) const;
+    void createLockFile(void) const;
 
 private:
     std::string m_dbPath;
     Buckets m_buckets;
     static const std::string m_indexFileName;
+    static const std::string m_lockFileName;
+    static const std::string m_backupFileNameSuffix;
+    static const std::string m_bucketFileNamePrefix;
 
 protected:
     virtual Buckets &buckets(void) {
