@@ -273,6 +273,7 @@ mkdir -p %{buildroot}/usr/lib/systemd/system/sockets.target.wants
 mkdir -p %{buildroot}/%{state_path}
 mkdir -p %{buildroot}/%{tests_dir}
 cp -a db* %{buildroot}/%{tests_dir}
+
 ln -s ../cynara.socket %{buildroot}/usr/lib/systemd/system/sockets.target.wants/cynara.socket
 ln -s ../cynara-admin.socket %{buildroot}/usr/lib/systemd/system/sockets.target.wants/cynara-admin.socket
 
@@ -287,10 +288,16 @@ if [ $? -eq 1 ]; then
     useradd -d /var/lib/empty -s /sbin/nologin -r -g %{group_name} %{user_name} > /dev/null 2>&1
 fi
 
+if [ $1 = 1 ] || [ ! -d %{state_path}db ]; then
+    mkdir -p %{state_path}db
+fi
+
 %post
 ### Add file capabilities if needed
 ### setcap/getcap binary are useful. To use them you must install libcap and libcap-tools packages
 ### In such case uncomment Requires with those packages
+
+chown %{user_name}:%{group_name} %{state_path}db
 
 systemctl daemon-reload
 
