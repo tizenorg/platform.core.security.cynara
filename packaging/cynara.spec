@@ -270,7 +270,6 @@ rm -rf %{buildroot}
 %make_install
 
 mkdir -p %{buildroot}/usr/lib/systemd/system/sockets.target.wants
-mkdir -p %{buildroot}/%{state_path}
 mkdir -p %{buildroot}/%{tests_dir}
 cp -a db* %{buildroot}/%{tests_dir}
 ln -s ../cynara.socket %{buildroot}/usr/lib/systemd/system/sockets.target.wants/cynara.socket
@@ -299,6 +298,7 @@ if [ $1 = 1 ]; then
 fi
 
 chsmack -a System %{state_path}
+chsmack -a System %{state_path}db
 
 systemctl restart %{name}.service
 
@@ -406,6 +406,8 @@ fi
 %attr(-,root,root) /usr/lib/systemd/system/sockets.target.wants/cynara-admin.socket
 %attr(-,root,root) /usr/lib/systemd/system/cynara-admin.socket
 %dir %attr(700,cynara,cynara) %{state_path}
+%dir %attr(700,cynara,cynara) %{state_path}db
+%attr(700,cynara,cynara) %{state_path}db/*
 
 %files -n libcynara-client
 %manifest libcynara-client.manifest
