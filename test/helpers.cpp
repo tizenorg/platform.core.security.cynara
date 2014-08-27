@@ -24,6 +24,10 @@
 #include "helpers.h"
 #include "types/PolicyKey.h"
 
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <unistd.h>
+
 namespace Cynara {
 namespace Helpers {
 

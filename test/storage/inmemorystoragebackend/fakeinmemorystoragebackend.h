@@ -29,7 +29,13 @@
 class FakeInMemoryStorageBackend : public Cynara::InMemoryStorageBackend {
 public:
     using Cynara::InMemoryStorageBackend::InMemoryStorageBackend;
-    MOCK_METHOD0(buckets, Cynara::Buckets&());
+    MOCK_METHOD0(buckets, Cynara::Buckets&(void));
+    MOCK_CONST_METHOD0(backupGuardExists, bool(void));
+    MOCK_CONST_METHOD0(createBackupGuard, void(void));
+    MOCK_METHOD0(revalidatePrimaryDatabase, void(void));
+    MOCK_METHOD0(deleteNonIndexedFiles, void(void));
+    MOCK_METHOD2(openDumpFileStream, void(std::shared_ptr<std::ofstream> stream,
+                                          const std::string &filename));
 };
 
 
