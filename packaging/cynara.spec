@@ -10,6 +10,14 @@ Source1002:    libcynara-client.manifest
 Source1003:    libcynara-admin.manifest
 Source1004:    cynara-tests.manifest
 Requires:      default-ac-domains
+Requires(pre): /usr/sbin/groupadd
+Requires(pre): /usr/sbin/useradd
+Requires(pre): /usr/bin/id
+Requires(post): /usr/bin/chsmack
+Requires(post): /sbin/ldconfig
+Requires(postun): /usr/sbin/groupdel
+Requires(postun): /usr/sbin/userdel
+Requires(postun): /sbin/ldconfig
 BuildRequires: cmake
 BuildRequires: zip
 BuildRequires: pkgconfig(libsystemd-daemon)
