@@ -199,11 +199,9 @@ fi
 %files -n libcynara-client
 %manifest libcynara-client.manifest
 %license LICENSE
-%defattr(-,root,root,-)
 %{_libdir}/libcynara-client.so.*
 
 %files -n libcynara-client-devel
-%defattr(-,root,root,-)
 %{_includedir}/cynara/cynara-client.h
 %{_libdir}/pkgconfig/cynara-client.pc
 %{_libdir}/libcynara-client.so
@@ -211,11 +209,9 @@ fi
 %files -n libcynara-admin
 %manifest libcynara-admin.manifest
 %license LICENSE
-%defattr(-,root,root,-)
 %{_libdir}/libcynara-admin.so.*
 
 %files -n libcynara-admin-devel
-%defattr(-,root,root,-)
 %{_includedir}/cynara/cynara-admin.h
 %{_libdir}/libcynara-admin.so
 %{_libdir}/pkgconfig/cynara-admin.pc
