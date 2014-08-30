@@ -12,6 +12,11 @@ Source1004:    cynara-tests.manifest
 Source1005:    libcynara-client-commons.manifest
 Source1006:    libcynara-commons.manifest
 Requires:      default-ac-domains
+Requires(pre): /usr/sbin/groupadd
+Requires(pre): /usr/sbin/useradd
+Requires(post): /usr/bin/chsmack
+Requires(postun): /usr/sbin/groupdel
+Requires(postun): /usr/sbin/userdel
 BuildRequires: cmake
 BuildRequires: zip
 BuildRequires: pkgconfig(libsystemd-daemon)
@@ -181,8 +186,6 @@ chsmack -a System %{state_path}
 
 systemctl restart %{name}.service
 
-/sbin/ldconfig
-
 %preun
 if [ $1 = 0 ]; then
     # unistall
@@ -195,8 +198,6 @@ if [ $1 = 0 ]; then
     groupdel %{user_name} > /dev/null 2>&1
     systemctl daemon-reload
 fi
-
-/sbin/ldconfig
 
 %post -n libcynara-client -p /sbin/ldconfig
 
