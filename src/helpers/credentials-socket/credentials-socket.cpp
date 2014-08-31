@@ -15,9 +15,64 @@
  */
 /*
  * @file        credentials-socket.cpp
+ * @author      Radoslaw Bartosiak <r.bartosiak@samsung.com>
+ * @author      Aleksander Zdyb <a.zdyb@partner.samsung.com>
  * @author      Lukasz Wojciechowski <l.wojciechow@partner.samsung.com>
  * @version     1.0
  * @brief       Implementation of external libcynara-helper-credentials-socket API
  */
 
-// Empty initial file
+#include <sys/socket.h>
+#include <sys/types.h>
+
+#include <attributes/attributes.h>
+
+#include <credentials-socket-inner.h>
+
+#include <cynara-client-error.h>
+#include <cynara-helper-credentials.h>
+#include <cynara-helper-credentials-socket.h>
+
+CYNARA_API
+int cynara_helper_credentials_socket_get_client(int socket_fd,
+                                                enum cynara_helper_credentials_client_method method,
+                                                char **client) {
+    if (client == nullptr)
+        return CYNARA_API_INVALID_PARAM;
+
+    switch (method) {
+        case cynara_helper_credentials_client_method::CLIENT_METHOD_SMACK:
+            return getSmackClient(socket_fd, client);
+        case cynara_helper_credentials_client_method::CLIENT_METHOD_PID:
+            return getPidClient(socket_fd, client);
+        default:
+            return CYNARA_API_METHOD_NOT_SUPPORTED;
+    }
+}
+
+CYNARA_API
+int cynara_helper_credentials_socket_get_user(int socket_fd,
+                                              enum cynara_helper_credentials_user_method method,
+                                              char **user) {
+    if (user == nullptr)
+        return CYNARA_API_INVALID_PARAM;
+
+    switch (method) {
+        case cynara_helper_credentials_user_method::USER_METHOD_UID:
+            return getUidUser(socket_fd, user);
+        case cynara_helper_credentials_user_method::USER_METHOD_GID:
+            return getGidUser(socket_fd, user);
+        default:
+            return CYNARA_API_METHOD_NOT_SUPPORTED;
+    }
+}
+
+CYNARA_API
+pid_t cynara_helper_credentials_socket_get_pid(int socket_fd) {
+    struct ucred credentials;
+    int ret = getCredentials(socket_fd, &credentials);
+    if (ret < 0)
+        return static_cast<pid_t>(ret);
+
+    return credentials.pid;
+}
