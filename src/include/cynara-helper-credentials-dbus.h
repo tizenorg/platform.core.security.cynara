@@ -24,11 +24,22 @@
 #ifndef CYNARA_HELPER_CREDENTIAL_DBUS_H
 #define CYNARA_HELPER_CREDENTIAL_DBUS_H
 
+#include <dbus/dbus.h>
+#include <sys/types.h>
+
+#include "cynara-helper-credentials.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-/* empty initial file */
+int cynara_helper_credentials_dbus_get_client(DBusConnection *connection, const char *uniqueName,
+                                              enum cynara_client_creds method, char **client);
+
+int cynara_helper_credentials_dbus_get_user(DBusConnection *connection, const char *uniqueName,
+                                            enum cynara_user_creds method, char **user);
+
+pid_t cynara_helper_credentials_dbus_get_pid(DBusConnection *connection, const char *uniqueName);
 
 #ifdef __cplusplus
 }
