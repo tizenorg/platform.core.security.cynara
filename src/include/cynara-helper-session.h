@@ -15,6 +15,8 @@
  */
 /*
  * @file        cynara-helper-session.h
+ * \author      Aleksander Zdyb <a.zdyb@partner.samsung.com>
+ * \author      Radoslaw Bartosiak <r.bartosiak@samsung.com.pl>
  * @author      Lukasz Wojciechowski <l.wojciechow@partner.samsung.com>
  * @version     1.0
  * @brief       This file contains Cynara session helper APIs.
@@ -24,11 +26,69 @@
 #ifndef CYNARA_HELPER_SESSION_H
 #define CYNARA_HELPER_SESSION_H
 
+#include <sys/types.h>
+
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-/* empty initial file */
+/**
+ * \par Description:
+ * Creates a client session string based on pid of a client and time of creation of the client /proc/PID directory.
+ *
+ * \par Purpose:
+ * This function can be used to create session string identifier used in cynara_check() and cynara_async_check() functions defined in  client libraries.
+ *
+ * \par Typical use case:
+ * The function is called before the call of one of ...check() functions.
+ * Returned string is used as client_session param in ...check() function.
+ * String is released with free() function.
+ *
+ * \par Method of function operation:
+ * The function generates client session based on the pid and start time of the client process.
+ *
+ * \par Sync (or) Async:
+ * This is a Synchronous API.
+ *
+ * \par Thread-safeness:
+ * This function is thread-safe.
+ *
+ * \par Important notes:
+ * Memory for returned string is obtained with malloc(), and should be freed with free().
+ *
+ * \param[in] client_pi client application process identifier (PID).
+ *
+ * \return session string on success
+ *         or NULL on error.
+ */
+char *cynara_helper_session_from_pid(pid_t client_pid);
+
+/* //sample code
+ *
+ * (...)
+ *
+ * //create client session
+ * char *client_session;
+ * client_session = cynara_helper_session_from_pid(client_pid);
+ * if (!client_session) {
+ *     //use another way to create session or abandon request sending
+ * }
+ *
+ * //check access (details of this function can be found in cynara-client.h)
+ * int ret = cynara_check(p_cynara, client, client_session, user, privilege);
+ *
+ * //release client_session memory
+ * free(client_session);
+ *
+ * //handle check answer
+ * if (ret < 0) {
+ *     //handle error
+ * } else {
+ *     //handle response
+ * }
+ *
+ * (...)
+ */
 
 #ifdef __cplusplus
 }
