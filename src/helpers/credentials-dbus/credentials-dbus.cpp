@@ -15,9 +15,60 @@
  */
 /*
  * @file        credentials-dbus.cpp
+ * @author      Radoslaw Bartosiak <r.bartosiak@samsung.com>
+ * @author      Aleksander Zdyb <a.zdyb@partner.samsung.com>
  * @author      Lukasz Wojciechowski <l.wojciechow@partner.samsung.com>
  * @version     1.0
  * @brief       Implementation of external libcynara-helper-credentials-dbus API
  */
 
-// Empty initial file
+
+#include <attributes/attributes.h>
+
+#include <credentials-dbus-inner.h>
+
+#include <cynara-client-error.h>
+#include <cynara-helper-credentials.h>
+#include <cynara-helper-credentials-dbus.h>
+
+CYNARA_API
+int cynara_helper_credentials_dbus_get_client(DBusConnection *connection, const char *uniqueName,
+                                              enum cynara_helper_credentials_client_method method,
+                                              char **client) {
+    if (connection == nullptr || uniqueName == nullptr || client == nullptr)
+        return CYNARA_API_INVALID_PARAM;
+
+    switch (method) {
+        case cynara_helper_credentials_client_method::CLIENT_METHOD_SMACK:
+            return getSmackClient(connection, uniqueName, client);
+        case cynara_helper_credentials_client_method::CLIENT_METHOD_PID:
+            return getPidClient(connection, uniqueName, client);
+        default:
+            return CYNARA_API_METHOD_NOT_SUPPORTED;
+    }
+}
+
+CYNARA_API
+int cynara_helper_credentials_dbus_get_user(DBusConnection *connection, const char *uniqueName,
+                                            enum cynara_helper_credentials_user_method method,
+                                            char **user) {
+    if (connection == nullptr || uniqueName == nullptr || user == nullptr)
+        return CYNARA_API_INVALID_PARAM;
+
+    switch (method) {
+        case cynara_helper_credentials_user_method::USER_METHOD_UID:
+            return getUidUser(connection, uniqueName, user);
+        case cynara_helper_credentials_user_method::USER_METHOD_GID:
+            return getGidUser(connection, uniqueName, user);
+        default:
+            return CYNARA_API_METHOD_NOT_SUPPORTED;
+    }
+}
+
+CYNARA_API
+pid_t cynara_helper_credentials_dbus_get_pid(DBusConnection *connection, const char *uniqueName) {
+    if (connection == nullptr || uniqueName == nullptr)
+        return CYNARA_API_INVALID_PARAM;
+
+    return getPid(connection, uniqueName);
+}
