@@ -16,8 +16,26 @@
 /*
  * @file        credentials.cpp
  * @author      Lukasz Wojciechowski <l.wojciechow@partner.samsung.com>
+ * @author      Radoslaw Bartosiak <r.bartosiak@samsung.com>
+ * @author      Aleksander Zdyb <a.zdyb@partner.samsung.com>
  * @version     1.0
  * @brief       Implementation of external libcynara-helper-credentials API
  */
 
-// Empty initial file
+#include <attributes/attributes.h>
+
+#include <cynara-helper-credentials.h>
+
+CYNARA_API
+enum cynara_helper_credentials_client_method
+    cynara_helper_credential_get_default_client_method(void) {
+    //todo read from proper file and parse
+    return CLIENT_METHOD_SMACK;
+}
+
+CYNARA_API
+enum cynara_helper_credentials_user_method
+    cynara_helper_credential_get_default_user_method(void) {
+    //todo read from proper file and parse
+    return USER_METHOD_UID;
+}

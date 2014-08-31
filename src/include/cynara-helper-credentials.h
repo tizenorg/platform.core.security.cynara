@@ -44,7 +44,11 @@ enum cynara_helper_credentials_user_method {
 extern "C" {
 #endif
 
-/* empty initial file */
+enum cynara_helper_credentials_client_method
+    cynara_helper_credential_get_default_client_method(void);
+
+enum cynara_helper_credentials_user_method
+    cynara_helper_credential_get_default_user_method(void);
 
 #ifdef __cplusplus
 }
