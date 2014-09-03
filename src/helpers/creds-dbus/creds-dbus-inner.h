@@ -14,35 +14,26 @@
  *  limitations under the License
  */
 /*
- * @file        cynara-creds-dbus.h
+ * @file        creds-dbus-inner.h
+ * @author      Radoslaw Bartosiak <r.bartosiak@samsung.com>
+ * @author      Aleksander Zdyb <a.zdyb@partner.samsung.com>
  * @author      Lukasz Wojciechowski <l.wojciechow@partner.samsung.com>
  * @version     1.0
- * @brief       This file contains Cynara credentials helper APIs for dbus clients.
+ * @brief       Definition of internal external libcynara-creds-dbus functions
  */
 
-
-#ifndef CYNARA_CREDS_DBUS_H
-#define CYNARA_CREDS_DBUS_H
+#ifndef SRC_HELPERS_CREDSDBUS_CREDSDBUSINNER_H_
+#define SRC_HELPERS_CREDSDBUS_CREDSDBUSINNER_H_
 
 #include <dbus/dbus.h>
 #include <sys/types.h>
 
-#include "cynara-creds-commons.h"
+int getClientSmackLabel(DBusConnection *connection, const char *uniqueName, char **client);
+int getClientPid(DBusConnection *connection, const char *uniqueName, char **client);
 
-#ifdef __cplusplus
-extern "C" {
-#endif
+int getUserId(DBusConnection *connection, const char *uniqueName, char **user);
+int getUserGid(DBusConnection *connection, const char *uniqueName, char **user);
 
-int cynara_creds_dbus_get_client(DBusConnection *connection, const char *uniqueName,
-                                 enum cynara_client_creds method, char **client);
+pid_t getPid(DBusConnection *connection, const char *uniqueName);
 
-int cynara_creds_dbus_get_user(DBusConnection *connection, const char *uniqueName,
-                               enum cynara_user_creds method, char **user);
-
-pid_t cynara_creds_dbus_get_pid(DBusConnection *connection, const char *uniqueName);
-
-#ifdef __cplusplus
-}
-#endif
-
-#endif /* CYNARA_CREDS_DBUS_H */
+#endif /* SRC_HELPERS_CREDSDBUS_CREDSDBUSINNER_H_ */
