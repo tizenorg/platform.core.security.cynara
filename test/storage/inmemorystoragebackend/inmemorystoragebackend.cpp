@@ -192,7 +192,7 @@ TEST_F(InMemeoryStorageBackendFixture, deletePolicyFromNonexistentBucket) {
 // Database dir is empty
 TEST_F(InMemeoryStorageBackendFixture, load_no_db) {
     using ::testing::ReturnRef;
-    auto testDbPath = std::string(CYNARA_STATE_PATH) + "db1/";
+    auto testDbPath = std::string(CYNARA_TESTS_DIR) + "/db1/";
     FakeInMemoryStorageBackend backend(testDbPath);
     EXPECT_CALL(backend, buckets()).WillRepeatedly(ReturnRef(m_buckets));
     backend.load();
@@ -202,7 +202,7 @@ TEST_F(InMemeoryStorageBackendFixture, load_no_db) {
 // Database dir contains index with default bucket, but no file for this bucket
 TEST_F(InMemeoryStorageBackendFixture, load_no_default) {
     using ::testing::ReturnRef;
-    auto testDbPath = std::string(CYNARA_STATE_PATH) + "db2/";
+    auto testDbPath = std::string(CYNARA_TESTS_DIR) + "/db2/";
     FakeInMemoryStorageBackend backend(testDbPath);
     EXPECT_CALL(backend, buckets()).WillRepeatedly(ReturnRef(m_buckets));
     backend.load();
@@ -212,7 +212,7 @@ TEST_F(InMemeoryStorageBackendFixture, load_no_default) {
 // Database contains index with default bucket and an empty bucket file
 TEST_F(InMemeoryStorageBackendFixture, load_default_only) {
     using ::testing::ReturnRef;
-    auto testDbPath = std::string(CYNARA_STATE_PATH) + "db3/";
+    auto testDbPath = std::string(CYNARA_TESTS_DIR) + "/db3/";
     FakeInMemoryStorageBackend backend(testDbPath);
     EXPECT_CALL(backend, buckets()).WillRepeatedly(ReturnRef(m_buckets));
     backend.load();
@@ -225,7 +225,7 @@ TEST_F(InMemeoryStorageBackendFixture, load_2_buckets) {
     using ::testing::ReturnRef;
     using ::testing::IsEmpty;
 
-    auto testDbPath = std::string(CYNARA_STATE_PATH) + "db4/";
+    auto testDbPath = std::string(CYNARA_TESTS_DIR) + "/db4/";
 
     FakeInMemoryStorageBackend backend(testDbPath);
     EXPECT_CALL(backend, buckets()).WillRepeatedly(ReturnRef(m_buckets));
