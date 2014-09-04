@@ -39,9 +39,63 @@ enum cynara_user_creds {
 #ifdef __cplusplus
 extern "C" {
 #endif
-
+/**
+ * \par Description:
+ * Gets the system default method value for client feature used in cynara-creds.
+ *
+ * \par Purpose:
+ * Functions cynara_creds_dbus_get_client() and cynara_creds_socket_get_client() take a method
+ * parameter, which determines a kind of process feature (i.e PID, SMACK label) returned by them.
+ * The described function provides implementation for obtaining a system default value
+ * for this parameter.
+ *
+ * \par Typical use case:
+ * The function might be called before cynara_creds_dbus_get_client() and cynara_creds_socket_get_client(),
+ * when functions shall be invoked with system default value of method parameter.
+ *
+ * \par Method of function operation:
+ * The function reads the value from /etc/cynara/cynara_client_creds file.
+ *
+ * \par Sync (or) Async:
+ * This is a Synchronous API.
+ *
+ * \par Thread-safeness:
+ * This function is thread-safe.
+ *
+ * \param[out] method System default client feature (like CLIENT_METHOD_SMACK, CLIENT_METHOD_PID)
+ *
+ * \return CYNARA_API_SUCCESS on success
+ *         CYNARA_API_ACCESS_DENIED on unsuficient permissions to the configuration file
+ */
 int cynara_creds_get_default_client_method(enum cynara_client_creds *method);
-
+/**
+ * \par Description:
+ * Gets the system default method value for user feature used in cynara-creds.
+ *
+ * \par Purpose:
+ * Functions cynara_creds_dbus_get_user() and cynara_creds_socket_get_user() take a method
+ * parameter, which determines a kind of process feature (i.e UID, GID) returned by them.
+ * The described function provides implementation for obtaining a system default value
+ * for this parameter.
+ *
+ * \par Typical use case:
+ * The function might be called before cynara_creds_dbus_get_user() and cynara_creds_socket_get_user(),
+ * when functions shall be invoked with system default value of method parameter.
+ *
+ * \par Method of function operation:
+ * The function reads the value from /etc/cynara/cynara_user_creds file.
+ *
+ * \par Sync (or) Async:
+ * This is a Synchronous API.
+ *
+ * \par Thread-safeness:
+ * This function is thread-safe.
+ *
+ * \param[out] method System default user feature (like USER_METHOD_UID, USER_METHOD_GID)
+ *
+ * \return CYNARA_API_SUCCESS on success
+ *         CYNARA_API_ACCESS_DENIED on unsuficient permissions to the configuration file
+ */
 int cynara_creds_get_default_user_method(enum cynara_user_creds *method);
 
 #ifdef __cplusplus
