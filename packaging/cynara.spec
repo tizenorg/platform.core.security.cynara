@@ -90,6 +90,7 @@ cp -a %{SOURCE1001} .
 cp -a %{SOURCE1002} .
 cp -a %{SOURCE1003} .
 cp -a %{SOURCE1004} .
+cp -a test/db/db* .
 
 %build
 %if 0%{?sec_build_binary_debug_enable}
@@ -113,6 +114,7 @@ rm -rf %{buildroot}
 
 mkdir -p %{buildroot}/usr/lib/systemd/system/sockets.target.wants
 mkdir -p %{buildroot}/%{state_path}
+cp -a db* %{buildroot}/%{state_path}
 ln -s ../cynara.socket %{buildroot}/usr/lib/systemd/system/sockets.target.wants/cynara.socket
 ln -s ../cynara-admin.socket %{buildroot}/usr/lib/systemd/system/sockets.target.wants/cynara-admin.socket
 
@@ -215,3 +217,6 @@ fi
 %files -n cynara-tests
 %manifest cynara-tests.manifest
 %attr(755,root,root) /usr/bin/cynara-tests
+%dir %attr(700,cynara,cynara) %{state_path}/db*
+%defattr(700,cynara,users,700)
+%{state_path}/db*/*
