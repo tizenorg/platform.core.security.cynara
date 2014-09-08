@@ -221,7 +221,6 @@ BuildRequires: pkgconfig(gmock)
 Cynara tests
 
 #######################################################
-
 %package -n cynara-devel
 Summary:    Cynara service (devel)
 Requires:   cynara = %{version}-%{release}
@@ -265,9 +264,11 @@ export LDFLAGS+="-Wl,--rpath=%{_libdir}"
 make %{?jobs:-j%jobs}
 
 %install
-
 rm -rf %{buildroot}
 %make_install
+
+mkdir  -p %{buildroot}%{_sysconfdir}/cynara
+cp ./conf/creds.conf %{buildroot}%{_sysconfdir}/cynara/creds.conf
 
 mkdir -p %{buildroot}/usr/lib/systemd/system/sockets.target.wants
 mkdir -p %{buildroot}/%{state_path}
@@ -478,6 +479,7 @@ fi
 %manifest libcynara-creds-commons.manifest
 %license LICENSE
 %{_libdir}/libcynara-creds-commons.so.*
+%{_sysconfdir}/cynara/creds.conf
 
 %files -n libcynara-creds-commons-devel
 %{_includedir}/cynara/cynara-creds-commons.h
@@ -513,3 +515,4 @@ fi
 %{_includedir}/cynara/cynara-session.h
 %{_libdir}/libcynara-session.so
 %{_libdir}/pkgconfig/cynara-session.pc
+
