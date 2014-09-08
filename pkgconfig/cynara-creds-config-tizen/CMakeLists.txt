@@ -15,12 +15,13 @@
 # @file        CMakeLists.txt
 # @author      Lukasz Wojciechowski <l.wojciechow@partner.samsung.com>
 # @author      Radoslaw Bartosiak <r.bartosiak@samsung.com>
+# @brief
 #
 
-ADD_SUBDIRECTORY(cynara-client)
-ADD_SUBDIRECTORY(cynara-admin)
-ADD_SUBDIRECTORY(cynara-creds-commons)
-ADD_SUBDIRECTORY(cynara-creds-dbus)
-ADD_SUBDIRECTORY(cynara-creds-socket)
-ADD_SUBDIRECTORY(cynara-session)
-ADD_SUBDIRECTORY(cynara-creds-config-tizen)
+CONFIGURE_FILE(cynara-creds-config-tizen.pc.in cynara-creds-config-tizen.pc @ONLY)
+
+INSTALL(FILES
+    ${CMAKE_BINARY_DIR}/pkgconfig/cynara-creds-config-tizen/cynara-creds-config-tizen.pc
+    DESTINATION
+    ${LIB_INSTALL_DIR}/pkgconfig
+    )

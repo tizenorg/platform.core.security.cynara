@@ -45,6 +45,11 @@ SET(INCLUDE_INSTALL_DIR
     CACHE PATH
     "Include installation directory")
 
+SET(SYSCONF_INSTALL_DIR
+    "/etc"
+    CACHE PATH
+    "Configuration installation directory")
+
 ############################# compiler flags ##################################
 
 SET(CMAKE_CXX_FLAGS_PROFILING  "-O0 -g -pg")
@@ -86,6 +91,7 @@ SET(TARGET_LIB_CREDS_COMMONS "cynara-creds-commons")
 SET(TARGET_LIB_CREDS_DBUS "cynara-creds-dbus")
 SET(TARGET_LIB_CREDS_SOCKET "cynara-creds-socket")
 SET(TARGET_LIB_SESSION "cynara-session")
+SET(TARGET_CYNARA_CONFIG_TIZEN "cynara-creds-config-tizen")
 
 ADD_SUBDIRECTORY(src)
 ADD_SUBDIRECTORY(pkgconfig)
