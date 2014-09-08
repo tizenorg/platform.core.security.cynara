@@ -15,6 +15,7 @@ Source1007:    libcynara-creds-commons.manifest
 Source1008:    libcynara-creds-dbus.manifest
 Source1009:    libcynara-creds-socket.manifest
 Source1010:    libcynara-session.manifest
+Source1011:    cynara-creds-config-tizen.manifest
 Requires:      default-ac-domains
 Requires(pre): pwdutils
 Requires(post):   smack
@@ -175,13 +176,19 @@ BuildRequires: pkgconfig(gmock)
 Cynara tests
 
 #######################################################
-
 %package -n cynara-devel
 Summary:    Cynara service (devel)
 Requires:   cynara = %{version}-%{release}
 
 %description -n cynara-devel
 service (devel version)
+
+#######################################################
+%package -n cynara-creds-config-tizen
+Summary:    Cynara default credentials configuration for Tizen
+
+%description -n cynara-creds-config-tizen
+Cynara default credentials configuration for Tizen
 
 %prep
 %setup -q
@@ -195,6 +202,7 @@ cp -a %{SOURCE1007} .
 cp -a %{SOURCE1008} .
 cp -a %{SOURCE1009} .
 cp -a %{SOURCE1010} .
+cp -a %{SOURCE1011} .
 
 %build
 %if 0%{?sec_build_binary_debug_enable}
@@ -420,3 +428,8 @@ fi
 %{_includedir}/cynara/cynara-session.h
 %{_libdir}/libcynara-session.so
 %{_libdir}/pkgconfig/cynara-session.pc
+
+%files -n cynara-creds-config-tizen
+%manifest cynara-creds-config-tizen.manifest
+%license LICENSE
+%_sysconfdir/cynara/creds.conf

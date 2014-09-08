@@ -45,6 +45,11 @@ SET(INCLUDE_INSTALL_DIR
     CACHE PATH
     "Include installation directory")
 
+SET(SYSCONF_INSTALL_DIR
+    "/etc"
+    CACHE PATH
+    "Configuration installation directory")
+
 ############################# compiler flags ##################################
 
 SET(CMAKE_CXX_FLAGS_PROFILING  "-O0 -g -pg")
@@ -90,6 +95,7 @@ SET(TARGET_LIB_SESSION "cynara-session")
 ADD_SUBDIRECTORY(src)
 ADD_SUBDIRECTORY(pkgconfig)
 ADD_SUBDIRECTORY(systemd)
+ADD_SUBDIRECTORY(conf)
 
 IF (BUILD_TESTS)
 ADD_SUBDIRECTORY(test)
