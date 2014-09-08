@@ -1,0 +1,9 @@
+prefix=@CMAKE_INSTALL_PREFIX@
+exec_prefix=${prefix}
+libdir=@LIB_INSTALL_DIR@
+includedir=${prefix}/include
+
+Name: cynara-creds-config-tizen
+Description: cynara-creds-config-tizen package
+Version: @CYNARA_VERSION@
+Requires:

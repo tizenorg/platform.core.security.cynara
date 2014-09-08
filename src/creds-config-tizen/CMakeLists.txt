@@ -13,14 +13,24 @@
 #    limitations under the License.
 #
 # @file        CMakeLists.txt
-# @author      Lukasz Wojciechowski <l.wojciechow@partner.samsung.com>
 # @author      Radoslaw Bartosiak <r.bartosiak@samsung.com>
 #
 
-ADD_SUBDIRECTORY(cynara-client)
-ADD_SUBDIRECTORY(cynara-admin)
-ADD_SUBDIRECTORY(cynara-creds-commons)
-ADD_SUBDIRECTORY(cynara-creds-dbus)
-ADD_SUBDIRECTORY(cynara-creds-socket)
-ADD_SUBDIRECTORY(cynara-session)
-ADD_SUBDIRECTORY(cynara-creds-config-tizen)
+SET(TARGET_CYNARA_CONFIG_TIZEN_VERSION_MAJOR 0)
+SET(TARGET_CYNARA_CONFIG_TIZEN_VERSION ${TARGET_CYNARA_CONFIG_TIZEN_VERSION_MAJOR}.3.0)
+
+SET(TARGET_CYNARA_CONFIG_TIZEN_PATH ${CYNARA_PATH}/creds-config-tizen)
+
+SET(TARGET_CYNARA_CONFIG_TIZEN_SOURCES
+    ${TARGET_CYNARA_CONFIG_TIZEN_PATH}/cynara/cynara_client_creds
+    ${TARGET_CYNARA_CONFIG_TIZEN_PATH}/cynara/cynara_user_creds
+    )
+
+SET_TARGET_PROPERTIES(
+    ${TARGET_TARGET_CYNARA_CONFIG_TIZEN}
+    PROPERTIES
+        SOVERSION ${TARGET_CYNARA_CONFIG_TIZEN_VERSION_MAJOR}
+        VERSION ${TARGET_CYNARA_CONFIG_TIZEN_VERSION}
+    )
+
+INSTALL(FILES ${TARGET_CYNARA_CONFIG_TIZEN_SOURCES} DESTINATION ${SYSCONF_INSTALL_DIR}/cynara)
