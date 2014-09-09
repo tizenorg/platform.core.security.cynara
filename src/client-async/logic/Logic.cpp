@@ -21,16 +21,29 @@
  *              libcynara-client-async class
  */
 
+#include <memory>
+
 #include <common.h>
+#include <exceptions/Exception.h>
+#include <log/log.h>
+#include <protocol/ProtocolClient.h>
+#include <socket/socketPath.h>
 
 #include "Logic.h"
 
 namespace Cynara {
 
-Logic::Logic(cynara_status_callback callback UNUSED,
-             void *userStatusData UNUSED)
+Logic::Logic(cynara_status_callback callback,
+             void *userStatusData)
+    : m_statusCallback(callback, userStatusData)
 {
-    // MOCKUP
+    m_socket = std::make_shared<SocketClientAsync>(
+        clientSocketPath, std::make_shared<ProtocolClient>());
+}
+
+Logic::~Logic()
+{
+    onDisconnected();
 }
 
 int Logic::checkCache(const std::string &client UNUSED,
@@ -38,8 +51,15 @@ int Logic::checkCache(const std::string &client UNUSED,
                       const std::string &user UNUSED,
                       const std::string &privilege UNUSED) noexcept
 {
-    // MOCKUP
-    return CYNARA_API_CACHE_MISS;
+    int ret = connect();
+    switch(ret)
+    {
+    case CYNARA_API_SUCCESS:
+    case CYNARA_API_SERVICE_NOT_AVAILABLE:
+        return CYNARA_API_CACHE_MISS;
+    default:
+        return ret;
+    }
 }
 
 int Logic::createRequest(const std::string &client UNUSED,
@@ -50,21 +70,47 @@ int Logic::createRequest(const std::string &client UNUSED,
                          cynara_response_callback callback UNUSED,
                          void *userResponseData UNUSED) noexcept
 {
-    // MOCKUP
+    int ret = connect();
+    if (ret != CYNARA_API_SUCCESS)
+        return ret;
     return CYNARA_API_MAX_PENDING_REQUESTS;
 }
 
 
 int Logic::process(void) noexcept
 {
-    // MOCKUP
-    return CYNARA_API_SUCCESS;
+    return connect();
 }
 
 int Logic::cancelRequest(cynara_check_id checkId UNUSED) noexcept
 {
-    // MOCKUP
-    return CYNARA_API_SUCCESS;
+    return connect();
+}
+
+int Logic::connect()
+{
+    bool connected = false;
+    try {
+        if (m_socket->isConnected())
+            return CYNARA_API_SUCCESS;
+        connected = m_socket->connect();
+    } catch (Exception &ex) {
+        LOGE("Unexpected error occured");
+        return CYNARA_API_UNKNOWN_ERROR;
+    }
+    if (connected) {
+            m_statusCallback.onStatusChange(m_socket->getSockFd(),
+                                            cynara_async_status::CYNARA_STATUS_FOR_READ);
+            return CYNARA_API_SUCCESS;
+    } else {
+            onDisconnected();
+            return CYNARA_API_SERVICE_NOT_AVAILABLE;
+    }
+}
+
+void Logic::onDisconnected()
+{
+    m_statusCallback.onDisconnected();
 }
 
 } // namespace Cynara
