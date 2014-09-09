@@ -42,7 +42,7 @@ private:
     //returns true      if socket is ready
     //returns false     in case of timeout
     //throws            in critical situations
-    bool waitForSocket(int event);
+    bool waitForSocket(int event, bool now = false);
 
     //returns int       errorcode read from socket
     //throws            in critical situations
@@ -60,6 +60,10 @@ public:
     //returns false     if connection was timeout or no one is listening
     //throws            in critical situations
     bool connect(void);
+
+    //returns socket descriptor
+    //returns -1                if socket descriptor no present
+    int getSockFd(void);
 
     //returns true                              if data was successfully send to server
     //returns false                             if connection was lost

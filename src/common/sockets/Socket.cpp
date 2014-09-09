@@ -56,13 +56,16 @@ void Socket::close(void) noexcept {
     m_sock = -1;
 }
 
-bool Socket::waitForSocket(int event) {
+bool Socket::waitForSocket(int event, bool now) {
     int ret;
     pollfd desc[1];
     desc[0].fd = m_sock;
     desc[0].events = event;
 
-    ret = TEMP_FAILURE_RETRY(poll(desc, 1, m_pollTimeout));
+    if (now)
+        ret = TEMP_FAILURE_RETRY(poll(desc, 1, 0));
+    else
+        ret = TEMP_FAILURE_RETRY(poll(desc, 1, m_pollTimeout));
 
     if (ret == -1) {
         int err = errno;
@@ -70,7 +73,8 @@ bool Socket::waitForSocket(int event) {
         close();
         throw UnexpectedErrorException(err, strerror(err));
     } else if (ret == 0) {
-        LOGD("Poll timeout");
+        if (!now)
+            LOGD("Poll timeout");
     }
 
     return (ret == 1);
@@ -98,7 +102,7 @@ bool Socket::isConnected(void) {
         return false;
     }
 
-    return true;
+    return !waitForSocket(POLLHUP, true);
 }
 
 bool Socket::connect(void) {
@@ -161,6 +165,11 @@ bool Socket::connect(void) {
     }
 
     return isConnected();
+}
+
+int Socket::getSockFd(void)
+{
+    return m_sock;
 }
 
 bool Socket::sendToServer(BinaryQueue &queue) {
