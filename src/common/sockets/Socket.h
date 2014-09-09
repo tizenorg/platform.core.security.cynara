@@ -33,6 +33,7 @@ namespace Cynara {
 class Socket {
 private:
     int m_sock;
+    bool m_connectionInProgress;
 
     std::string m_socketPath;
     int m_pollTimeout;
@@ -42,13 +43,25 @@ private:
     //returns true      if socket is ready
     //returns false     in case of timeout
     //throws            in critical situations
-    bool waitForSocket(int event);
+    bool waitForSocket(int event, bool now = false);
 
     //returns int       errorcode read from socket
     //throws            in critical situations
     int getSocketError(void);
 
+    //returns true      if connection succeeded
+    //returns false     if connection failed
+    //throws            in critical situations
+    bool connect(int &err);
+
 public:
+    enum class ConnectionStatus {
+        ALREADY_CONNECTED,
+        CONNECTION_SUCCEEDED,
+        CONNECTION_IN_PROGRESS,
+        CONNECTION_FAILED
+    };
+
     Socket(const std::string &socketPath, int timeoutMiliseconds = -1);
     ~Socket();
 
@@ -59,7 +72,25 @@ public:
     //returns true      if connection succeeded
     //returns false     if connection was timeout or no one is listening
     //throws            in critical situations
-    bool connect(void);
+    bool connectSync(void);
+
+    //returns ConnectionStatus::ALREADY_CONNECTED              if was already connected
+    //returns ConnectionStatus::CONNECTION_SUCCEEDED           if connection succeeded
+    //returns ConnectionStatus::CONNECTION_IN_PROGRESS         if connection in progress
+    //returns ConnectionStatus::CONNECTION_FAILED              if connection failed
+    //throws                                                   in critical situations
+    ConnectionStatus connectAsync(void);
+
+    //returns ConnectionStatus::ALREADY_CONNECTED              if was already connected
+    //returns ConnectionStatus::CONNECTION_SUCCEEDED           if connection succeeded
+    //returns ConnectionStatus::CONNECTION_IN_PROGRESS         if connection in progress
+    //returns ConnectionStatus::CONNECTION_FAILED              if connection failed
+    //throws                                                   in critical situations
+    ConnectionStatus completeConnection(void);
+
+    //returns socket descriptor
+    //returns -1                if socket descriptor no present
+    int getSockFd(void);
 
     //returns true                              if data was successfully send to server
     //returns false                             if connection was lost
