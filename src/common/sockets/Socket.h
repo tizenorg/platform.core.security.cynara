@@ -33,6 +33,7 @@ namespace Cynara {
 class Socket {
 private:
     int m_sock;
+    bool m_connectionInProgress;
 
     std::string m_socketPath;
     int m_pollTimeout;
@@ -42,11 +43,16 @@ private:
     //returns true      if socket is ready
     //returns false     in case of timeout
     //throws            in critical situations
-    bool waitForSocket(int event);
+    bool waitForSocket(int event, bool now = false);
 
     //returns int       errorcode read from socket
     //throws            in critical situations
     int getSocketError(void);
+
+    //returns true      if connection succeeded
+    //returns false     if connection failed
+    //throws            in critical situations
+    bool connect(int &err);
 
 public:
     Socket(const std::string &socketPath, int timeoutMiliseconds = -1);
@@ -59,7 +65,24 @@ public:
     //returns true      if connection succeeded
     //returns false     if connection was timeout or no one is listening
     //throws            in critical situations
-    bool connect(void);
+    bool connectSync(void);
+
+    //returns 1         if connection succeeded
+    //returns 0         if connection in progress
+    //returns -1        if connection failed
+    //throws            in critical situations
+    int connectAsync(void);
+
+    //returns 2         if already connected
+    //returns 1         if connection completed successfuly
+    //returns 0         if connection still in progress
+    //returns -1        if connection failed
+    //throws            in critical situations
+    int completeConnection(void);
+
+    //returns socket descriptor
+    //returns -1                if socket descriptor no present
+    int getSockFd(void);
 
     //returns true                              if data was successfully send to server
     //returns false                             if connection was lost
