@@ -38,6 +38,9 @@ enum cynara_user_creds {
     USER_METHOD_GID
 };
 
+#define CLIENT_DEF_CREDS_CONF_FILE "/etc/cynara/cynara_client_creds"
+#define USER_DEF_CREDS_CONF_FILE "/etc/cynara/cynara_user_creds"
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -58,7 +61,7 @@ extern "C" {
  *
  * \par Method of function operation:
  * Now the function is mocked up. It sets method to CLIENT_METHOD_SMACK and returns CYNARA_API_SUCCESS.
- * In the future the function will probably read the value from /etc/cynara/cynara_client_creds file.
+ * In the future the function will probably read the value from CLIENT_DEF_CREDS_CONF_FILE file.
  *
  * \par Sync (or) Async:
  * This is a synchronous API.
@@ -69,7 +72,10 @@ extern "C" {
  * \param[out] method Placeholder for system default client feature
  *                     (like CLIENT_METHOD_SMACK, CLIENT_METHOD_PID)
  *
- * \return CYNARA_API_SUCCESS on success, negative error code on error
+ * \return CYNARA_API_SUCCESS on success
+ *         CYNARA_API_NO_SUCH_FILE if the configuration file can not be open
+ *         CYNARA_API_ERROR_IN_CONFIGURATION_FILE if the content of the configuration file
+                                                  is not a valid method name
  */
 int cynara_creds_get_default_client_method(enum cynara_client_creds *method);
 
@@ -91,7 +97,7 @@ int cynara_creds_get_default_client_method(enum cynara_client_creds *method);
  *
  * The function reads the value from /etc/cynara/cynara_user_creds file.
  * Now the function is mocked up. It sets method to USER_METHOD_UID and returns CYNARA_API_SUCCESS.
- * In the future the function will probably read the value from /etc/cynara/cynara_user_creds file.
+ * In the future the function will probably read the value from USER_DEF_CREDS_CONF_FILE file.
  *
  * \par Sync (or) Async:
  * This is a synchronous API.
@@ -101,7 +107,10 @@ int cynara_creds_get_default_client_method(enum cynara_client_creds *method);
  *
  * \param[out] method Placeholder for system default user feature (like USER_METHOD_UID, USER_METHOD_GID)
  *
- * \return CYNARA_API_SUCCESS on success, negative error code on error
+ * \return CYNARA_API_SUCCESS on success
+ *         CYNARA_API_NO_SUCH_FILE if the configuration file can not be open
+ *         CYNARA_API_ERROR_IN_CONFIGURATION_FILE if the content of the configuration file
+                                                  is not a valid method name
  */
 int cynara_creds_get_default_user_method(enum cynara_user_creds *method);
 
