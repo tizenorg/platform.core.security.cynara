@@ -13,8 +13,8 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License
  */
-/*
- * @file        cynara-creds-commons.h
+ /**
+ * @file        src/include/cynara-creds-commons.h
  * @author      Lukasz Wojciechowski <l.wojciechow@partner.samsung.com>
  * @author      Radoslaw Bartosiak <r.bartosiak@samsung.com>
  * @author      Aleksander Zdyb <a.zdyb@partner.samsung.com>
@@ -53,12 +53,13 @@ extern "C" {
  * for this parameter.
  *
  * \par Typical use case:
- * The function might be called before cynara_creds_dbus_get_client() and cynara_creds_socket_get_client(),
- * when functions shall be invoked with system default value of method parameter.
+ * The function might be called before cynara_creds_dbus_get_client()
+ * and cynara_creds_socket_get_client(), when functions shall be invoked with system default
+ * value of method parameter.
  *
  * \par Method of function operation:
- * Now the function is mocked up. It sets method to CLIENT_METHOD_SMACK and returns CYNARA_API_SUCCESS.
- * In the future the function will probably read the value from /etc/cynara/cynara_client_creds file.
+ * The function will read and return the value of parameter client_default set
+ * in DEF_CREDS_CONF_FILE file.
  *
  * \par Sync (or) Async:
  * This is a synchronous API.
@@ -69,7 +70,12 @@ extern "C" {
  * \param[out] method Placeholder for system default client feature
  *                     (like CLIENT_METHOD_SMACK, CLIENT_METHOD_PID)
  *
- * \return CYNARA_API_SUCCESS on success, negative error code on error
+ * \return CYNARA_API_SUCCESS on success
+ *         CYNARA_API_CONFIGURATION_ERROR if the configuration file can not be opened or
+ *                                        there are errors in configuration file.
+ *         CYNARA_API_OUT_OF_MEMORY if there is error in memory allocation.
+ *         CYNARA_API_UNKNOWN_ERROR if there is other error.
+ *
  */
 int cynara_creds_get_default_client_method(enum cynara_client_creds *method);
 
@@ -84,14 +90,13 @@ int cynara_creds_get_default_client_method(enum cynara_client_creds *method);
  * for this parameter.
  *
  * \par Typical use case:
- * The function might be called before cynara_creds_dbus_get_user() and cynara_creds_socket_get_user(),
- * when functions shall be invoked with system default value of method parameter.
+ * The function might be called before cynara_creds_dbus_get_user()
+ * and cynara_creds_socket_get_user() when functions shall be invoked with system default
+ * value of method parameter.
  *
  * \par Method of function operation:
- *
- * The function reads the value from /etc/cynara/cynara_user_creds file.
- * Now the function is mocked up. It sets method to USER_METHOD_UID and returns CYNARA_API_SUCCESS.
- * In the future the function will probably read the value from /etc/cynara/cynara_user_creds file.
+ * The function will read and return the value of parameter user_default set
+ * in DEF_CREDS_CONF_FILE file.
  *
  * \par Sync (or) Async:
  * This is a synchronous API.
@@ -99,9 +104,13 @@ int cynara_creds_get_default_client_method(enum cynara_client_creds *method);
  * \par Thread safety:
  * This function is thread-safe.
  *
- * \param[out] method Placeholder for system default user feature (like USER_METHOD_UID, USER_METHOD_GID)
- *
- * \return CYNARA_API_SUCCESS on success, negative error code on error
+ * \param[out] method Placeholder for system default user feature
+ * (like USER_METHOD_UID, USER_METHOD_GID)
+ * \return CYNARA_API_SUCCESS on success
+ *         CYNARA_API_CONFIGURATION_ERROR if the configuration file can not be opened or
+ *                                        there are errors in configuration file.
+ *         CYNARA_API_OUT_OF_MEMORY if there is error in memory allocation.
+ *         CYNARA_API_UNKNOWN_ERROR if there is other error.
  */
 int cynara_creds_get_default_user_method(enum cynara_user_creds *method);
 
