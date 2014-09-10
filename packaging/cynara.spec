@@ -25,13 +25,12 @@ BuildRequires: cmake
 BuildRequires: zip
 BuildRequires: pkgconfig(libsystemd-daemon)
 BuildRequires: pkgconfig(libsystemd-journal)
-%{?systemd_requires}
-
 %global user_name %{name}
 %global group_name %{name}
 
 %global state_path %{_localstatedir}/%{name}/
 %global tests_dir %{_datarootdir}/%{name}/tests
+%global conf_path %{_sysconfdir}/%{name}
 
 %if !%{defined build_type}
 %define build_type RELEASE
@@ -254,8 +253,10 @@ export CXXFLAGS="$CXXFLAGS -Wp,-U_FORTIFY_SOURCE"
 %endif
 
 export CXXFLAGS="$CXXFLAGS -DCYNARA_STATE_PATH=\\\"%{state_path}\\\" \
-                           -DCYNARA_TESTS_DIR=\\\"%{tests_dir}\\\""
-export LDFLAGS+="-Wl,--rpath=%{_libdir}"
+                           -DCYNARA_TESTS_DIR=\\\"%{tests_dir}\\\" \
+                           -Dconf_path=\\\"%{conf_path}\\\""
+
+export LDFLAGS+="-Wl,--rpath=\\\"%{_libdir}\\\""
 
 %cmake . \
         -DBUILD_TESTS=ON \
@@ -264,6 +265,7 @@ export LDFLAGS+="-Wl,--rpath=%{_libdir}"
 make %{?jobs:-j%jobs}
 
 %install
+
 rm -rf %{buildroot}
 %make_install
 
