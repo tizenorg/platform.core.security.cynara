@@ -54,6 +54,8 @@
 
 /*! \brief   indicating an unknown error */
 #define CYNARA_API_UNKNOWN_ERROR -7
-/** @}*/
 
+/*! \brief   indicating configuration error */
+#define CYNARA_API_CONFIGURATION_ERROR -8
+/** @}*/
 #endif // CYNARA_CLIENT_ERROR_H
