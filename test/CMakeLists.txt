@@ -32,6 +32,8 @@ SET(CYNARA_SOURCES_FOR_TESTS
     ${CYNARA_SRC}/storage/Storage.cpp
     ${CYNARA_SRC}/storage/StorageDeserializer.cpp
     ${CYNARA_SRC}/storage/StorageSerializer.cpp
+    ${CYNARA_SRC}/helpers/creds-commons/CredsCommonsInner.cpp
+    ${CYNARA_SRC}/helpers/creds-commons/creds-commons.cpp
 )
 
 SET(CYNARA_TESTS_SOURCES
@@ -50,6 +52,7 @@ SET(CYNARA_TESTS_SOURCES
     storage/serializer/dump_load.cpp
     storage/serializer/serialize.cpp
     common/types/policybucket.cpp
+    creds-commons/parser.cpp
     helpers.cpp
     TestEventListenerProxy.cpp
     tests.cpp
@@ -58,6 +61,7 @@ SET(CYNARA_TESTS_SOURCES
 INCLUDE_DIRECTORIES(
     ${PKGS_INCLUDE_DIRS}
     ${CYNARA_SRC}/common
+    ${CYNARA_SRC}/helpers/creds-commons
     ${CYNARA_SRC}/include
     ${CYNARA_SRC}
 )
