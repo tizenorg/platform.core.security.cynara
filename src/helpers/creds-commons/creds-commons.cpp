@@ -22,23 +22,32 @@
  * @brief       Implementation of external libcynara-creds-commons API
  */
 
-#include <attributes/attributes.h>
-
 #include <cynara-client-error.h>
 #include <cynara-creds-commons.h>
 
+#include <attributes/attributes.h>
+
+#include <creds-commons-inner.h>
+
+static CredentialsMap clientCredsMap = {{"SMACK", CLIENT_METHOD_SMACK}, {"PID", CLIENT_METHOD_PID}};
+static CredentialsMap userCredsMap = {{"UID", USER_METHOD_UID}, {"GID", USER_METHOD_GID}};
+
 CYNARA_API
 int cynara_creds_get_default_client_method(enum cynara_client_creds *method) {
-    //todo read from proper file and parse
+    int methodCode, ret;
+    if ((ret = creadsReadFile(CLIENT_DEF_CREDS_CONF_FILE, clientCredsMap, methodCode)) != CYNARA_API_SUCCESS)
+        return ret;
 
-    *method = CLIENT_METHOD_SMACK;
+    *method = static_cast<enum cynara_client_creds>(methodCode);
     return CYNARA_API_SUCCESS;
 }
 
 CYNARA_API
 int cynara_creds_get_default_user_method(enum cynara_user_creds *method) {
-    //todo read from proper file and parse
+    int methodCode, ret;
+    if ((ret = creadsReadFile(USER_DEF_CREDS_CONF_FILE, userCredsMap, methodCode)) != CYNARA_API_SUCCESS)
+        return ret;
 
-    *method = USER_METHOD_UID;
+    *method = static_cast<enum cynara_user_creds>(methodCode);
     return CYNARA_API_SUCCESS;
 }
