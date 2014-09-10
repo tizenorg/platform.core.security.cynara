@@ -266,6 +266,7 @@ export LDFLAGS+="-Wl,--rpath=%{_libdir}"
 make %{?jobs:-j%jobs}
 
 %install
+
 rm -rf %{buildroot}
 %make_install
 
