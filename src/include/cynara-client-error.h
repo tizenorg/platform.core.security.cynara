@@ -13,10 +13,11 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License
  */
-/*
- * @file        cynara-error.h
+/**
+ * @file        src/include/cynara-client-error.h
  * @author      Lukasz Wojciechowski <l.wojciechow@partner.samsung.com>
  * @author      Zofia Abramowska <z.abramowska@samsung.com>
+ * @author      Radoslaw Bartosiak <r.bartosiak@samsung.com>
  * @version     1.0
  * @brief       This file contains error codes returned by client APIs of Cynara.
  */
@@ -54,6 +55,8 @@
 
 /*! \brief   indicating an unknown error */
 #define CYNARA_API_UNKNOWN_ERROR -7
-/** @}*/
 
+/*! \brief   indicating configuration error */
+#define CYNARA_API_CONFIGURATION_ERROR -8
+/** @}*/
 #endif // CYNARA_CLIENT_ERROR_H
