@@ -54,6 +54,11 @@
 
 /*! \brief   indicating an unknown error */
 #define CYNARA_API_UNKNOWN_ERROR -7
-/** @}*/
 
+/*! \brief   indicating no such file error */
+#define CYNARA_API_NO_SUCH_FILE -8
+
+/*! \brief   indicating error in configuration file */
+#define CYNARA_API_ERROR_IN_CONFIGURATION_FILE -9
+/** @}*/
 #endif // CYNARA_CLIENT_ERROR_H

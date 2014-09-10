@@ -30,6 +30,8 @@ BuildRequires: pkgconfig(libsystemd-journal)
 %global group_name %{name}
 
 %global state_path %{_localstatedir}/%{name}/
+%define CLIENT_DEF_CREDS_CONF_FILE "/etc/cynara/cynara_client_creds"
+%define USER_DEF_CREDS_CONF_FILE "/etc/cynara/cynara_user_creds"
 
 %global build_type %{?build_type:%build_type}%{!?build_type:RELEASE}
 
@@ -213,8 +215,7 @@ export CXXFLAGS="$CXXFLAGS -DTIZEN_DEBUG_ENABLE"
 export CXXFLAGS="$CXXFLAGS -Wp,-U_FORTIFY_SOURCE"
 %endif
 
-export CXXFLAGS="$CXXFLAGS -DCYNARA_STATE_PATH=\\\"%{state_path}\\\""
-export LDFLAGS+="-Wl,--rpath=%{_libdir}"
+export CXXFLAGS="$CXXFLAGS -DCYNARA_STATE_PATH=\\\"%{state_path}\\\" -DCLIENT_DEF_CREDS_CONF_FILE=\\\"%{CLIENT_DEF_CREDS_CONF_FILE}\\\" -DUSER_DEF_CREDS_CONF_FILE=\\\"%{USER_DEF_CREDS_CONF_FILE}\\\"" 
 
 %cmake . \
         -DBUILD_TESTS=ON \
