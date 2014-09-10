@@ -31,6 +31,7 @@ BuildRequires: pkgconfig(libsystemd-journal)
 
 %global state_path %{_localstatedir}/%{name}/
 %global tests_dir %{_datarootdir}/%{name}/tests
+%define DEF_CREDS_CONF_FILE %{_sysconfdir}"/cynara/creds.conf"
 
 %global build_type %{?build_type:%build_type}%{!?build_type:RELEASE}
 
@@ -225,8 +226,10 @@ export CXXFLAGS="$CXXFLAGS -Wp,-U_FORTIFY_SOURCE"
 %endif
 
 export CXXFLAGS="$CXXFLAGS -DCYNARA_STATE_PATH=\\\"%{state_path}\\\" \
-                           -DCYNARA_TESTS_DIR=\\\"%{tests_dir}\\\""
-export LDFLAGS+="-Wl,--rpath=%{_libdir}"
+                           -DCYNARA_TESTS_DIR=\\\"%{tests_dir}\\\" \
+                           -DDEF_CREDS_CONF_FILE=\\\"%{DEF_CREDS_CONF_FILE}\\\""
+
+export LDFLAGS+="-Wl,--rpath=\\\"%{_libdir}\\\""
 
 %cmake . \
         -DBUILD_TESTS=ON \

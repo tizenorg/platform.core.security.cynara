@@ -22,23 +22,47 @@
  * @brief       Implementation of external libcynara-creds-commons API
  */
 
-#include <attributes/attributes.h>
-
 #include <cynara-client-error.h>
 #include <cynara-creds-commons.h>
 
+#include <attributes/attributes.h>
+
+#include <CredsCommonsInner.h>
+
 CYNARA_API
 int cynara_creds_get_default_client_method(enum cynara_client_creds *method) {
-    //todo read from proper file and parse
+    try {
+        int methodCode, ret;
+        static const CredentialsMap clientCredsMap{{"smack", CLIENT_METHOD_SMACK},
+                                                   {"pid", CLIENT_METHOD_PID}};
 
-    *method = CLIENT_METHOD_SMACK;
-    return CYNARA_API_SUCCESS;
+        if ((ret = getMethodFromConfigurationFile(clientCredsMap, "client_default", methodCode))
+            != CYNARA_API_SUCCESS)
+            return ret;
+
+        *method = static_cast<enum cynara_client_creds>(methodCode);
+        return CYNARA_API_SUCCESS;
+    } catch (const std::bad_alloc &ex) {
+        return CYNARA_API_OUT_OF_MEMORY;
+    } catch (const std::exception &ex) {
+        return CYNARA_API_UNKNOWN_ERROR;
+    }
 }
 
 CYNARA_API
 int cynara_creds_get_default_user_method(enum cynara_user_creds *method) {
-    //todo read from proper file and parse
+    try {
+        int methodCode, ret;
+        static const CredentialsMap userCredsMap{{"uid", USER_METHOD_UID}, {"gid", USER_METHOD_GID}};
+        if ((ret = getMethodFromConfigurationFile(userCredsMap, "user_default", methodCode))
+            != CYNARA_API_SUCCESS)
+            return ret;
 
-    *method = USER_METHOD_UID;
-    return CYNARA_API_SUCCESS;
+        *method = static_cast<enum cynara_user_creds>(methodCode);
+        return CYNARA_API_SUCCESS;
+    } catch (const std::bad_alloc &ex) {
+        return CYNARA_API_OUT_OF_MEMORY;
+    } catch (const std::exception &ex) {
+        return CYNARA_API_UNKNOWN_ERROR;
+    }
 }
