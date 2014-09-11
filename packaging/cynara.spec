@@ -226,6 +226,7 @@ Cynara tests
 %package -n cynara-devel
 Summary:    Cynara service (devel)
 Requires:   cynara = %{version}-%{release}
+BuildRequires:   python-devel
 
 %description -n cynara-devel
 service (devel version)
@@ -236,6 +237,15 @@ Summary:    Migration tools for Cynara's database
 
 %description -n cynara-db-migration
 Migration tools for Cynara's database
+
+#######################################################
+
+%package -n cynara-python
+Summary:        Cynara python module
+BuildRequires:  swig
+
+%description -n cynara-python
+
 
 %prep
 %setup -q
@@ -268,11 +278,18 @@ export CXXFLAGS="$CXXFLAGS -DCYNARA_STATE_PATH=\\\"%{state_path}\\\" \
                            -DCYNARA_CONFIGURATION_DIR=\\\"%{conf_path}\\\""
 export LDFLAGS+="-Wl,--rpath=%{_libdir}"
 
+
 %cmake . \
-        -DBUILD_TESTS=ON \
+       -DBUILD_TESTS=ON \
         -DCMAKE_BUILD_TYPE=%{?build_type} \
         -DCMAKE_VERBOSE_MAKEFILE=ON
-make %{?jobs:-j%jobs}
+ make %{?jobs:-j%jobs}
+
+# TODO: build it properly (move to cmake etc.)
+cd python
+swig -python cynara.i
+gcc -shared -fpic cynara_wrap.c -I/usr/include/python2.7 -I../src/include/ -o _cynara.so -L../src/client -lcynara-client  -L../src/admin -lcynara-admin
+cd ..
 
 %install
 rm -rf %{buildroot}
@@ -287,6 +304,11 @@ mkdir -p %{buildroot}/%{tests_dir}
 cp -a db* %{buildroot}/%{tests_dir}
 ln -s ../cynara.socket %{buildroot}/usr/lib/systemd/system/sockets.target.wants/cynara.socket
 ln -s ../cynara-admin.socket %{buildroot}/usr/lib/systemd/system/sockets.target.wants/cynara-admin.socket
+
+mkdir -p %{buildroot}/%{python_sitearch}/cynara
+cp python/_cynara.so %{buildroot}/%{python_sitearch}/cynara/
+# TODO: compile?
+cp python/*.py %{buildroot}/%{python_sitearch}/cynara/
 
 %pre
 id -g %{group_name} > /dev/null 2>&1
@@ -539,3 +561,8 @@ fi
 %files -n cynara-db-migration
 %manifest cynara-db-migration.manifest
 %attr(744,root,root) %{_sbindir}/cynara/cynara-db-migration.sh
+
+
+# TODO: manifest
+%files -n cynara-python
+%{python_sitearch}/*
