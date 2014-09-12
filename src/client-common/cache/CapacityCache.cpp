@@ -30,14 +30,7 @@
 namespace Cynara {
 
 int CapacityCache::get(const ClientSession &session, const PolicyKey &key) {
-    //This can be very time heavy. This part is welcomed to be optimized.
-    if (session != m_session) {
-        LOGD("Session changed from %s to %s.", m_session.c_str(), session.c_str());
-        clear();
-        m_session = session;
-        return CYNARA_API_CACHE_MISS;
-    }
-    auto resultIt = m_keyValue.find(keyToString(key));
+    auto resultIt = m_keyValue.find(cacheKeyToString(key, session));
     //Do we have entry in cache?
     if (resultIt == m_keyValue.end()) {
         LOGD("No entry for client=%s user=%s privilege=%s.",
@@ -77,18 +70,19 @@ int CapacityCache::get(const ClientSession &session, const PolicyKey &key) {
 void CapacityCache::clear(void) {
     m_keyUsage.clear();
     m_keyValue.clear();
-    m_session.clear();
 }
 
-std::string CapacityCache::keyToString(const PolicyKey &key) {
+std::string CapacityCache::cacheKeyToString(const PolicyKey &key, const ClientSession &session) {
     const char separator = '\1';
     auto clientStr = key.client().toString();
     auto privilegeStr = key.privilege().toString();
     auto userStr = key.user().toString();
-    return clientStr + privilegeStr + userStr + separator +
+
+    return clientStr + privilegeStr + userStr + session + separator +
             std::to_string(clientStr.size()) + separator +
             std::to_string(privilegeStr.size()) + separator +
-            std::to_string(userStr.size());
+            std::to_string(userStr.size()) + separator +
+            std::to_string(session.size());
 }
 
 void CapacityCache::evict(void) {
@@ -103,12 +97,6 @@ void CapacityCache::evict(void) {
 int CapacityCache::update(const ClientSession &session,
                           const PolicyKey &key,
                           const PolicyResult &result) {
-    //This can be very time heavy. This part is welcomed to be optimized.
-    if (session != m_session) {
-        LOGD("Session changed from %s to %s.", m_session.c_str(), session.c_str());
-        clear();
-        m_session = session;
-    }
 
     auto pluginIt = m_plugins.find(result.policyType());
 
@@ -127,8 +115,8 @@ int CapacityCache::update(const ClientSession &session,
                 LOGD("Capacity reached.");
                 evict();
             }
-            m_keyUsage.push_front(keyToString(key));
-            m_keyValue[keyToString(key)] = std::make_pair(result, m_keyUsage.begin());
+            m_keyUsage.push_front(cacheKeyToString(key, session));
+            m_keyValue[cacheKeyToString(key, session)] = std::make_pair(result, m_keyUsage.begin());
         }
     }
     return plugin->toResult(result);

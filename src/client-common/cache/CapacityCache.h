@@ -49,12 +49,11 @@ private:
         std::pair<PolicyResult,
                   KeyUsageList::iterator>> KeyValueMap;
 
-    static std::string keyToString(const PolicyKey &key);
+    static std::string cacheKeyToString(const PolicyKey &key, const ClientSession &session);
     void evict(void);
 
 
     std::size_t m_capacity;
-    ClientSession m_session;
 
     KeyUsageList m_keyUsage;
     KeyValueMap m_keyValue;
