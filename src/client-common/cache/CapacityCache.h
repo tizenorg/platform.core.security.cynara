@@ -54,7 +54,6 @@ private:
 
 
     std::size_t m_capacity;
-    ClientSession m_session;
 
     KeyUsageList m_keyUsage;
     KeyValueMap m_keyValue;

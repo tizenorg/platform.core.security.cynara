@@ -30,13 +30,6 @@
 namespace Cynara {
 
 int CapacityCache::get(const ClientSession &session, const PolicyKey &key) {
-    //This can be very time heavy. This part is welcomed to be optimized.
-    if (session != m_session) {
-        LOGD("Session changed from %s to %s.", m_session.c_str(), session.c_str());
-        clear();
-        m_session = session;
-        return CYNARA_API_CACHE_MISS;
-    }
     auto resultIt = m_keyValue.find(keyToString(key));
     //Do we have entry in cache?
     if (resultIt == m_keyValue.end()) {
@@ -60,10 +53,10 @@ int CapacityCache::get(const ClientSession &session, const PolicyKey &key) {
 
         //Is it still usable?
         InterpreterInterfacePtr plugin = pluginIt->second;
-        if (plugin->isUsable(resultIt->second.first)) {
+        if (plugin->isUsable(session, resultIt->second.first)) {
             LOGD("Entry usable.");
             m_keyUsage.splice(m_keyUsage.begin(), m_keyUsage, resultIt->second.second);
-            return plugin->toResult(resultIt->second.first);
+            return plugin->toResult(session, resultIt->second.first);
         }
         //Remove unusable entry
         LOGD("Entry not usable");
@@ -77,7 +70,6 @@ int CapacityCache::get(const ClientSession &session, const PolicyKey &key) {
 void CapacityCache::clear(void) {
     m_keyUsage.clear();
     m_keyValue.clear();
-    m_session.clear();
 }
 
 std::string CapacityCache::keyToString(const PolicyKey &key) {
@@ -103,12 +95,6 @@ void CapacityCache::evict(void) {
 int CapacityCache::update(const ClientSession &session,
                           const PolicyKey &key,
                           const PolicyResult &result) {
-    //This can be very time heavy. This part is welcomed to be optimized.
-    if (session != m_session) {
-        LOGD("Session changed from %s to %s.", m_session.c_str(), session.c_str());
-        clear();
-        m_session = session;
-    }
 
     auto pluginIt = m_plugins.find(result.policyType());
 
@@ -121,7 +107,7 @@ int CapacityCache::update(const ClientSession &session,
     auto plugin = pluginIt->second;
 
     if (m_capacity != 0) {
-        if (plugin->isCacheable(result)) {
+        if (plugin->isCacheable(session, result)) {
             LOGD("Entry cacheable");
             if (m_keyValue.size() == m_capacity) {
                 LOGD("Capacity reached.");
@@ -131,7 +117,7 @@ int CapacityCache::update(const ClientSession &session,
             m_keyValue[keyToString(key)] = std::make_pair(result, m_keyUsage.begin());
         }
     }
-    return plugin->toResult(result);
+    return plugin->toResult(session, result);
 }
 
 } // namespace Cynara
