@@ -25,6 +25,7 @@
 
 #include <list>
 #include <unordered_map>
+#include <tuple>
 
 #include <cache/CacheInterface.h>
 
@@ -46,15 +47,13 @@ public:
 private:
     typedef std::list<std::string> KeyUsageList;
     typedef std::unordered_map<std::string,
-        std::pair<PolicyResult,
-                  KeyUsageList::iterator>> KeyValueMap;
+        std::tuple<PolicyResult, ClientSession, KeyUsageList::iterator>> KeyValueMap;
 
     static std::string keyToString(const PolicyKey &key);
     void evict(void);
 
 
     std::size_t m_capacity;
-    ClientSession m_session;
 
     KeyUsageList m_keyUsage;
     KeyValueMap m_keyValue;
