@@ -1,4 +1,4 @@
-/*
+/**
  * Copyright (c) 2014 Samsung Electronics Co., Ltd All Rights Reserved
  *
  *  Contact: Lukasz Wojciechowski <l.wojciechow@partner.samsung.com>
@@ -15,7 +15,7 @@
  *    See the License for the specific language governing permissions and
  *    limitations under the License.
  */
-/*
+/**
  * @file        ProtocolFrameSerializer.h
  * @author      Adam Malinowski <a.malinowsk2@partner.samsung.com>
  * @version     1.0

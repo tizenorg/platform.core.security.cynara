@@ -1,5 +1,4 @@
-
-/*
+/**
  *  Copyright (c) 2014 Samsung Electronics Co., Ltd All Rights Reserved
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
@@ -14,7 +13,7 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License
  */
-/*
+/**
  * @file        PluginInterface.h
  * @author      Zofia Abramowska <z.abramowska@samsung.com>
  * @version     1.0
