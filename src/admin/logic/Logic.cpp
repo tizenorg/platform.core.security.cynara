@@ -38,13 +38,12 @@
 #include <response/CodeResponse.h>
 #include <response/pointers.h>
 #include <sockets/SocketClient.h>
+#include <sockets/SocketPath.h>
 #include <types/ProtocolFields.h>
 
 #include "Logic.h"
 
 namespace Cynara {
-
-const std::string adminSocketPath("/run/cynara/cynara-admin.socket");
 
 Logic::Logic() {
     m_socketClient = std::make_shared<SocketClient>(adminSocketPath,

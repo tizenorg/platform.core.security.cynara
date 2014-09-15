@@ -40,6 +40,7 @@
 #include <exceptions/DescriptorNotExistsException.h>
 #include <exceptions/InitException.h>
 #include <exceptions/UnexpectedErrorException.h>
+#include <sockets/SocketPath.h>
 
 #include <logic/Logic.h>
 #include <main/Cynara.h>
@@ -69,8 +70,6 @@ void SocketManager::run(void) {
 
 void SocketManager::init(void) {
     LOGI("SocketManger init start");
-    const std::string clientSocketPath("/run/cynara/cynara.socket");
-    const std::string adminSocketPath("/run/cynara/cynara-admin.socket");
     const mode_t clientSocketUMask(0);
     const mode_t adminSocketUMask(0077);
 
