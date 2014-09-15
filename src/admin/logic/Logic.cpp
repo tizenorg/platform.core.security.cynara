@@ -25,7 +25,6 @@
 
 #include <cynara-admin-error.h>
 #include <common.h>
-#include <exceptions/ServerConnectionErrorException.h>
 #include <log/log.h>
 #include <protocol/Protocol.h>
 #include <protocol/ProtocolAdmin.h>
@@ -90,9 +89,6 @@ int Logic::askCynaraAndInterpreteCodeResponse(Args... args) {
                      static_cast<int>(codeResponse->m_code));
                 return CYNARA_ADMIN_API_UNEXPECTED_CLIENT_ERROR;
         }
-    } catch (const ServerConnectionErrorException &ex) {
-        LOGE("Cynara service not available.");
-        return CYNARA_ADMIN_API_SERVICE_NOT_AVAILABLE;
     } catch (const std::bad_alloc &ex) {
         LOGE("Cynara admin client out of memory.");
         return CYNARA_ADMIN_API_OUT_OF_MEMORY;
