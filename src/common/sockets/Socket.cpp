@@ -42,8 +42,11 @@
 
 namespace Cynara {
 
-Socket::Socket(const std::string &socketPath, int timeoutMiliseconds) : m_sock(-1),
-    m_socketPath(socketPath), m_pollTimeout(timeoutMiliseconds) {
+Socket::Socket(const std::string &socketPath, int timeoutMiliseconds)
+    : m_sock(-1)
+    , m_connectionInProgress(false)
+    , m_socketPath(socketPath)
+    , m_pollTimeout(timeoutMiliseconds) {
 }
 
 Socket::~Socket() {
@@ -90,6 +93,9 @@ int Socket::getSocketError(void) {
 }
 
 bool Socket::isConnected(void) {
+    if (m_connectionInProgress)
+        return true;
+
     if (m_sock < 0)
         return false;
 
@@ -98,15 +104,12 @@ bool Socket::isConnected(void) {
         return false;
     }
 
-    return true;
+    return !waitForSocket(POLLHUP);
 }
 
-bool Socket::connect(void) {
+bool Socket::connect(int &err) {
     sockaddr_un clientAddr;
     int flags;
-
-    if (isConnected())
-        return true;
 
     close();
 
@@ -144,23 +147,76 @@ bool Socket::connect(void) {
     int retval = TEMP_FAILURE_RETRY(::connect(m_sock, (struct sockaddr*)&clientAddr,
                                             SUN_LEN(&clientAddr)));
     if (retval == -1) {
-        int err = errno;
-        if (err == EINPROGRESS) {
-            if (!waitForSocket(POLLOUT)) {
-                return false;
-            }
-            err = getSocketError();
-        }
-        if (err == ECONNREFUSED) {
-            //no one is listening
+        err = errno;
+        return false;
+    }
+    return true;
+}
+
+bool Socket::connectSync(void)
+{
+    if (isConnected())
+        return true;
+
+    int err;
+    if (connect(err))
+        return isConnected();
+
+    if (err == EINPROGRESS) {
+        if (!waitForSocket(POLLOUT)) {
             return false;
         }
-        close();
-        LOGE("'connect' function error [%d] : <%s>", err, strerror(err));
-        throw UnexpectedErrorException(err, strerror(err));
+        err = getSocketError();
     }
+    if (err == ECONNREFUSED) {
+        //no one is listening
+        return false;
+    }
+    close();
+    LOGE("'connect' function error [%d] : <%s>", err, strerror(err));
+    throw UnexpectedErrorException(err, strerror(err));
+}
 
-    return isConnected();
+Socket::ConnectionStatus Socket::connectAsync(void)
+{
+    if (isConnected())
+        return ConnectionStatus::ALREADY_CONNECTED;
+
+    int err;
+    if (connect(err))
+        return isConnected()
+            ? ConnectionStatus::CONNECTION_SUCCEEDED
+            : ConnectionStatus::CONNECTION_FAILED;
+
+    if (err == EINPROGRESS) {
+        return ConnectionStatus::CONNECTION_IN_PROGRESS;
+    }
+    if (err == ECONNREFUSED) {
+        //no one is listening
+        return ConnectionStatus::CONNECTION_FAILED;
+    }
+    close();
+    LOGE("'connect' function error [%d] : <%s>", err, strerror(err));
+    throw UnexpectedErrorException(err, strerror(err));
+}
+
+Socket::ConnectionStatus Socket::completeConnection(void)
+{
+    if (m_connectionInProgress) {
+        if (waitForSocket(POLLOUT)) {
+            m_connectionInProgress = false;
+            if (isConnected())
+                return ConnectionStatus::CONNECTION_SUCCEEDED;
+            return ConnectionStatus::CONNECTION_FAILED;
+        }
+        return ConnectionStatus::CONNECTION_IN_PROGRESS;
+    }
+    return ConnectionStatus::ALREADY_CONNECTED;
+}
+
+int Socket::getSockFd(void)
+{
+    return m_sock;
 }
 
 bool Socket::sendToServer(BinaryQueue &queue) {
@@ -170,7 +226,7 @@ bool Socket::sendToServer(BinaryQueue &queue) {
     queue.flattenConsume(buffer.data(), queue.size());
 
     do {
-        if (!connect()) {
+        if (!connectSync()) {
             LOGE("Error connecting to socket");
             throw ServerConnectionErrorException();
         }
