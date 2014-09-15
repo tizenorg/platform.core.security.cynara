@@ -190,7 +190,7 @@ TEST(storage, checkNonrecursive) {
     ASSERT_EQ(PredefinedPolicyType::ALLOW, storage.checkPolicy(pk, bucketId, false));
 }
 
-/*
+/**
  * bucket1 contains policy (with key pk) pointing to bucket2
  * bucket2 is empty and it's default policy is NONE
  * Because NONE policy in bucket2, check should yield default policy of bucket1 and not of bucket2
@@ -216,7 +216,7 @@ TEST(storage, noneBucket) {
     ASSERT_EQ(ALLOW, storage.checkPolicy(pk, bucket1.id(), true));
 }
 
-/*
+/**
  * Scenario similar to noneBucket, but bucket2 contains matching policy.
  * In this case this policy should be returned.
  */
@@ -242,7 +242,7 @@ TEST(storage, noneBucketNotEmpty) {
     ASSERT_EQ(DENY, storage.checkPolicy(pk, bucket1.id(), true));
 }
 
-/*
+/**
  * Single empty bucket with default policy of NONE
  * -- searching for any key should yield NONE
  */
