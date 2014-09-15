@@ -35,12 +35,11 @@
 #include <response/CheckResponse.h>
 #include <response/pointers.h>
 #include <sockets/SocketClient.h>
+#include <sockets/SocketPath.h>
 
 #include <logic/Logic.h>
 
 namespace Cynara {
-
-const std::string clientSocketPath("/run/cynara/cynara.socket");
 
 static ProtocolFrameSequenceNumber generateSequenceNumber(void) {
     static ProtocolFrameSequenceNumber sequenceNumber = 0;
