@@ -42,9 +42,9 @@
 #include <types/PolicyResult.h>
 #include <types/PolicyType.h>
 
-#include <storage/BucketDeserializer.h>
-#include <storage/StorageDeserializer.h>
-#include <storage/StorageSerializer.h>
+#include <BucketDeserializer.h>
+#include <StorageDeserializer.h>
+#include <StorageSerializer.h>
 
 #include "InMemoryStorageBackend.h"
 

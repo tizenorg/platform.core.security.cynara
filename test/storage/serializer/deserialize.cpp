@@ -28,8 +28,8 @@
 #include <gtest/gtest.h>
 
 #include <exceptions/BucketDeserializationException.h>
-#include <storage/Buckets.h>
-#include <storage/StorageDeserializer.h>
+#include <Buckets.h>
+#include <StorageDeserializer.h>
 #include <types/PolicyBucket.h>
 
 MATCHER_P(PolicyBucketIdPolicyEq, expected, "") {

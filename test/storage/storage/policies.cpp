@@ -29,8 +29,8 @@
 #include <gtest/gtest.h>
 
 #include <exceptions/BucketNotExistsException.h>
-#include <storage/Storage.h>
-#include <storage/StorageBackend.h>
+#include <Storage.h>
+#include <StorageBackend.h>
 #include <types/pointers.h>
 #include <types/PolicyCollection.h>
 #include <types/PolicyKey.h>

@@ -28,8 +28,8 @@
 
 #include <types/PolicyBucket.h>
 #include <types/PolicyCollection.h>
-#include <storage/Buckets.h>
-#include <storage/InMemoryStorageBackend.h>
+#include <Buckets.h>
+#include <InMemoryStorageBackend.h>
 
 class InMemeoryStorageBackendFixture : public ::testing::Test {
 

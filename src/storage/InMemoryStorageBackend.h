@@ -33,10 +33,10 @@
 #include <types/PolicyKey.h>
 #include <types/PolicyResult.h>
 
-#include <storage/BucketDeserializer.h>
-#include <storage/Buckets.h>
-#include <storage/StorageBackend.h>
-#include <storage/StorageSerializer.h>
+#include <BucketDeserializer.h>
+#include <Buckets.h>
+#include <StorageBackend.h>
+#include <StorageSerializer.h>
 
 namespace Cynara {
 

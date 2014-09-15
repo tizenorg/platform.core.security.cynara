@@ -34,7 +34,7 @@
 #include <types/PolicyKey.h>
 #include <types/PolicyResult.h>
 
-#include <storage/StorageBackend.h>
+#include <StorageBackend.h>
 
 namespace Cynara {
 

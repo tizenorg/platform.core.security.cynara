@@ -30,8 +30,8 @@
 #include <types/PolicyResult.h>
 #include <types/PolicyType.h>
 
-#include <storage/StorageDeserializer.h>
-#include <storage/StorageSerializer.h>
+#include <StorageDeserializer.h>
+#include <StorageSerializer.h>
 
 #include "BucketDeserializer.h"
 

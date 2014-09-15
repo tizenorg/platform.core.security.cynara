@@ -29,8 +29,8 @@
 #include "types/PolicyCollection.h"
 #include "types/pointers.h"
 #include "exceptions/DefaultBucketDeletionException.h"
-#include "storage/Storage.h"
-#include "storage/StorageBackend.h"
+#include "Storage.h"
+#include "StorageBackend.h"
 
 #include "fakestoragebackend.h"
 #include "../../helpers.h"

@@ -27,7 +27,7 @@
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
 
-#include <storage/StorageSerializer.h>
+#include <StorageSerializer.h>
 #include <types/Policy.h>
 #include <types/PolicyBucket.h>
 #include <types/PolicyKey.h>

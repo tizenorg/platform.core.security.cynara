@@ -28,9 +28,9 @@
 #include <exceptions/BucketRecordCorruptedException.h>
 #include <types/PolicyType.h>
 
-#include <storage/BucketDeserializer.h>
-#include <storage/Buckets.h>
-#include <storage/StorageSerializer.h>
+#include <BucketDeserializer.h>
+#include <Buckets.h>
+#include <StorageSerializer.h>
 
 #include "StorageDeserializer.h"
 

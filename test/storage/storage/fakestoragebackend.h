@@ -23,7 +23,7 @@
 #ifndef FAKESTORAGEBACKEND_H_
 #define FAKESTORAGEBACKEND_H_
 
-#include <storage/StorageBackend.h>
+#include <StorageBackend.h>
 
 using namespace Cynara;
 

@@ -34,7 +34,7 @@
 #include <types/PolicyResult.h>
 #include <types/PolicyType.h>
 
-#include <storage/Buckets.h>
+#include <Buckets.h>
 
 namespace Cynara {
 

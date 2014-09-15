@@ -29,7 +29,7 @@
 #include <gtest/gtest.h>
 
 #include <exceptions/BucketRecordCorruptedException.h>
-#include <storage/BucketDeserializer.h>
+#include <BucketDeserializer.h>
 #include <types/Policy.h>
 
 #include "../../helpers.h"

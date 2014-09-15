@@ -28,9 +28,9 @@
 
 #include <logic/Logic.h>
 #include <sockets/SocketManager.h>
-#include <storage/InMemoryStorageBackend.h>
-#include <storage/Storage.h>
-#include <storage/StorageBackend.h>
+#include <InMemoryStorageBackend.h>
+#include <Storage.h>
+#include <StorageBackend.h>
 
 #include "Cynara.h"
 

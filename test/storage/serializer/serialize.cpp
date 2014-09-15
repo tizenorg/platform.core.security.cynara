@@ -30,9 +30,9 @@
 #include <gtest/gtest.h>
 
 #include <exceptions/BucketSerializationException.h>
-#include <storage/Buckets.h>
-#include <storage/InMemoryStorageBackend.h>
-#include <storage/StorageSerializer.h>
+#include <Buckets.h>
+#include <InMemoryStorageBackend.h>
+#include <StorageSerializer.h>
 #include <types/PolicyBucketId.h>
 
 class FakeStreamForBucketId {

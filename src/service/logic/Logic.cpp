@@ -37,7 +37,7 @@
 #include <request/SignalRequest.h>
 #include <response/CheckResponse.h>
 #include <response/CodeResponse.h>
-#include <storage/Storage.h>
+#include <Storage.h>
 
 #include <sockets/SocketManager.h>
 
