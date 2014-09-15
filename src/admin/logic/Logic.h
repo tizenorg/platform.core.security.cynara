@@ -35,6 +35,7 @@ class Logic : public ApiInterface {
 private:
     SocketClientPtr m_socketClient;
 
+    int checkConnection(void);
     template<typename T, typename... Args>
     int askCynaraAndInterpreteCodeResponse(Args... args);
 
