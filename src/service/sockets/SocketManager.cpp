@@ -45,6 +45,7 @@
 #include <logic/Logic.h>
 #include <main/Cynara.h>
 #include <protocol/ProtocolAdmin.h>
+#include <protocol/ProtocolAgent.h>
 #include <protocol/ProtocolClient.h>
 #include <protocol/ProtocolSignal.h>
 #include <request/pointers.h>
@@ -70,13 +71,21 @@ void SocketManager::run(void) {
 
 void SocketManager::init(void) {
     LOGI("SocketManger init start");
+<<<<<<< HEAD
+=======
+    const std::string clientSocketPath("/run/cynara/cynara.socket");
+    const std::string adminSocketPath("/run/cynara/cynara-admin.socket");
+    const std::string agentSocketPath("/run/cynara/cynara-agent.socket");
+>>>>>>> Add agent socket & dummy agent protocol
     const mode_t clientSocketUMask(0);
     const mode_t adminSocketUMask(0077);
+    const mode_t agentSocketUMask(0);
 
     createDomainSocket(std::make_shared<ProtocolClient>(), SocketPath::client, clientSocketUMask,
                        true);
     createDomainSocket(std::make_shared<ProtocolAdmin>(), SocketPath::admin, adminSocketUMask,
                        false);
+    createDomainSocket(std::make_shared<ProtocolAgent>(), SocketPath::agent, agentSocketUMask, false);
     createSignalSocket(std::make_shared<ProtocolSignal>());
     LOGI("SocketManger init done");
 }

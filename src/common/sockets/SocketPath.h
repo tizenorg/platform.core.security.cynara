@@ -30,6 +30,7 @@ namespace SocketPath {
 
 extern const std::string client;
 extern const std::string admin;
+extern const std::string agent;
 
 } // namespace SocketPath
 } // namespace Cynara
