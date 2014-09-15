@@ -40,6 +40,7 @@ private:
     PluginCachePtr m_cache;
 
     void onDisconnected(void);
+    int checkConnection(void);
     int requestResult(const PolicyKey &key, PolicyResult &result);
 public:
     Logic();
