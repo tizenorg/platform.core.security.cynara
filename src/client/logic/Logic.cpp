@@ -25,7 +25,8 @@
 #include <cache/CapacityCache.h>
 #include <common.h>
 #include <cynara-client-error.h>
-#include <exceptions/ServerConnectionErrorException.h>
+#include <exceptions/Exception.h>
+#include <exceptions/UnexpectedErrorException.h>
 #include <log/log.h>
 #include <plugins/NaiveInterpreter.h>
 #include <protocol/Protocol.h>
@@ -56,14 +57,13 @@ Logic::Logic() {
 }
 
 int Logic::check(const std::string &client, const ClientSession &session, const std::string &user,
-                 const std::string &privilege)
-{
-    if (!m_socket->isConnected()){
-        onDisconnected();
-    }
+                 const std::string &privilege) {
+    int ret = checkConnection();
+    if (ret != CYNARA_API_SUCCESS)
+        return ret;
 
     PolicyKey key(client, user, privilege);
-    auto ret = m_cache->get(session, key);
+    ret = m_cache->get(session, key);
     //Any other situation than cache miss
     if (ret != CYNARA_API_CACHE_MISS) {
         return ret;
@@ -80,6 +80,22 @@ int Logic::check(const std::string &client, const ClientSession &session, const 
     return m_cache->update(session, key, result);
 }
 
+int Logic::checkConnection(void) {
+    try {
+        if (!m_socket->isConnected()) {
+            onDisconnected();
+            if (!m_socket->connect()) {
+                LOGW("Cannot connect to cynara. Service not available.");
+                return CYNARA_API_SERVICE_NOT_AVAILABLE;
+            }
+        }
+    } catch (const Exception &ex) {
+        LOGE(ex.what());
+        return CYNARA_API_UNKNOWN_ERROR;
+    }
+    return CYNARA_API_SUCCESS;
+}
+
 int Logic::requestResult(const PolicyKey &key, PolicyResult &result) {
     ProtocolFrameSequenceNumber sequenceNumber = generateSequenceNumber();
 
@@ -87,11 +103,16 @@ int Logic::requestResult(const PolicyKey &key, PolicyResult &result) {
     CheckResponsePtr checkResponse;
     try {
         RequestPtr request = std::make_shared<CheckRequest>(key, sequenceNumber);
-        ResponsePtr response = m_socket->askCynaraServer(request);
-        if (!response) {
-            LOGW("Disconnected by cynara server.");
-            return CYNARA_API_SERVICE_NOT_AVAILABLE;
+        ResponsePtr response;
+        while (true) {
+            response = m_socket->askCynaraServer(request);
+            if (response)
+                break;
+            m_cache->clear();
+            if (!m_socket->connect())
+                return CYNARA_API_SERVICE_NOT_AVAILABLE;
         }
+
         checkResponse = std::dynamic_pointer_cast<CheckResponse>(response);
         if (!checkResponse) {
             LOGC("Critical error. Casting Response to CheckResponse failed.");
@@ -101,9 +122,11 @@ int Logic::requestResult(const PolicyKey &key, PolicyResult &result) {
         LOGD("checkResponse: policyType = %" PRIu16 ", metadata = %s",
              checkResponse->m_resultRef.policyType(),
              checkResponse->m_resultRef.metadata().c_str());
-    } catch (const ServerConnectionErrorException &ex) {
-        LOGE("Cynara service not available.");
-        return CYNARA_API_SERVICE_NOT_AVAILABLE;
+    } catch (const Exception &ex) {
+        LOGE(ex.what());
+        return CYNARA_API_UNKNOWN_ERROR;
+    } catch (const std::bad_alloc &) {
+        return CYNARA_API_OUT_OF_MEMORY;
     }
 
     result = checkResponse->m_resultRef;
