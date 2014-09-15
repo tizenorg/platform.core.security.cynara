@@ -53,4 +53,42 @@
 #define CYNARA_ADMIN_API_BUCKET_NOT_FOUND -6
 /** @}*/
 
+/**
+ * \name Wildcard
+ * definition of WILDCARD, that can replace client, user or privilege name.
+ * WILDCARD matches any string during check procedure from libcynara-client.
+ */
+#define CYNARA_ADMIN_WILDCARD "*"
+
+/**
+ * \name Name of Default Bucket
+ * definition of name for default bucket - the one that check starts in.
+ * default bucket cannot be removed, although its default policy
+ * (which originally is set to DENY) can be changed.
+ */
+#define CYNARA_ADMIN_DEFAULT_BUCKET ""
+
+/**
+ * \name Operation Codes
+ * operation codes that define action type to be taken in below defined functions
+ * they are used mostly to define policy result
+ * @{
+ */
+
+/*! \brief   a policy or bucket should be removed */
+#define CYNARA_ADMIN_DELETE -1
+
+/*! \brief   set policy result or bucket's default policy to DENY */
+#define CYNARA_ADMIN_DENY 0
+
+/*! \brief   set bucket's default policy to NONE */
+#define CYNARA_ADMIN_NONE 1
+
+/*! \brief   set policy result or bucket's default policy to ALLOW */
+#define CYNARA_ADMIN_ALLOW 2
+
+/*! \brief   set policy to point into another bucket */
+#define CYNARA_ADMIN_BUCKET 3
+/** @}*/
+
 #endif // CYNARA_ADMIN_ERROR_H
