@@ -27,6 +27,7 @@ namespace SocketPath {
 
 const std::string client("/run/cynara/cynara.socket");
 const std::string admin("/run/cynara/cynara-admin.socket");
+const std::string agent("/run/cynara/cynara-agent.socket");
 
 } // namespace SocketPath
 } // namespace Cynara

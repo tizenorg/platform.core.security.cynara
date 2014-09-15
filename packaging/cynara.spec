@@ -275,6 +275,7 @@ mkdir -p %{buildroot}/%{tests_dir}
 cp -a db* %{buildroot}/%{tests_dir}
 ln -s ../cynara.socket %{buildroot}/usr/lib/systemd/system/sockets.target.wants/cynara.socket
 ln -s ../cynara-admin.socket %{buildroot}/usr/lib/systemd/system/sockets.target.wants/cynara-admin.socket
+ln -s ../cynara-agent.socket %{buildroot}/usr/lib/systemd/system/sockets.target.wants/cynara-agent.socket
 
 %pre
 id -g %{group_name} > /dev/null 2>&1
@@ -404,7 +405,9 @@ fi
 %attr(-,root,root) /usr/lib/systemd/system/sockets.target.wants/cynara.socket
 %attr(-,root,root) /usr/lib/systemd/system/cynara.socket
 %attr(-,root,root) /usr/lib/systemd/system/sockets.target.wants/cynara-admin.socket
+%attr(-,root,root) /usr/lib/systemd/system/sockets.target.wants/cynara-agent.socket
 %attr(-,root,root) /usr/lib/systemd/system/cynara-admin.socket
+%attr(-,root,root) /usr/lib/systemd/system/cynara-agent.socket
 %dir %attr(700,cynara,cynara) %{state_path}
 
 %files -n libcynara-client
