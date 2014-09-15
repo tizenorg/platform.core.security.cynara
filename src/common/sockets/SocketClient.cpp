@@ -44,15 +44,19 @@ ResponsePtr SocketClient::askCynaraServer(RequestPtr request) {
     RequestContextPtr context = std::make_shared<RequestContext>(ResponseTakerPtr(), m_writeQueue);
     request->execute(request, m_protocol, context);
 
+    if (m_socket.connect() == Socket::ConnectionStatus::CONNECTION_FAILED) {
+        LOGW("Error connecting to Cynara. Service not available.");
+        return nullptr;
+    }
     //send request to cynara
-    if (!m_socket.sendToServer(m_writeQueue)) {
+    if (m_socket.sendToServer(m_writeQueue) == Socket::SendStatus::CONNECTION_LOST) {
         LOGW("Error sending request to Cynara. Service not available.");
         return nullptr;
     }
 
     // receive response from cynara
     while (true) {
-        if (!m_socket.waitAndReceiveFromServer(m_readQueue)) {
+        if (!m_socket.receiveFromServer(m_readQueue)) {
             LOGW("Error receiving response from Cynara. Service not available.");
             return nullptr;
         }
@@ -64,7 +68,7 @@ ResponsePtr SocketClient::askCynaraServer(RequestPtr request) {
 }
 
 bool SocketClient::isConnected(void) {
-    return m_socket.isConnected() && m_socket.receiveFromServer(m_readQueue);
+    return m_socket.isConnected();
 }
 
 } // namespace Cynara
