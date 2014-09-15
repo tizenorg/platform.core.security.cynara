@@ -25,7 +25,7 @@
 #include <cache/CapacityCache.h>
 #include <common.h>
 #include <cynara-client-error.h>
-#include <exceptions/ServerConnectionErrorException.h>
+#include <exceptions/Exception.h>
 #include <log/log.h>
 #include <plugins/NaiveInterpreter.h>
 #include <protocol/Protocol.h>
@@ -101,9 +101,10 @@ int Logic::requestResult(const PolicyKey &key, PolicyResult &result) noexcept {
         LOGD("checkResponse: policyType = %" PRIu16 ", metadata = %s",
              checkResponse->m_resultRef.policyType(),
              checkResponse->m_resultRef.metadata().c_str());
-    } catch (const ServerConnectionErrorException &ex) {
-        LOGE("Cynara service not available.");
-        return CYNARA_API_SERVICE_NOT_AVAILABLE;
+    } catch (const Exception &) {
+        return CYNARA_API_UNKNOWN_ERROR;
+    } catch (const std::bad_alloc &) {
+        return CYNARA_API_OUT_OF_MEMORY;
     }
 
     result = checkResponse->m_resultRef;
