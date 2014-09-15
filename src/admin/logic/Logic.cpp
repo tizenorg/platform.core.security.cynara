@@ -25,7 +25,8 @@
 
 #include <cynara-admin-error.h>
 #include <common.h>
-#include <exceptions/ServerConnectionErrorException.h>
+#include <exceptions/Exception.h>
+#include <exceptions/UnexpectedErrorException.h>
 #include <log/log.h>
 #include <protocol/Protocol.h>
 #include <protocol/ProtocolAdmin.h>
@@ -55,8 +56,27 @@ ProtocolFrameSequenceNumber generateSequenceNumber(void) {
     return ++sequenceNumber;
 }
 
+int Logic::checkConnection(void) {
+    try {
+        if (!m_socketClient->isConnected()) {
+            if (!m_socketClient->connect()) {
+                LOGW("Cannot connect to cynara. Service not available.");
+                return CYNARA_ADMIN_API_SERVICE_NOT_AVAILABLE;
+            }
+        }
+    } catch (const Exception &ex) {
+        LOGE(ex.message().c_str());
+        return CYNARA_ADMIN_API_UNEXPECTED_CLIENT_ERROR;
+    }
+    return CYNARA_ADMIN_API_SUCCESS;
+}
+
 template<typename T, typename... Args>
 int Logic::askCynaraAndInterpreteCodeResponse(Args... args) {
+    int ret = checkConnection();
+    if (ret != CYNARA_ADMIN_API_SUCCESS)
+        return ret;
+
     ProtocolFrameSequenceNumber sequenceNumber = generateSequenceNumber();
 
     //Ask cynara service
@@ -90,9 +110,6 @@ int Logic::askCynaraAndInterpreteCodeResponse(Args... args) {
                      static_cast<int>(codeResponse->m_code));
                 return CYNARA_ADMIN_API_UNEXPECTED_CLIENT_ERROR;
         }
-    } catch (const ServerConnectionErrorException &ex) {
-        LOGE("Cynara service not available.");
-        return CYNARA_ADMIN_API_SERVICE_NOT_AVAILABLE;
     } catch (const std::bad_alloc &ex) {
         LOGE("Cynara admin client out of memory.");
         return CYNARA_ADMIN_API_OUT_OF_MEMORY;
@@ -118,6 +135,9 @@ int Logic::removeBucket(const PolicyBucketId &bucket) noexcept {
 
 int Logic::adminCheck(const PolicyBucketId &startBucket, bool recursive, const PolicyKey &key,
                       PolicyResult &result) noexcept {
+    int ret = checkConnection();
+    if (ret != CYNARA_ADMIN_API_SUCCESS)
+        return ret;
 
     ProtocolFrameSequenceNumber sequenceNumber = generateSequenceNumber();
 
@@ -140,9 +160,9 @@ int Logic::adminCheck(const PolicyBucketId &startBucket, bool recursive, const P
         LOGD("checkResponse: policyType [%" PRIu16 "], metadata <%s>",
              checkResponse->m_resultRef.policyType(),
              checkResponse->m_resultRef.metadata().c_str());
-    } catch (const ServerConnectionErrorException &ex) {
-        LOGE("Cynara service not available.");
-        return CYNARA_ADMIN_API_SERVICE_NOT_AVAILABLE;
+    } catch (const UnexpectedErrorException &ex) {
+        LOGE(ex.message().c_str());
+        return CYNARA_ADMIN_API_UNEXPECTED_CLIENT_ERROR;
     } catch (const std::bad_alloc &ex) {
         LOGE("Cynara admin client out of memory.");
         return CYNARA_ADMIN_API_OUT_OF_MEMORY;
