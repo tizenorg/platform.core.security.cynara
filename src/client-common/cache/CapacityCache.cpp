@@ -106,6 +106,14 @@ int CapacityCache::update(const ClientSession &session,
                           const PolicyKey &key,
                           const PolicyResult &result) {
 
+    std::string cacheKey = keyToString(key);
+    auto resultIt = m_keyValue.find(cacheKey);
+
+    //Move value usage to front
+    if (resultIt != m_keyValue.end()) {
+        auto usageIt = std::get<2>(resultIt->second);
+        m_keyUsage.splice(m_keyUsage.begin(), m_keyUsage, usageIt);
+    }
     auto pluginIt = m_plugins.find(result.policyType());
 
     //No registered plugin for returned type of policy
@@ -125,7 +133,7 @@ int CapacityCache::update(const ClientSession &session,
                 LOGD("Capacity reached.");
                 evict();
             }
-            std::string cacheKey = keyToString(key);
+
             m_keyUsage.push_front(cacheKey);
             m_keyValue[cacheKey] = std::make_tuple(storedResult, session, m_keyUsage.begin());
         }
