@@ -1,0 +1,8 @@
+Code-Review+2: Casey Schaufler <casey.schaufler@intel.com>
+Verified+1: Aleksander Zdyb <a.zdyb@samsung.com>
+Code-Review+1: Build Bot <b.bot@partner.samsung.com>
+Submitted-by: Casey Schaufler <casey.schaufler@intel.com>
+Submitted-at: Wed, 17 Sep 2014 10:03:18 -0700
+Reviewed-on: https://review.tizen.org/gerrit/27358
+Project: platform/core/security/cynara
+Branch: refs/heads/tizen
