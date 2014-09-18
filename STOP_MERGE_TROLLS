@@ -1,0 +1,6 @@
+Casey, please do not submit patches to cynara.
+
+Order of patches does matter.
+Sometimes one functionality is splitted into few patches.
+We want to merge functionality after functionality.
+We don't want to shuffle patches from different functionalities.
