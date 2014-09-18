@@ -23,10 +23,12 @@
 
 #include <memory>
 
+#include <cache/CapacityCache.h>
 #include <common.h>
 #include <exceptions/Exception.h>
 #include <exceptions/UnexpectedErrorException.h>
 #include <log/log.h>
+#include <plugins/NaiveInterpreter.h>
 #include <protocol/ProtocolClient.h>
 #include <sockets/Socket.h>
 #include <sockets/SocketPath.h>
@@ -41,6 +43,12 @@ Logic::Logic(cynara_status_callback callback,
 {
     m_socket = std::make_shared<SocketClientAsync>(
         clientSocketPath, std::make_shared<ProtocolClient>());
+
+    m_cache = std::make_shared<CapacityCache>();
+    auto naiveInterpreter = std::make_shared<NaiveInterpreter>();
+    m_cache->registerPlugin(PredefinedPolicyType::ALLOW, naiveInterpreter);
+    m_cache->registerPlugin(PredefinedPolicyType::DENY, naiveInterpreter);
+    m_cache->registerPlugin(PredefinedPolicyType::BUCKET, naiveInterpreter);
 }
 
 Logic::~Logic()
@@ -48,19 +56,17 @@ Logic::~Logic()
     onDisconnected();
 }
 
-int Logic::checkCache(const std::string &client UNUSED,
-                      const std::string &session UNUSED,
-                      const std::string &user UNUSED,
-                      const std::string &privilege UNUSED) noexcept
+int Logic::checkCache(const std::string &client,
+                      const std::string &session,
+                      const std::string &user,
+                      const std::string &privilege) noexcept
 {
     int ret = checkCacheValid();
-    switch (ret) {
-        case CYNARA_API_SUCCESS:
-            // MOCKUP
-            return CYNARA_API_CACHE_MISS;
-        default:
-            return ret;
+    if (ret != CYNARA_API_SUCCESS) {
+        return ret;
     }
+
+    return m_cache->get(session, PolicyKey(client, user, privilege));
 }
 
 int Logic::createRequest(const std::string &client UNUSED,
