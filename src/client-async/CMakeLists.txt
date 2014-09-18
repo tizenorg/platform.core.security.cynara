@@ -23,7 +23,7 @@ SET(CYNARA_LIB_CYNARA_ASYNC_PATH ${CYNARA_PATH}/client-async)
 
 INCLUDE_DIRECTORIES(
     ${CYNARA_LIB_CYNARA_ASYNC_PATH}
-    ${CYNARA_PATH}/common
+    ${CYNARA_PATH}/client-common
     ${CYNARA_PATH}/include
     )
 
