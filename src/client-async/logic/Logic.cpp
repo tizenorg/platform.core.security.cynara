@@ -30,6 +30,8 @@
 #include <log/log.h>
 #include <plugins/NaiveInterpreter.h>
 #include <protocol/ProtocolClient.h>
+#include <request/CheckRequest.h>
+#include <response/CheckResponse.h>
 #include <sockets/Socket.h>
 #include <sockets/SocketPath.h>
 
@@ -53,7 +55,9 @@ Logic::Logic(cynara_status_callback callback,
 
 Logic::~Logic()
 {
-    onDisconnected();
+    for (auto& kv : m_checks)
+        kv.second.callback().onFinish(kv.first);
+    m_statusCallback.onDisconnected();
 }
 
 int Logic::checkCache(const std::string &client,
@@ -69,22 +73,37 @@ int Logic::checkCache(const std::string &client,
     return m_cache->get(session, PolicyKey(client, user, privilege));
 }
 
-int Logic::createRequest(const std::string &client UNUSED,
-                         const std::string &session UNUSED,
-                         const std::string &user UNUSED,
-                         const std::string &privilege UNUSED,
-                         cynara_check_id &checkId UNUSED,
-                         cynara_response_callback callback UNUSED,
-                         void *userResponseData UNUSED) noexcept
+int Logic::createRequest(const std::string &client,
+                         const std::string &session,
+                         const std::string &user,
+                         const std::string &privilege,
+                         cynara_check_id &checkId,
+                         cynara_response_callback callback,
+                         void *userResponseData) noexcept
 {
     int ret = connect();
     if (ret != CYNARA_API_SUCCESS)
         return ret;
 
-    // MOCKUP
-    return CYNARA_API_MAX_PENDING_REQUESTS;
-}
+    ProtocolFrameSequenceNumber sequenceNumber;
+    try {
+        if (!m_sequenceContainer.generate(sequenceNumber))
+            return CYNARA_API_MAX_PENDING_REQUESTS;
 
+        PolicyKey key(client, user, privilege);
+        ResponseCallback responseCallback(callback, userResponseData);
+        m_checks.insert(CheckPair(sequenceNumber, CheckData(key, session, responseCallback)));
+        m_socket->appendRequest(std::make_shared<CheckRequest>(key, sequenceNumber));
+    } catch (const std::bad_alloc &) {
+        return CYNARA_API_OUT_OF_MEMORY;
+    }
+
+    m_statusCallback.onStatusChange(m_socket->getSockFd(),
+                                    cynara_async_status::CYNARA_STATUS_FOR_RW);
+    checkId = static_cast<cynara_check_id>(sequenceNumber);
+
+    return CYNARA_API_SUCCESS;
+}
 
 int Logic::process(void) noexcept
 {
@@ -94,8 +113,11 @@ int Logic::process(void) noexcept
         return ret;
     }
 
-    // MOCKUP
-    return CYNARA_API_SUCCESS;
+    ret = processOut();
+    if (ret != CYNARA_API_SUCCESS)
+        return ret;
+
+    return processIn();
 }
 
 int Logic::cancelRequest(cynara_check_id checkId UNUSED) noexcept
@@ -121,9 +143,110 @@ int Logic::checkCacheValid(void)
     }
 }
 
-void Logic::prepareRequestsToSend(void)
+int Logic::prepareRequestsToSend(void)
 {
+    try {
+        for (auto& kv : m_checks) {
+            // MOCKUP
+            m_socket->appendRequest(std::make_shared<CheckRequest>(kv.second.key(), kv.first));
+        }
+    } catch (const std::bad_alloc &) {
+        return CYNARA_API_OUT_OF_MEMORY;
+    }
+    m_statusCallback.onStatusChange(m_socket->getSockFd(),
+                                    socketDataStatus());
+    return CYNARA_API_SUCCESS;
+}
+
+int Logic::processOut(void)
+{
+    Socket::Socket::SendStatus status;
+    try {
+        status = m_socket->sendToCynara();
+    } catch (const UnexpectedErrorException &ex) {
+        LOGE(ex.message().c_str());
+        return CYNARA_API_UNKNOWN_ERROR;
+    } catch (std::bad_alloc &) {
+        return CYNARA_API_OUT_OF_MEMORY;
+    }
+    switch (status) {
+        case Socket::SendStatus::ALL_DATA_SENT:
+            m_statusCallback.onStatusChange(m_socket->getSockFd(),
+                                            cynara_async_status::CYNARA_STATUS_FOR_READ);
+        case Socket::SendStatus::PARTIAL_DATA_SENT:
+            return CYNARA_API_SUCCESS;
+        default:
+            onDisconnected();
+            return CYNARA_API_SERVICE_NOT_AVAILABLE;
+    }
+}
+
+int Logic::processCheckResponse(CheckResponsePtr checkResponse)
+{
+    LOGD("checkResponse: policyType = %" PRIu16 ", metadata = %s",
+         checkResponse->m_resultRef.policyType(),
+         checkResponse->m_resultRef.metadata().c_str());
+
+    auto it = m_checks.find(checkResponse->sequenceNumber());
+    if (it == m_checks.end()) {
+        LOGC("Critical error. Unknown response received: sequenceNumber = %zu",
+             checkResponse->sequenceNumber());
+        return CYNARA_API_UNKNOWN_ERROR;
+    }
+    int result;
+    try {
+        result = m_cache->update(it->second.session(), it->second.key(), checkResponse->m_resultRef);
+    } catch (const std::bad_alloc &) {
+        return CYNARA_API_OUT_OF_MEMORY;
+    }
     // MOCKUP
+    it->second.callback().onAnswer(static_cast<cynara_check_id>(it->first), result);
+    m_checks.erase(it);
+    return CYNARA_API_SUCCESS;
+}
+
+int Logic::processResponses(void)
+{
+    ResponsePtr response;
+    CheckResponsePtr checkResponse;
+    while (true) {
+        try {
+            response = m_socket->getResponse();
+            if (!response)
+                break;
+            checkResponse = std::dynamic_pointer_cast<CheckResponse>(response);
+        } catch (const std::bad_alloc &) {
+            return CYNARA_API_OUT_OF_MEMORY;
+        }
+        if (checkResponse) {
+            int ret = processCheckResponse(checkResponse);
+            if (ret != CYNARA_API_SUCCESS)
+                return ret;
+            continue;
+        }
+        // MOCKUP
+        LOGC("Critical error. Casting Response to CheckResponse failed.");
+        return CYNARA_API_UNKNOWN_ERROR;
+    }
+    return CYNARA_API_SUCCESS;
+}
+
+int Logic::processIn(void)
+{
+    bool connected;
+    try {
+        connected = m_socket->receiveFromCynara();
+    } catch (const UnexpectedErrorException &ex) {
+        LOGE(ex.message().c_str());
+        return CYNARA_API_UNKNOWN_ERROR;
+    } catch (const std::bad_alloc &) {
+        return CYNARA_API_OUT_OF_MEMORY;
+    }
+    if (!connected) {
+        onDisconnected();
+        return CYNARA_API_SERVICE_NOT_AVAILABLE;
+    }
+    return processResponses();
 }
 
 cynara_async_status Logic::socketDataStatus(void)
@@ -142,7 +265,7 @@ int Logic::connect(void)
         LOGE(ex.message().c_str());
         return CYNARA_API_UNKNOWN_ERROR;
     }
-    onDisconnected();
+    onDisconnected(false);
 
     Socket::ConnectionStatus status;
     try {
@@ -151,18 +274,22 @@ int Logic::connect(void)
         LOGE(ex.message().c_str());
         return CYNARA_API_UNKNOWN_ERROR;
     }
+    int ret;
     switch (status) {
         case Socket::ConnectionStatus::CONNECTION_SUCCEEDED:
-            prepareRequestsToSend();
+            ret = prepareRequestsToSend();
+            if (ret != CYNARA_API_SUCCESS)
+                return ret;
             m_statusCallback.onStatusChange(m_socket->getSockFd(),
                                             socketDataStatus());
             return CYNARA_API_SUCCESS;
         case Socket::ConnectionStatus::CONNECTION_IN_PROGRESS:
-            prepareRequestsToSend();
             m_statusCallback.onStatusChange(m_socket->getSockFd(),
                                             cynara_async_status::CYNARA_STATUS_FOR_RW);
-            return CYNARA_API_SUCCESS;
+            return prepareRequestsToSend();
         default:
+            for (auto& kv : m_checks)
+                kv.second.callback().onDisconnected(kv.first);
             return CYNARA_API_SERVICE_NOT_AVAILABLE;
     }
 }
@@ -194,9 +321,13 @@ int Logic::completeConnection(bool &connectionInProgress)
     }
 }
 
-void Logic::onDisconnected(void)
+void Logic::onDisconnected(bool serviceNotAvailable)
 {
     m_cache->clear();
+    if (serviceNotAvailable) {
+        for (auto& kv : m_checks)
+            kv.second.callback().onDisconnected(kv.first);
+    }
     m_statusCallback.onDisconnected();
 }
 

@@ -25,10 +25,13 @@
 #define SRC_CLIENT_ASYNC_LOGIC_LOGIC_H_
 
 #include <cache/CacheInterface.h>
+#include <types/ProtocolFields.h>
 
 #include <api/ApiInterface.h>
 #include <callback/StatusCallback.h>
+#include <check/CheckData.h>
 #include <cynara-client-async.h>
+#include <sequence/SequenceContainer.h>
 #include <sockets/SocketClientAsync.h>
 
 namespace Cynara {
@@ -53,16 +56,25 @@ public:
     virtual int process(void) noexcept;
     virtual int cancelRequest(cynara_check_id checkId) noexcept;
 private:
+    typedef std::map<ProtocolFrameSequenceNumber, CheckData> CheckMap;
+    typedef std::pair<ProtocolFrameSequenceNumber, CheckData> CheckPair;
+
     StatusCallback m_statusCallback;
     PluginCachePtr m_cache;
     SocketClientAsyncPtr m_socket;
+    CheckMap m_checks;
+    SequenceContainer m_sequenceContainer;
 
     int checkCacheValid(void);
-    void prepareRequestsToSend(void);
+    int prepareRequestsToSend(void);
     cynara_async_status socketDataStatus(void);
+    int processOut(void);
+    int processCheckResponse(CheckResponsePtr checkResponse);
+    int processResponses(void);
+    int processIn(void);
     int connect(void);
     int completeConnection(bool &connectionInProgress);
-    void onDisconnected(void);
+    void onDisconnected(bool serviceNotAvailable = true);
 };
 
 } // namespace Cynara
