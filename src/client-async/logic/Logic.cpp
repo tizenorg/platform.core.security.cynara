@@ -23,10 +23,12 @@
 
 #include <memory>
 
+#include <cache/CapacityCache.h>
 #include <common.h>
 #include <exceptions/Exception.h>
 #include <exceptions/UnexpectedErrorException.h>
 #include <log/log.h>
+#include <plugins/NaiveInterpreter.h>
 #include <protocol/ProtocolClient.h>
 #include <sockets/Socket.h>
 #include <sockets/SocketPath.h>
@@ -37,25 +39,32 @@ namespace Cynara {
 
 Logic::Logic(cynara_status_callback callback, void *userStatusData)
     : m_statusCallback(callback, userStatusData) {
-    m_socket = std::make_shared<SocketClientAsync>(
-        clientSocketPath, std::make_shared<ProtocolClient>());
+    m_socket = std::make_shared<SocketClientAsync>(clientSocketPath,
+                                                   std::make_shared<ProtocolClient>());
+
+    m_cache = std::make_shared<CapacityCache>();
+    auto naiveInterpreter = std::make_shared<NaiveInterpreter>();
+    m_cache->registerPlugin(PredefinedPolicyType::ALLOW, naiveInterpreter);
+    m_cache->registerPlugin(PredefinedPolicyType::DENY, naiveInterpreter);
+    m_cache->registerPlugin(PredefinedPolicyType::BUCKET, naiveInterpreter);
 }
 
 Logic::~Logic() {
     onDisconnected();
 }
 
-int Logic::checkCache(const std::string &client UNUSED, const std::string &session UNUSED,
-                      const std::string &user UNUSED,
-                      const std::string &privilege UNUSED) noexcept {
+int Logic::checkCache(const std::string &client, const std::string &session,
+                      const std::string &user, const std::string &privilege) noexcept {
     int ret = checkCacheValid();
-    switch (ret) {
-        case CYNARA_API_SUCCESS:
-            // MOCKUP
-            return CYNARA_API_CACHE_MISS;
-        default:
-            return ret;
+    if (ret != CYNARA_API_SUCCESS)
+        return ret;
+
+    try {
+        ret = m_cache->get(session, PolicyKey(client, user, privilege));
+    } catch (const std::bad_alloc &) {
+        return CYNARA_API_OUT_OF_MEMORY;
     }
+    return ret;
 }
 
 int Logic::createRequest(const std::string &client UNUSED, const std::string &session UNUSED,
@@ -170,6 +179,7 @@ int Logic::completeConnection(bool &connectionInProgress) {
 }
 
 void Logic::onDisconnected(void) {
+    m_cache->clear();
     m_statusCallback.onDisconnected();
 }
 
