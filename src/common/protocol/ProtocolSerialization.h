@@ -14,7 +14,7 @@
  *    limitations under the License.
  */
 /**
- * @file    ProtocolSerialization.h
+ * @file        src/common/protocol/ProtocolSerialization.h
  * @author  Tomasz Swierczek (t.swierczek@samsung.com)
  * @author  Adam Malinowski (a.malinowsk2@samsung.com)
  * @version 1.0

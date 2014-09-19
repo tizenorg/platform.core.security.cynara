@@ -16,7 +16,7 @@
  * limitations under the License
  */
 /**
- * @file log.cpp
+ * @file        src/common/log/log.cpp
  * @author Adam Malinowski <a.malinowsk2@partner.samsung.com>
  * @version 1.0
  * @brief Simple file containing defintion of logging level variable.
