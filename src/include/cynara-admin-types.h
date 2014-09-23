@@ -79,11 +79,11 @@ struct cynara_admin_policy {
 /*! \brief   set bucket's default policy to NONE */
 #define CYNARA_ADMIN_NONE 1
 
-/*! \brief   set policy result or bucket's default policy to ALLOW */
-#define CYNARA_ADMIN_ALLOW 2
-
 /*! \brief   set policy to point into another bucket */
-#define CYNARA_ADMIN_BUCKET 3
+#define CYNARA_ADMIN_BUCKET 0xFFFE
+
+/*! \brief   set policy result or bucket's default policy to ALLOW */
+#define CYNARA_ADMIN_ALLOW 0xFFFF
 /** @}*/
 
 #ifdef __cplusplus
