@@ -16,6 +16,7 @@ Source1008:    libcynara-creds-dbus.manifest
 Source1009:    libcynara-creds-socket.manifest
 Source1010:    libcynara-session.manifest
 Source1011:    libcynara-storage.manifest
+Source1012:    libcynara-offline-admin.manifest
 Requires:      default-ac-domains
 Requires(pre): pwdutils
 Requires(post):   smack
@@ -42,9 +43,9 @@ BuildRequires: pkgconfig(libunwind)
 %endif
 
 %description
-service, client libraries (libcynara-client, libcynara-admin),
-helper libraries (libcynara-session, libcynara-creds-common, libcynara-creds-dbus,
-libcynara-creds-socket)
+service, client libraries (libcynara-client, libcynara-admin,
+libcynara-offline-admin), helper libraries (libcynara-session,
+libcynara-creds-common, libcynara-creds-dbus, libcynara-creds-socket)
 and tests (cynara-tests)
 
 #######################################################
@@ -92,6 +93,22 @@ Requires:   libcynara-admin = %{version}-%{release}
 
 %description -n libcynara-admin-devel
 admin client library (devel) for setting, listing and removing policies
+
+#######################################################
+%package -n libcynara-offline-admin
+Summary:    Cynara - offline admin client library
+Requires:   cynara = %{version}-%{release}
+
+%description -n libcynara-offline-admin
+offline admin client library for setting, listing and removing policies
+
+%package -n libcynara-offline-admin-devel
+Summary:    Cynara - offline admin client library (devel)
+Requires:   libcynara-offline-admin = %{version}-%{release}
+Requires:   libcynara-admin-devel = %{version}-%{release}
+
+%description -n libcynara-offline-admin-devel
+offline admin client library (devel) for setting, listing and removing policies
 
 #######################################################
 %package -n libcynara-storage
@@ -214,6 +231,7 @@ cp -a %{SOURCE1008} .
 cp -a %{SOURCE1009} .
 cp -a %{SOURCE1010} .
 cp -a %{SOURCE1011} .
+cp -a %{SOURCE1012} .
 cp -a test/db/db* .
 
 %build
@@ -298,6 +316,10 @@ fi
 
 %postun -n libcynara-admin -p /sbin/ldconfig
 
+%post -n libcynara-offline-admin -p /sbin/ldconfig
+
+%postun -n libcynara-offline-admin -p /sbin/ldconfig
+
 %post -n libcynara-storage -p /sbin/ldconfig
 
 %postun -n libcynara-storage -p /sbin/ldconfig
@@ -321,6 +343,10 @@ fi
 %post -n libcynara-admin-devel -p /sbin/ldconfig
 
 %postun -n libcynara-admin-devel -p /sbin/ldconfig
+
+%post -n libcynara-offline-admin-devel -p /sbin/ldconfig
+
+%postun -n libcynara-offline-admin-devel -p /sbin/ldconfig
 
 %post -n libcynara-commons-devel -p /sbin/ldconfig
 
@@ -400,6 +426,16 @@ fi
 %{_includedir}/cynara/cynara-admin-types.h
 %{_libdir}/libcynara-admin.so
 %{_libdir}/pkgconfig/cynara-admin.pc
+
+%files -n libcynara-offline-admin
+%manifest libcynara-offline-admin.manifest
+%license LICENSE
+%{_libdir}/libcynara-offline-admin.so.*
+
+%files -n libcynara-offline-admin-devel
+%{_includedir}/cynara/cynara-offline-admin.h
+%{_libdir}/libcynara-offline-admin.so
+%{_libdir}/pkgconfig/cynara-offline-admin.pc
 
 %files -n libcynara-storage
 %manifest libcynara-storage.manifest

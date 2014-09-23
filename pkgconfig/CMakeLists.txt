@@ -12,13 +12,14 @@
 #    See the License for the specific language governing permissions and
 #    limitations under the License.
 #
-# @file        CMakeLists.txt
+# @file        pkgconfig/CMakeLists.txt
 # @author      Lukasz Wojciechowski <l.wojciechow@partner.samsung.com>
 # @author      Radoslaw Bartosiak <r.bartosiak@samsung.com>
 #
 
 ADD_SUBDIRECTORY(cynara-client)
 ADD_SUBDIRECTORY(cynara-admin)
+ADD_SUBDIRECTORY(cynara-offline-admin)
 ADD_SUBDIRECTORY(cynara-creds-commons)
 ADD_SUBDIRECTORY(cynara-creds-dbus)
 ADD_SUBDIRECTORY(cynara-creds-socket)

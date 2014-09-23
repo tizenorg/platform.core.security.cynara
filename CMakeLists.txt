@@ -87,6 +87,7 @@ SET(TARGET_LIB_CREDS_DBUS "cynara-creds-dbus")
 SET(TARGET_LIB_CREDS_SOCKET "cynara-creds-socket")
 SET(TARGET_LIB_SESSION "cynara-session")
 SET(TARGET_LIB_CYNARA_STORAGE "cynara-storage")
+SET(TARGET_LIB_CYNARA_OFFLINE_ADMIN "cynara-offline-admin")
 
 ADD_SUBDIRECTORY(src)
 ADD_SUBDIRECTORY(pkgconfig)
