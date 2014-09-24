@@ -16,6 +16,7 @@ Source1008:    libcynara-creds-dbus.manifest
 Source1009:    libcynara-creds-socket.manifest
 Source1010:    libcynara-session.manifest
 Source1011:    libcynara-storage.manifest
+Source1012:    libcynara-admin-commons.manifest
 Requires:      default-ac-domains
 Requires(pre): pwdutils
 Requires(post):   smack
@@ -42,9 +43,9 @@ BuildRequires: pkgconfig(libunwind)
 %endif
 
 %description
-service, client libraries (libcynara-client, libcynara-admin),
-helper libraries (libcynara-session, libcynara-creds-common, libcynara-creds-dbus,
-libcynara-creds-socket)
+service, client libraries (libcynara-client, libcynara-admin,
+libcynara-admin-commons), helper libraries (libcynara-session,
+libcynara-creds-common, libcynara-creds-dbus, libcynara-creds-socket)
 and tests (cynara-tests)
 
 #######################################################
@@ -82,6 +83,7 @@ client commons library (devel) with common functionalities
 %package -n libcynara-admin
 Summary:    Cynara - admin client library
 Requires:   cynara = %{version}-%{release}
+Requires:   cynara-admin-commons = %{version}-%{release}
 
 %description -n libcynara-admin
 admin client library for setting, listing and removing policies
@@ -89,9 +91,26 @@ admin client library for setting, listing and removing policies
 %package -n libcynara-admin-devel
 Summary:    Cynara - admin client library (devel)
 Requires:   libcynara-admin = %{version}-%{release}
+Requires:   libcynara-admin-commons-devel = %{version}-%{release}
 
 %description -n libcynara-admin-devel
 admin client library (devel) for setting, listing and removing policies
+
+#######################################################
+
+%package -n libcynara-admin-commons
+Summary:    Cynara - admin commons library
+Requires:   cynara = %{version}-%{release}
+
+%description -n libcynara-admin-commons
+admin commons library for setting, listing and removing policies
+
+%package -n libcynara-admin-commons-devel
+Summary:    Cynara - admin commons library (devel)
+Requires:   libcynara-admin-commons = %{version}-%{release}
+
+%description -n libcynara-admin-commons-devel
+admin commons library (devel) for setting, listing and removing policies
 
 #######################################################
 %package -n libcynara-storage
@@ -214,6 +233,7 @@ cp -a %{SOURCE1008} .
 cp -a %{SOURCE1009} .
 cp -a %{SOURCE1010} .
 cp -a %{SOURCE1011} .
+cp -a %{SOURCE1012} .
 cp -a test/db/db* .
 
 %build
@@ -297,6 +317,10 @@ fi
 %post -n libcynara-admin -p /sbin/ldconfig
 
 %postun -n libcynara-admin -p /sbin/ldconfig
+
+%post -n libcynara-admin-commons -p /sbin/ldconfig
+
+%postun -n libcynara-admin-commons -p /sbin/ldconfig
 
 %post -n libcynara-storage -p /sbin/ldconfig
 
@@ -396,10 +420,19 @@ fi
 
 %files -n libcynara-admin-devel
 %{_includedir}/cynara/cynara-admin.h
-%{_includedir}/cynara/cynara-admin-error.h
-%{_includedir}/cynara/cynara-admin-types.h
 %{_libdir}/libcynara-admin.so
 %{_libdir}/pkgconfig/cynara-admin.pc
+
+%files -n libcynara-admin-commons
+%manifest libcynara-admin-commons.manifest
+%license LICENSE
+%{_libdir}/libcynara-admin-commons.so.*
+
+%files -n libcynara-admin-commons-devel
+%{_includedir}/cynara/cynara-admin-error.h
+%{_includedir}/cynara/cynara-admin-types.h
+%{_libdir}/libcynara-admin-commons.so
+
 
 %files -n libcynara-storage
 %manifest libcynara-storage.manifest
