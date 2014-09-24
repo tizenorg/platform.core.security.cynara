@@ -51,6 +51,9 @@
 
 /*! \brief   cynara service hasn't found requested bucket */
 #define CYNARA_ADMIN_API_BUCKET_NOT_FOUND -6
+
+/*! \brief   cynara service failed to perform requested operation */
+#define CYNARA_ADMIN_API_OPERATION_FAILED -7
 /** @}*/
 
 #endif // CYNARA_ADMIN_ERROR_H
