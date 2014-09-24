@@ -39,11 +39,11 @@ private:
     PolicyKey m_key;
     std::string m_session;
     ResponseCallback m_callback;
-    // MOCKUP
+    bool m_cancelled;
 
 public:
     CheckData(const PolicyKey &key, const std::string &session, const ResponseCallback &callback)
-        : m_key(key), m_session(session), m_callback(callback) {}
+        : m_key(key), m_session(session), m_callback(callback),  m_cancelled(false) {}
     ~CheckData() {}
 
     const PolicyKey &key(void) const {
@@ -56,6 +56,14 @@ public:
 
     const ResponseCallback &callback(void) const {
         return m_callback;
+    }
+
+    bool cancelled(void) const {
+        return m_cancelled;
+    }
+
+    void cancel() {
+        m_cancelled = true;
     }
 };
 

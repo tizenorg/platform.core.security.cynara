@@ -33,6 +33,8 @@ enum ProtocolOpCode : uint8_t {
     /** Client operations */
     OpCheckPolicyRequest = 0,
     OpCheckPolicyResponse,
+    OpCancelRequest,
+    OpCancelResponse,
 
     /** Opcodes 2 - 19 are reserved for future use */
 
