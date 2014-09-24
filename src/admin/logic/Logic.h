@@ -27,7 +27,7 @@
 
 #include <sockets/SocketClient.h>
 
-#include <api/ApiInterface.h>
+#include <admin-common/api/ApiInterface.h>
 
 namespace Cynara {
 
@@ -42,10 +42,10 @@ public:
     Logic();
     virtual ~Logic() {};
 
-    virtual int setPolicies(const std::map<PolicyBucketId, std::vector<Policy>> &insertOrUpdate,
-                    const std::map<PolicyBucketId, std::vector<PolicyKey>> &remove) noexcept;
-    virtual int insertOrUpdateBucket(const PolicyBucketId &bucket, const PolicyResult &policyResult)
-                    noexcept;
+    virtual int setPolicies(const PoliciesByBucket &insertOrUpdate,
+                            const KeysByBucket &remove) noexcept;
+    virtual int insertOrUpdateBucket(const PolicyBucketId &bucket,
+                                     const PolicyResult &policyResult) noexcept;
     virtual int removeBucket(const PolicyBucketId &bucket) noexcept;
 
     virtual int adminCheck(const PolicyBucketId &startBucket, bool recursive,
