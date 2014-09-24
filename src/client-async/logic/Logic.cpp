@@ -31,7 +31,9 @@
 #include <log/log.h>
 #include <plugins/NaiveInterpreter.h>
 #include <protocol/ProtocolClient.h>
+#include <request/CancelRequest.h>
 #include <request/CheckRequest.h>
+#include <response/CancelResponse.h>
 #include <response/CheckResponse.h>
 #include <sockets/Socket.h>
 #include <sockets/SocketPath.h>
@@ -52,8 +54,10 @@ Logic::Logic(cynara_status_callback callback, void *userStatusData)
 }
 
 Logic::~Logic() {
-    for (auto &kv : m_checks)
-        kv.second.callback().onFinish(kv.first);
+    for (auto &kv : m_checks) {
+        if (!kv.second.cancelled())
+            kv.second.callback().onFinish(kv.first);
+    }
     m_statusCallback.onDisconnected();
 }
 
@@ -126,12 +130,26 @@ int Logic::process(void) noexcept {
     }
 }
 
-int Logic::cancelRequest(cynara_check_id checkId UNUSED) noexcept {
+int Logic::cancelRequest(cynara_check_id checkId) noexcept {
     int ret = ensureConnection();
     if (ret != CYNARA_API_SUCCESS)
         return ret;
 
-    // MOCKUP
+    auto it = m_checks.find(checkId);
+    if (it == m_checks.end() || it->second.cancelled())
+        return CYNARA_API_SUCCESS;
+
+    try {
+         m_socket->appendRequest(std::make_shared<CancelRequest>(it->first));
+    } catch (const std::bad_alloc &) {
+        return CYNARA_API_OUT_OF_MEMORY;
+    }
+
+    it->second.cancel();
+    it->second.callback().onCancel(it->first);
+    m_statusCallback.onStatusChange(m_socket->getSockFd(),
+                                    cynara_async_status::CYNARA_STATUS_FOR_RW);
+
     return CYNARA_API_SUCCESS;
 }
 
@@ -149,9 +167,14 @@ int Logic::checkCacheValid(void) {
 
 int Logic::prepareRequestsToSend(void) {
     try {
-        for (auto &kv : m_checks) {
-            // MOCKUP
-            m_socket->appendRequest(std::make_shared<CheckRequest>(kv.second.key(), kv.first));
+        for (auto it = m_checks.begin(); it != m_checks.end();) {
+            if (it->second.cancelled()) {
+                m_sequenceContainer.release(it->first);
+                it = m_checks.erase(it);
+            } else {
+                m_socket->appendRequest(std::make_shared<CheckRequest>(it->second.key(), it->first));
+                ++it;
+            }
         }
     } catch (const std::bad_alloc &) {
         return CYNARA_API_OUT_OF_MEMORY;
@@ -190,7 +213,7 @@ int Logic::processCheckResponse(CheckResponsePtr checkResponse) {
 
     auto it = m_checks.find(checkResponse->sequenceNumber());
     if (it == m_checks.end()) {
-        LOGC("Critical error. Unknown response received: sequenceNumber = [%" PRIu16 "]",
+        LOGC("Critical error. Unknown checkResponse received: sequenceNumber = [%" PRIu16 "]",
              checkResponse->sequenceNumber());
         return CYNARA_API_UNKNOWN_ERROR;
     }
@@ -201,8 +224,27 @@ int Logic::processCheckResponse(CheckResponsePtr checkResponse) {
     } catch (const std::bad_alloc &) {
         return CYNARA_API_OUT_OF_MEMORY;
     }
-    // MOCKUP
-    it->second.callback().onAnswer(static_cast<cynara_check_id>(it->first), result);
+    if (!it->second.cancelled())
+        it->second.callback().onAnswer(static_cast<cynara_check_id>(it->first), result);
+    m_sequenceContainer.release(it->first);
+    m_checks.erase(it);
+    return CYNARA_API_SUCCESS;
+}
+
+int Logic::processCancelResponse(CancelResponsePtr cancelResponse) {
+    LOGD("cancelResponse");
+
+    auto it = m_checks.find(cancelResponse->sequenceNumber());
+    if (it == m_checks.end()) {
+        LOGC("Critical error. Unknown cancelResponse received: sequenceNumber = [%" PRIu16 "]",
+             cancelResponse->sequenceNumber());
+        return CYNARA_API_UNKNOWN_ERROR;
+    }
+    if (!it->second.cancelled()) {
+        LOGC("Critical error. CancelRequest not sent: sequenceNumber = [%" PRIu16 "]",
+             cancelResponse->sequenceNumber());
+        return CYNARA_API_UNKNOWN_ERROR;
+    }
     m_sequenceContainer.release(it->first);
     m_checks.erase(it);
     return CYNARA_API_SUCCESS;
@@ -211,6 +253,7 @@ int Logic::processCheckResponse(CheckResponsePtr checkResponse) {
 int Logic::processResponses(void) {
     ResponsePtr response;
     CheckResponsePtr checkResponse;
+    CancelResponsePtr cancelResponse;
     while (true) {
         try {
             response = m_socket->getResponse();
@@ -227,8 +270,16 @@ int Logic::processResponses(void) {
                 return ret;
             continue;
         }
-        // MOCKUP
-        LOGC("Critical error. Casting Response to CheckResponse failed.");
+
+        cancelResponse = std::dynamic_pointer_cast<CancelResponse>(response);
+        if (cancelResponse) {
+            int ret = processCancelResponse(cancelResponse);
+            if (ret != CYNARA_API_SUCCESS)
+                return ret;
+            continue;
+        }
+
+        LOGC("Critical error. Casting Response to known response failed.");
         return CYNARA_API_UNKNOWN_ERROR;
     }
     return CYNARA_API_SUCCESS;
@@ -328,8 +379,10 @@ int Logic::completeConnection(bool &connectionInProgress) {
 
 void Logic::onServiceNotAvailable(void)
 {
-    for (auto &kv : m_checks)
-        kv.second.callback().onDisconnected(kv.first);
+    for (auto &kv : m_checks) {
+        if (!kv.second.cancelled())
+            kv.second.callback().onDisconnected(kv.first);
+    }
     m_checks.clear();
     m_sequenceContainer.clear();
 }
