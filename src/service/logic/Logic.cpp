@@ -22,6 +22,7 @@
 
 #include <log/log.h>
 #include <common.h>
+#include <exceptions/DatabaseException.h>
 #include <exceptions/PluginNotFoundException.h>
 #include <exceptions/BucketNotExistsException.h>
 #include <exceptions/DefaultBucketDeletionException.h>
@@ -112,6 +113,8 @@ void Logic::execute(RequestContextPtr context, InsertOrUpdateBucketRequestPtr re
     try {
         m_storage->addOrUpdateBucket(request->bucketId(), request->result());
         onPoliciesChanged();
+    } catch (const DatabaseException &ex) {
+        code = CodeResponse::Code::FAILED;
     } catch (const DefaultBucketSetNoneException &ex) {
         code = CodeResponse::Code::NOT_ALLOWED;
     }
@@ -125,6 +128,8 @@ void Logic::execute(RequestContextPtr context, RemoveBucketRequestPtr request) {
     try {
         m_storage->deleteBucket(request->bucketId());
         onPoliciesChanged();
+    } catch (const DatabaseException &ex) {
+        code = CodeResponse::Code::FAILED;
     } catch (const BucketNotExistsException &ex) {
         code = CodeResponse::Code::NO_BUCKET;
     } catch (const DefaultBucketDeletionException &ex) {
@@ -140,6 +145,8 @@ void Logic::execute(RequestContextPtr context, SetPoliciesRequestPtr request) {
         m_storage->insertPolicies(request->policiesToBeInsertedOrUpdated());
         m_storage->deletePolicies(request->policiesToBeRemoved());
         onPoliciesChanged();
+    } catch (const DatabaseException &ex) {
+        code = CodeResponse::Code::FAILED;
     } catch (const BucketNotExistsException &ex) {
         code = CodeResponse::Code::NO_BUCKET;
     }
