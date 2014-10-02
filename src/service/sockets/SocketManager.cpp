@@ -71,12 +71,6 @@ void SocketManager::run(void) {
 
 void SocketManager::init(void) {
     LOGI("SocketManger init start");
-<<<<<<< HEAD
-=======
-    const std::string clientSocketPath("/run/cynara/cynara.socket");
-    const std::string adminSocketPath("/run/cynara/cynara-admin.socket");
-    const std::string agentSocketPath("/run/cynara/cynara-agent.socket");
->>>>>>> Add agent socket & dummy agent protocol
     const mode_t clientSocketUMask(0);
     const mode_t adminSocketUMask(0077);
     const mode_t agentSocketUMask(0);
