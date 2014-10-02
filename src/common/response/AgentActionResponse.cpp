@@ -14,24 +14,21 @@
  *    limitations under the License.
  */
 /**
- * @file        src/common/types/Agent.h
- * @author      Adam Malinowski <a.malinowsk2@partner.samsung.com>
+ * @file        src/common/response/AgentRegisterResponse.cpp
+ * @author      Adam  Malinowski <a.malinowsk2@partner.samsung.com>
  * @version     1.0
- * @brief       This file defines agent related types
+ * @brief       This file implements common class for responding to agent request
  */
 
-#ifndef SRC_COMMON_TYPES_AGENT_H_
-#define SRC_COMMON_TYPES_AGENT_H_
+#include <memory>
 
-#include <cstdint>
-#include <string>
+#include "AgentActionResponse.h"
 
 namespace Cynara {
 
-typedef std::uint8_t AgentRequestType;
-typedef std::uint8_t AgentResponseType;
-typedef std::string AgentType;
+void AgentActionResponse::execute(ResponsePtr self, ResponseTakerPtr taker,
+                                  RequestContextPtr context) const {
+    taker->execute(context, std::dynamic_pointer_cast<AgentActionResponse>(self));
+}
 
-}  // namespace Cynara
-
-#endif /* SRC_COMMON_TYPES_AGENT_H_ */
+} // namespace Cynara
