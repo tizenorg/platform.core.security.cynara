@@ -23,7 +23,7 @@
 #ifndef CYNARA_AGENT_H
 #define CYNARA_AGENT_H
 
-#include <cynara-client-error.h>
+#include <cynara-error.h>
 
 #ifdef __cplusplus
 extern "C" {
