@@ -27,28 +27,116 @@
 #include <log/log.h>
 #include <protocol/Protocol.h>
 #include <protocol/ProtocolAgent.h>
+#include <request/AgentActionRequest.h>
+#include <request/AgentRegisterRequest.h>
 #include <request/pointers.h>
+#include <response/AgentActionResponse.h>
+#include <response/AgentRegisterResponse.h>
 #include <response/pointers.h>
+#include <sockets/SocketPath.h>
 #include <types/ProtocolFields.h>
 
 #include "Logic.h"
 
+namespace {
+
+Cynara::ProtocolFrameSequenceNumber generateSequenceNumber(void) {
+    static Cynara::ProtocolFrameSequenceNumber sequenceNumber = 0;
+    return ++sequenceNumber;
+}
+
+} // namespace anonymous
+
 namespace Cynara {
 
-Logic::Logic(const AgentType &agentType) : m_agentType(agentType) {
+Logic::Logic(const AgentType &agentType) : m_agentType(agentType), m_registered(false) {
+    m_agentSocket = std::make_shared<AgentSocketClient>(SocketPath::agent,
+                                                  std::make_shared<ProtocolAgent>());
 }
 
-int Logic::getRequest(AgentActionRequestPtr &resultPtr UNUSED) {
-    // TODO: implement
+int Logic::registerInCynara(void) {
+    ProtocolFrameSequenceNumber sequenceNumber = generateSequenceNumber();
+
+    //Ask cynara service
+    AgentRegisterResponsePtr registerResponsePtr;
+    RequestPtr request = std::make_shared<AgentRegisterRequest>(m_agentType, sequenceNumber);
+    ResponsePtr response = m_agentSocket->askCynaraServer(request);
+    if (!response) {
+        LOGW("Disconnected by cynara server.");
+        return CYNARA_API_SERVICE_NOT_AVAILABLE;
+    }
+
+    registerResponsePtr = std::dynamic_pointer_cast<AgentRegisterResponse>(response);
+    if (!registerResponsePtr) {
+        LOGC("Casting response to AgentRegisterResponse failed.");
+        return CYNARA_API_UNKNOWN_ERROR;
+    }
+    LOGD("registerResponse: answer code [%d]", static_cast<int>(registerResponsePtr->m_code));
+
+    switch (registerResponsePtr->m_code) {
+    case AgentRegisterResponse::DONE:
+        return CYNARA_API_SUCCESS;
+    case AgentRegisterResponse::REJECTED:
+        LOGE("Registering agent of type <%s> has been rejected", m_agentType.c_str());
+        return CYNARA_API_ACCESS_DENIED;
+    default:
+        LOGE("Registering agent of type <%s> has finished with unknown error", m_agentType.c_str());
+        return CYNARA_API_UNKNOWN_ERROR;
+    }
+}
+
+int Logic::ensureConnection(void) {
+    int ret = m_agentSocket->connect();
+
+    if (ret == ASS_DISCONNECTED) {
+        LOGE("Agent socket disconnected.");
+        return ret;
+    }
+
+    if (ret == ASS_RECONNECTED) {
+        ret = registerInCynara();
+    }
+
+    return ret;
+}
+
+int Logic::getRequest(AgentActionRequestPtr &resultPtr) {
+    int ret = ensureConnection();
+    if (ret != CYNARA_API_SUCCESS)
+        return ret;
+
+    RequestPtr requestPtr = m_agentSocket->receiveRequestFromServer();
+    if (!requestPtr) {
+        LOGW("Disconnected by cynara server.");
+        return CYNARA_API_SERVICE_NOT_AVAILABLE;
+    }
+
+    AgentActionRequestPtr actionRequestPtr =
+        std::dynamic_pointer_cast<AgentActionRequest>(requestPtr);
+    if (!actionRequestPtr) {
+        LOGC("Casting request to AgentActionRequest failed.");
+        return CYNARA_API_UNKNOWN_ERROR;
+    }
+    LOGD("agentActionRequest: type: [%" PRIu8 "], data length: [%zu]",
+         actionRequestPtr->type(), actionRequestPtr->data().size());
+
+    resultPtr = actionRequestPtr;
     return CYNARA_API_SUCCESS;
 }
 
-int Logic::putResponse(const AgentRequestType requestType UNUSED,
-                       const ProtocolFrameSequenceNumber sequenceNumber UNUSED,
-                       const RawBuffer &pluginData UNUSED) {
+int Logic::putResponse(const AgentResponseType requestType,
+                       const ProtocolFrameSequenceNumber sequenceNumber,
+                       const RawBuffer &pluginData) {
+    if(!m_agentSocket->isConnected()) {
+        LOGE("Agent not connected to cynara service.");
+        return CYNARA_API_SERVICE_NOT_AVAILABLE;
+    }
 
-    // TODO: implement
-    return CYNARA_API_SUCCESS;
+    AgentActionResponse response(requestType, pluginData, sequenceNumber);
+    BinaryQueue buffer;
+    ProtocolAgent::serializeResponseToBuffer(response, buffer);
+    return m_agentSocket->sendDataToServer(buffer) ? CYNARA_API_SUCCESS :
+                                                     CYNARA_API_SERVICE_NOT_AVAILABLE;
 }
 
 } // namespace Cynara
