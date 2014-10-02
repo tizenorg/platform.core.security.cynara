@@ -12,21 +12,14 @@
 #    See the License for the specific language governing permissions and
 #    limitations under the License.
 #
-# @file        CMakeLists.txt
-# @author      Lukasz Wojciechowski <l.wojciechow@partner.samsung.com>
+# @file        pkgconfig/cynara-agent/CMakeLists.txt
+# @author      Adam Malinowski <a.malinowsk2@partner.samsung.com>
 #
 
+CONFIGURE_FILE(cynara-agent.pc.in cynara-agent.pc @ONLY)
+
 INSTALL(FILES
-    ${CYNARA_PATH}/include/cynara-admin.h
-    ${CYNARA_PATH}/include/cynara-admin-types.h
-    ${CYNARA_PATH}/include/cynara-agent.h
-    ${CYNARA_PATH}/include/cynara-client.h
-    ${CYNARA_PATH}/include/cynara-client-async.h
-    ${CYNARA_PATH}/include/cynara-creds-commons.h
-    ${CYNARA_PATH}/include/cynara-creds-dbus.h
-    ${CYNARA_PATH}/include/cynara-creds-socket.h
-    ${CYNARA_PATH}/include/cynara-error.h
-    ${CYNARA_PATH}/include/cynara-plugin.h
-    ${CYNARA_PATH}/include/cynara-session.h
-    DESTINATION ${INCLUDE_INSTALL_DIR}/cynara
+    ${CMAKE_BINARY_DIR}/pkgconfig/cynara-agent/cynara-agent.pc
+    DESTINATION
+    ${LIB_INSTALL_DIR}/pkgconfig
     )

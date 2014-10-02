@@ -20,6 +20,7 @@
 ADD_SUBDIRECTORY(cynara-client)
 ADD_SUBDIRECTORY(cynara-client-async)
 ADD_SUBDIRECTORY(cynara-admin)
+ADD_SUBDIRECTORY(cynara-agent)
 ADD_SUBDIRECTORY(cynara-creds-commons)
 ADD_SUBDIRECTORY(cynara-creds-dbus)
 ADD_SUBDIRECTORY(cynara-creds-socket)
