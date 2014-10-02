@@ -26,7 +26,7 @@
 #include <string>
 
 #include <containers/RawBuffer.h>
-#include <request/pointers.h>
+#include <response/pointers.h>
 #include <types/Agent.h>
 #include <types/ProtocolFields.h>
 
@@ -39,7 +39,7 @@ public:
     ApiInterface() = default;
     virtual ~ApiInterface() {};
 
-    virtual int getRequest(AgentActionRequestPtr &actionRequestPtr) = 0;
+    virtual int getRequest(AgentActionResponsePtr &actionResponsePtr) = 0;
 
     virtual int putResponse(AgentRequestType requestType,
                             ProtocolFrameSequenceNumber sequenceNumber,

@@ -28,6 +28,7 @@
 #include <types/Agent.h>
 
 #include <api/ApiInterface.h>
+#include <socket/AgentSocketClient.h>
 
 namespace Cynara {
 
@@ -36,14 +37,19 @@ public:
     Logic(const AgentType &agentType);
     virtual ~Logic() {};
 
-    virtual int getRequest(AgentActionRequestPtr &actionRequestPtr);
+    virtual int getRequest(AgentActionResponsePtr &actionResponsePtr);
 
-    virtual int putResponse(const AgentRequestType requestType,
+    virtual int putResponse(const AgentResponseType requestType,
                             const ProtocolFrameSequenceNumber sequenceNumber,
                             const RawBuffer &pluginData);
 
 private:
     AgentType m_agentType;
+    AgentSocketPtr m_agentSocket;
+    bool m_registered;
+
+    int registerInCynara(void);
+    int ensureConnection(void);
 };
 
 } // namespace Cynara

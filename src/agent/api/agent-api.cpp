@@ -30,8 +30,8 @@
 #include <api/ApiInterface.h>
 #include <containers/RawBuffer.h>
 #include <exceptions/TryCatch.h>
-#include <request/AgentActionRequest.h>
 #include <request/pointers.h>
+#include <response/AgentActionResponse.h>
 #include <types/Agent.h>
 #include <types/ProtocolFields.h>
 
@@ -82,26 +82,25 @@ int cynara_agent_get_request(cynara_agent *p_cynara_agent, cynara_agent_msg_type
     if (!data)
         return CYNARA_API_INVALID_PARAM;
 
-    Cynara::AgentActionRequestPtr actionRequestPtr;
-
     return Cynara::tryCatch([&]() {
-        int ret = p_cynara_agent->impl->getRequest(actionRequestPtr);
+        Cynara::AgentActionResponsePtr actionResponsePtr;
+        int ret = p_cynara_agent->impl->getRequest(actionResponsePtr);
         if (ret != CYNARA_API_SUCCESS)
             return ret;
 
-        size_t dataSize = actionRequestPtr->data().size();
+        size_t dataSize = actionResponsePtr->data().size();
         if (dataSize > 0) {
             void *tmpData = malloc(dataSize);
             if (tmpData == nullptr)
                 return CYNARA_API_OUT_OF_MEMORY;
 
             *data = tmpData;
-            memcpy(*data, actionRequestPtr->data().data(), dataSize);
+            memcpy(*data, actionResponsePtr->data().data(), dataSize);
         }
 
         *data_size = dataSize;
-        *req_type = static_cast<cynara_agent_msg_type>(actionRequestPtr->type());
-        *req_id = actionRequestPtr->sequenceNumber();
+        *req_type = static_cast<cynara_agent_msg_type>(actionResponsePtr->type());
+        *req_id = actionResponsePtr->sequenceNumber();
 
         return CYNARA_API_SUCCESS;
     });
