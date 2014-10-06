@@ -33,6 +33,8 @@
 
 #include "../../helpers.h"
 
+#include "exceptions/InvalidBucketIdException.h"
+
 using namespace Cynara;
 
 class PolicyBucketFixture : public ::testing::Test {
@@ -56,6 +58,14 @@ protected:
         Policy::simpleWithKey(PolicyKey("*", "u1", "p2"), PredefinedPolicyType::ALLOW),
         Policy::simpleWithKey(PolicyKey("*", "*", "p1"), PredefinedPolicyType::ALLOW),
         Policy::simpleWithKey(PolicyKey("*", "*", "*"), PredefinedPolicyType::ALLOW)
+    };
+
+    const std::vector<PolicyBucketId> goodIds = {
+        "_goodid", "good_id", "goodid_", "-goodid", "good-id", "goodid-"
+    };
+
+    const std::vector<PolicyBucketId> badIds = {
+        "{badid", "bad[id", "badid~", "/badid", "bad*id", "badid|"
     };
 };
 
@@ -139,4 +149,21 @@ TEST_F(PolicyBucketFixture, filtered_wildcard_none) {
                                            wildcardPolicies.begin() + 3 }));
     auto filtered = bucket.filtered(PolicyKey("cccc", "uuuu", "pppp"));
     ASSERT_THAT(filtered, IsEmpty());
+}
+
+/**
+ * @brief   Validate PolicyBucketIds during creation
+ * @test    Scenario:
+ * - Iterate through vector of valid bucket ids and create them normally
+ * - Iterate through vector of bucket ids containing forbidden characters
+ * - PolicyBucket constructor should throw an exception every time it is called
+ */
+TEST_F(PolicyBucketFixture, bucket_id_validation) {
+    for (auto it = goodIds.begin(); it != goodIds.end(); ++it) {
+        ASSERT_NO_THROW(PolicyBucket(PolicyBucketId(*it)));
+    }
+
+    for (auto it = badIds.begin(); it != badIds.end(); ++it) {
+        ASSERT_THROW(PolicyBucket(PolicyBucketId(*it)), InvalidBucketIdException);
+    }
 }
