@@ -49,7 +49,7 @@ static std::string expectedPolicyType(const PolicyType &type) {
 
 TEST(serializer_dump, dump_empty_bucket) {
     auto oss = std::make_shared<std::ostringstream>();
-    PolicyBucket bucket;
+    PolicyBucket bucket("empty");
 
     StorageSerializer serializer(oss);
     serializer.dump(bucket);
@@ -65,8 +65,8 @@ TEST(serializer_dump, dump_bucket) {
     PolicyKey pk1 = Helpers::generatePolicyKey("1");
     PolicyKey pk2 = Helpers::generatePolicyKey("2");
 
-    PolicyBucket bucket = {{ Policy::simpleWithKey(pk1, ALLOW),
-                             Policy::simpleWithKey(pk2, DENY) }};
+    PolicyBucket bucket(PolicyCollection({ Policy::simpleWithKey(pk1, ALLOW),
+                                           Policy::simpleWithKey(pk2, DENY) }));
 
     auto outStream = std::make_shared<std::stringstream>();
     StorageSerializer serializer(outStream);

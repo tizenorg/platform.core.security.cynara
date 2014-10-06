@@ -43,7 +43,7 @@ using namespace Cynara;
 TEST(storage, checkEmpty) {
     using ::testing::ReturnPointee;
 
-    PolicyBucket emptyBucket;
+    PolicyBucket emptyBucket("empty");
 
     FakeStorageBackend backend;
     Cynara::Storage storage(backend);
@@ -60,7 +60,7 @@ TEST(storage, checkEmpty) {
 TEST(storage, checkSimple) {
     using ::testing::ReturnPointee;
 
-    PolicyBucket bucket;
+    PolicyBucket bucket(defaultPolicyBucketId);
     FakeStorageBackend backend;
 
     Cynara::Storage storage(backend);
@@ -96,7 +96,7 @@ TEST(storage, checkBucket) {
         Policy::bucketWithKey(pk, additionalBucketId)
     }));
 
-    PolicyBucket additionalBucket;
+    PolicyBucket additionalBucket("additional");
 
     EXPECT_CALL(backend, searchBucket(defaultPolicyBucketId, pk))
         .WillRepeatedly(ReturnPointee(&defaultBucket));
@@ -139,7 +139,7 @@ TEST(storage, checkBucketWildcard) {
 
     // Check, if next bucket is filtered with original key
     EXPECT_CALL(backend, searchBucket(additionalBucketId, checkKey))
-        .WillRepeatedly(Return(PolicyBucket()));    // additional bucket would yield no records
+        .WillRepeatedly(Return(PolicyBucket("id")));    // additional bucket would yield no records
 
     // Should return additional bucket's default policy
     ASSERT_EQ(PredefinedPolicyType::DENY, storage.checkPolicy(checkKey));

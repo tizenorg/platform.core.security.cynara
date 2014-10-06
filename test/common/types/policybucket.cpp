@@ -135,7 +135,8 @@ TEST_F(PolicyBucketFixture, filtered_wildcard_4) {
 TEST_F(PolicyBucketFixture, filtered_wildcard_none) {
     using ::testing::IsEmpty;
 
-    PolicyBucket bucket({ wildcardPolicies.begin(), wildcardPolicies.begin() + 3 });
+    PolicyBucket bucket(PolicyCollection({ wildcardPolicies.begin(),
+                                           wildcardPolicies.begin() + 3 }));
     auto filtered = bucket.filtered(PolicyKey("cccc", "uuuu", "pppp"));
     ASSERT_THAT(filtered, IsEmpty());
 }

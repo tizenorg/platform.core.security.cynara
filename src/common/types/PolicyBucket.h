@@ -49,8 +49,10 @@ public:
     typedef const_policy_iterator const_iterator;
 
     // TODO: Review usefulness of ctors
-    PolicyBucket() : m_defaultPolicy(PredefinedPolicyType::DENY) {}
-    PolicyBucket(const PolicyBucketId &id, const PolicyResult &defaultPolicy)
+    //delete default constructor in order to prevent creation of buckets with no id
+    PolicyBucket() = delete;
+    PolicyBucket(const PolicyBucketId &id,
+                 const PolicyResult &defaultPolicy = PredefinedPolicyType::DENY)
         : m_defaultPolicy(defaultPolicy), m_id(id) {}
     PolicyBucket(const PolicyCollection &policies)
         : m_policyCollection(makePolicyMap(policies)),
