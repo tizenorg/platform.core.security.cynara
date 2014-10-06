@@ -24,10 +24,33 @@
 
 #include <types/PolicyCollection.h>
 #include <types/PolicyKeyHelpers.h>
+#include <exceptions/InvalidBucketIdException.h>
 
 #include "PolicyBucket.h"
 
 namespace Cynara {
+
+const std::string PolicyBucket::m_idSeparators = "-_";
+
+PolicyBucket::PolicyBucket(const PolicyBucketId &id,
+                           const PolicyResult &defaultPolicy)
+    : m_defaultPolicy(defaultPolicy), m_id(id) {
+    idValidator(id);
+}
+
+PolicyBucket::PolicyBucket(const PolicyBucketId &id,
+                           const PolicyCollection &policies)
+    : m_policyCollection(makePolicyMap(policies)), m_defaultPolicy(PredefinedPolicyType::DENY),
+      m_id(id) {
+    idValidator(id);
+}
+
+PolicyBucket::PolicyBucket(const PolicyBucketId &id,
+                           const PolicyResult &defaultPolicy,
+                           const PolicyCollection &policies)
+    : m_policyCollection(makePolicyMap(policies)), m_defaultPolicy(defaultPolicy), m_id(id) {
+    idValidator(id);
+}
 
 PolicyBucket PolicyBucket::filtered(const PolicyKey &key) const {
     PolicyBucket result(m_id + "_filtered");
@@ -76,6 +99,20 @@ PolicyMap PolicyBucket::makePolicyMap(const PolicyCollection &policies) {
         result[gluedKey] = policy;
     }
     return result;
+}
+
+void PolicyBucket::idValidator(const PolicyBucketId &id) {
+    auto isCharInvalid = [] (char c) {
+        return !(std::isalnum(c) || isIdSeparator(c));
+    };
+
+    if (id.end() != find_if(id.begin(), id.end(), isCharInvalid)) {
+        throw InvalidBucketIdException(id);
+    }
+}
+
+bool PolicyBucket::isIdSeparator(const char &c) {
+    return m_idSeparators.end() != find(m_idSeparators.begin(), m_idSeparators.end(), c);
 }
 
 }  // namespace Cynara
