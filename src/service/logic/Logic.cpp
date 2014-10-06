@@ -27,6 +27,7 @@
 #include <exceptions/BucketNotExistsException.h>
 #include <exceptions/DefaultBucketDeletionException.h>
 #include <exceptions/DefaultBucketSetNoneException.h>
+#include <exceptions/InvalidBucketIdException.h>
 #include <signal.h>
 
 #include <main/Cynara.h>
@@ -109,6 +110,8 @@ void Logic::execute(RequestContextPtr context, InsertOrUpdateBucketRequestPtr re
     } catch (const DatabaseException &ex) {
         code = CodeResponse::Code::FAILED;
     } catch (const DefaultBucketSetNoneException &ex) {
+        code = CodeResponse::Code::NOT_ALLOWED;
+    } catch (const InvalidBucketIdException &ex) {
         code = CodeResponse::Code::NOT_ALLOWED;
     }
 

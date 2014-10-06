@@ -30,6 +30,7 @@
 #include <exceptions/BucketNotExistsException.h>
 #include <exceptions/DefaultBucketDeletionException.h>
 #include <exceptions/DefaultBucketSetNoneException.h>
+#include <exceptions/InvalidBucketIdException.h>
 #include <log/log.h>
 #include <storage/InMemoryStorageBackend.h>
 #include <storage/Storage.h>
@@ -80,6 +81,8 @@ int Logic::insertOrUpdateBucket(const PolicyBucketId &bucketId,
         m_storage->addOrUpdateBucket(bucketId, policy);
         onPoliciesChanged();
     } catch (const DefaultBucketSetNoneException &ex) {
+        return CYNARA_ADMIN_API_OPERATION_NOT_ALLOWED;
+    } catch (const InvalidBucketIdException &ex) {
         return CYNARA_ADMIN_API_OPERATION_NOT_ALLOWED;
     }
 

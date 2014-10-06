@@ -24,10 +24,29 @@
 
 #include <types/PolicyCollection.h>
 #include <types/PolicyKeyHelpers.h>
+#include <exceptions/InvalidBucketIdException.h>
 
 #include "PolicyBucket.h"
 
 namespace Cynara {
+
+PolicyBucket::PolicyBucket(const PolicyBucketId &id,
+                           const PolicyResult &defaultPolicy)
+    : m_defaultPolicy(defaultPolicy), m_id(id) {
+    if(!isBucketIdValid(id)) {
+        throw InvalidBucketIdException(id);
+    }
+}
+PolicyBucket::PolicyBucket(const PolicyBucketId &id,
+                           const PolicyResult &defaultPolicy,
+                           const PolicyCollection &policies)
+    : m_policyCollection(makePolicyMap(policies)),
+      m_defaultPolicy(defaultPolicy),
+      m_id(id) {
+    if(!isBucketIdValid(id)) {
+        throw InvalidBucketIdException(id);
+    }
+}
 
 PolicyBucket PolicyBucket::filtered(const PolicyKey &key) const {
     PolicyBucket result(m_id);
@@ -76,6 +95,11 @@ PolicyMap PolicyBucket::makePolicyMap(const PolicyCollection &policies) {
         result[gluedKey] = policy;
     }
     return result;
+}
+
+bool PolicyBucket::isBucketIdValid(const PolicyBucketId &id) {
+    return id.end() == find_if(id.begin(), id.end(),
+                               [](char c) { return !(std::isalnum(c) || '-' == c || '_' == c); });
 }
 
 }  // namespace Cynara

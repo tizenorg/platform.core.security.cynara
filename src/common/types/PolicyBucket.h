@@ -52,17 +52,13 @@ public:
     //delete default constructor in order to prevent creation of buckets with no id
     PolicyBucket() = delete;
     PolicyBucket(const PolicyBucketId &id,
-                 const PolicyResult &defaultPolicy = PredefinedPolicyType::DENY)
-        : m_defaultPolicy(defaultPolicy), m_id(id) {}
+                 const PolicyResult &defaultPolicy = PredefinedPolicyType::DENY);
     PolicyBucket(const PolicyCollection &policies)
         : m_policyCollection(makePolicyMap(policies)),
           m_defaultPolicy(PredefinedPolicyType::DENY) {}
     PolicyBucket(const PolicyBucketId &id,
                  const PolicyResult &defaultPolicy,
-                 const PolicyCollection &policies)
-        : m_policyCollection(makePolicyMap(policies)),
-          m_defaultPolicy(defaultPolicy),
-          m_id(id) {}
+                 const PolicyCollection &policies);
 
     PolicyBucket filtered(const PolicyKey &key) const;
     void insertPolicy(PolicyPtr policy);
@@ -108,6 +104,9 @@ public:
     void setDefaultPolicy(const PolicyResult &defaultPolicy) {
         m_defaultPolicy = defaultPolicy;
     }
+
+private:
+    static bool isBucketIdValid(const PolicyBucketId &id);
 };
 
 } /* namespace Cynara */
