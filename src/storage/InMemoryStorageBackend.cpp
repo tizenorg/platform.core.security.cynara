@@ -85,7 +85,7 @@ void InMemoryStorageBackend::load(void) {
 
     if (!hasBucket(defaultPolicyBucketId)) {
         LOGN("Creating defaultBucket.");
-        this->buckets().insert({ defaultPolicyBucketId, PolicyBucket() });
+        this->buckets().insert({ defaultPolicyBucketId, PolicyBucket(defaultPolicyBucketId) });
     }
 
     if (isBackupValid) {
