@@ -255,7 +255,7 @@ fi
 
 id -u %{user_name} > /dev/null 2>&1
 if [ $? -eq 1 ]; then
-    useradd %{user_name} -r > /dev/null 2>&1
+    useradd -d /var/lib/empty -s /sbin/nologin %{user_name} -r > /dev/null 2>&1
 fi
 
 %post
