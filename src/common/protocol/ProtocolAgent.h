@@ -43,7 +43,15 @@ public:
     virtual ResponsePtr extractResponseFromBuffer(BinaryQueue &bufferQueue);
 
     virtual void execute(RequestContextPtr context, AgentActionRequestPtr request);
-    virtual void execute(RequestContextPtr context, AgentActionResponsePtr response);
+    virtual void execute(RequestContextPtr context, AgentActionResponsePtr request);
+    virtual void execute(RequestContextPtr context, AgentRegisterRequestPtr request);
+    virtual void execute(RequestContextPtr context, AgentRegisterResponsePtr request);
+
+private:
+    RequestPtr deserializeActionRequest(ProtocolFrameHeader &frame);
+    RequestPtr deserializeRegisterRequest(ProtocolFrameHeader &frame);
+    ResponsePtr deserializeActionResponse(ProtocolFrameHeader &frame);
+    ResponsePtr deserializeRegisterResponse(ProtocolFrameHeader &frame);
 };
 
 } // namespace Cynara
