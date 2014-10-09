@@ -25,11 +25,10 @@
 
 #include <string>
 
+#include <socket/AgentSocket.h>
 #include <api/ApiInterface.h>
 
 namespace Cynara {
-
-typedef std::string AgentType;
 
 class Logic : public ApiInterface {
 public:
@@ -38,12 +37,17 @@ public:
 
     virtual int getRequest(AgentActionRequestPtr &actionRequestPtr) noexcept;
 
-    virtual int putResponse(const AgentRequestType requestType,
+    virtual int putResponse(const AgentResponseType requestType,
                             const ProtocolFrameSequenceNumber sequenceNumber,
                             const RawBuffer &pluginData) noexcept;
 
 private:
     AgentType m_agentType;
+    AgentSocketPtr m_agentSocket;
+    bool m_registered;
+
+    int registerInCynara(void);
+    int ensureConnection(void);
 };
 
 } // namespace Cynara
