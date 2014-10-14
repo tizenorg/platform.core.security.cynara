@@ -24,7 +24,7 @@
 
 #include <attributes/attributes.h>
 
-#include <cynara-client-error.h>
+#include <cynara-error.h>
 #include <cynara-creds-commons.h>
 
 CYNARA_API

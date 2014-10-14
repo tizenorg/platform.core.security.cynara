@@ -18,14 +18,13 @@
 
 INSTALL(FILES
     ${CYNARA_PATH}/include/cynara-admin.h
-    ${CYNARA_PATH}/include/cynara-admin-error.h
     ${CYNARA_PATH}/include/cynara-admin-types.h
     ${CYNARA_PATH}/include/cynara-client.h
     ${CYNARA_PATH}/include/cynara-client-async.h
-    ${CYNARA_PATH}/include/cynara-client-error.h
     ${CYNARA_PATH}/include/cynara-creds-commons.h
     ${CYNARA_PATH}/include/cynara-creds-dbus.h
     ${CYNARA_PATH}/include/cynara-creds-socket.h
+    ${CYNARA_PATH}/include/cynara-error.h
     ${CYNARA_PATH}/include/cynara-session.h
     DESTINATION ${INCLUDE_INSTALL_DIR}/cynara
     )

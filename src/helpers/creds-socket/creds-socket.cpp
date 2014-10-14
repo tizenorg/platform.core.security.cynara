@@ -29,7 +29,7 @@
 
 #include <creds-socket-inner.h>
 
-#include <cynara-client-error.h>
+#include <cynara-error.h>
 #include <cynara-creds-commons.h>
 #include <cynara-creds-socket.h>
 
