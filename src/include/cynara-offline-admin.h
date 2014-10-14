@@ -25,7 +25,7 @@
 #ifndef CYNARA_OFFLINE_ADMIN_H
 #define CYNARA_OFFLINE_ADMIN_H
 
-#include <cynara-client-error.h>
+#include <cynara-error.h>
 #include <cynara-admin-types.h>
 
 #ifdef __cplusplus
