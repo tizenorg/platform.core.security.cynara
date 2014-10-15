@@ -33,7 +33,9 @@ BuildRequires: pkgconfig(libsystemd-journal)
 %global state_path %{_localstatedir}/%{name}/
 %global tests_dir %{_datarootdir}/%{name}/tests
 
-%global build_type %{?build_type:%build_type}%{!?build_type:RELEASE}
+%if x%{?build_type} == x
+%define build_type RELEASE
+%endif
 
 %if %{?build_type} == "DEBUG"
 
