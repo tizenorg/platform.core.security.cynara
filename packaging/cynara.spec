@@ -467,6 +467,7 @@ fi
 
 %files -n libcynara-plugin-devel
 %{_includedir}/cynara/cynara-plugin.h
+%{_includedir}/cynara/cynara-client-plugin.h
 %{_libdir}/pkgconfig/cynara-plugin.pc
 
 %files -n cynara-tests
