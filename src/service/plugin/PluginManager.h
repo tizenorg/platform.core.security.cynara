@@ -37,7 +37,7 @@ class PluginManager {
 public:
     PluginManager(const std::string &pluginDir);
     ExternalPluginPtr getPlugin(PolicyType pType);
-    ~PluginManager() {}
+    ~PluginManager();
 
 private:
     typedef std::unique_ptr<void, std::function<void (void*)>> PluginLibPtr;
