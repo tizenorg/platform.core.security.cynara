@@ -28,7 +28,7 @@
 #include <memory>
 #include <string>
 
-#include <cynara-plugin.h>
+#include <plugin/ExternalPluginInterface.h>
 
 namespace Cynara {
 typedef std::shared_ptr<ExternalPluginInterface> ExternalPluginPtr;
