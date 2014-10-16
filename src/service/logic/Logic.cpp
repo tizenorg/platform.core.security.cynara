@@ -20,6 +20,8 @@
  * @brief       This file implements main class of logic layer in cynara service
  */
 
+#include <signal.h>
+
 #include <log/log.h>
 #include <common.h>
 #include <exceptions/BucketNotExistsException.h>
@@ -27,8 +29,9 @@
 #include <exceptions/DefaultBucketSetNoneException.h>
 #include <exceptions/PluginErrorException.h>
 #include <exceptions/PluginNotFoundException.h>
+#include <exceptions/UnexpectedErrorException.h>
 
-#include <signal.h>
+#include <cynara-plugin.h>
 
 #include <main/Cynara.h>
 #include <request/AdminCheckRequest.h>
@@ -42,9 +45,8 @@
 #include <response/CancelResponse.h>
 #include <response/CheckResponse.h>
 #include <response/CodeResponse.h>
-#include <storage/Storage.h>
-
 #include <sockets/SocketManager.h>
+#include <storage/Storage.h>
 
 #include "Logic.h"
 
@@ -105,16 +107,22 @@ bool Logic::check(RequestContextPtr context UNUSED, const PolicyKey &key,
         throw PluginNotFoundException(result);
     }
 
+    ServicePluginInterfacePtr servicePlugin =
+            std::dynamic_pointer_cast<ServicePluginInterface>(plugin);
+    if(!plugin) {
+        throw PluginNotFoundException(result);
+    }
+
     AgentType requiredAgent;
     PluginData pluginData;
 
-    auto ret = plugin->check(key.client().toString(), key.user().toString(),
+    auto ret = servicePlugin->check(key.client().toString(), key.user().toString(),
                              key.privilege().toString(), result, requiredAgent, pluginData);
 
     switch (ret) {
-        case ExternalPluginInterface::PluginStatus::ANSWER_READY:
+        case ServicePluginInterface::PluginStatus::ANSWER_READY:
             return true;
-        case ExternalPluginInterface::PluginStatus::ANSWER_NOTREADY:
+        case ServicePluginInterface::PluginStatus::ANSWER_NOTREADY:
             //todo send request to agent
             //context should be saved in plugin in order to return answer when ready
             return false;
