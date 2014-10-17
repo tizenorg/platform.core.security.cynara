@@ -22,6 +22,7 @@ SET(CYNARA_COMMON_VERSION ${CYNARA_COMMON_VERSION_MAJOR}.3.0)
 SET(COMMON_PATH ${CYNARA_PATH}/common)
 
 SET(COMMON_SOURCES
+    ${COMMON_PATH}/config/PathConfig.cpp
     ${COMMON_PATH}/containers/BinaryQueue.cpp
     ${COMMON_PATH}/log/log.cpp
     ${COMMON_PATH}/protocol/ProtocolAdmin.cpp
@@ -45,7 +46,6 @@ SET(COMMON_SOURCES
     ${COMMON_PATH}/response/ResponseTaker.cpp
     ${COMMON_PATH}/sockets/Socket.cpp
     ${COMMON_PATH}/sockets/SocketClient.cpp
-    ${COMMON_PATH}/sockets/SocketPath.cpp
     ${COMMON_PATH}/types/PolicyBucket.cpp
     ${COMMON_PATH}/types/PolicyKey.cpp
     ${COMMON_PATH}/types/PolicyKeyHelpers.cpp
