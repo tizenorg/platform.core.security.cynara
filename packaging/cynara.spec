@@ -19,6 +19,7 @@ Source1011:    libcynara-session.manifest
 Source1012:    libcynara-storage.manifest
 Requires:      default-ac-domains
 Requires(pre): pwdutils
+Requires(pre): cynara-migrate >= %{version}-%{release}
 Requires(post):   smack
 Requires(postun): pwdutils
 BuildRequires: cmake
@@ -226,6 +227,13 @@ Requires:   cynara = %{version}-%{release}
 %description -n cynara-devel
 service (devel version)
 
+#######################################################
+%package -n cynara-migrate
+Summary:    Migration tools for Cynara's database
+
+%description -n cynara-migrate
+Migration tools for Cynara's database
+
 %prep
 %setup -q
 cp -a %{SOURCE1001} .
@@ -284,6 +292,12 @@ if [ $? -eq 1 ]; then
     useradd -d /var/lib/empty -s /sbin/nologin -r -g %{group_name} %{user_name} > /dev/null 2>&1
 fi
 
+if [ $1 -gt 1 ] ; then
+    %{_sbindir}/migrate.sh upgrade
+else
+    %{_sbindir}/migrate.sh install
+fi
+
 %post
 ### Add file capabilities if needed
 ### setcap/getcap binary are useful. To use them you must install libcap and libcap-tools packages
@@ -307,6 +321,7 @@ fi
 
 %postun
 if [ $1 = 0 ]; then
+    %{_sbindir}/migrate.sh uninstall
     userdel -r %{user_name} > /dev/null 2>&1
     groupdel %{user_name} > /dev/null 2>&1
     systemctl daemon-reload
@@ -510,3 +525,6 @@ fi
 %{_includedir}/cynara/cynara-session.h
 %{_libdir}/libcynara-session.so
 %{_libdir}/pkgconfig/cynara-session.pc
+
+%files -n cynara-migrate
+%attr(755,root,root) %{_sbindir}/migrate.sh
