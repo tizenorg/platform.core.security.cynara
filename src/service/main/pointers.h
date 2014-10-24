@@ -42,6 +42,10 @@ typedef std::shared_ptr<Storage> StoragePtr;
 class StorageBackend;
 typedef std::shared_ptr<StorageBackend> StorageBackendPtr;
 
+class DatabaseLock;
+typedef std::shared_ptr<DatabaseLock> DatabaseLockPtr;
+
+
 } // namespace Cynara
 
 #endif /* SRC_SERVICE_MAIN_POINTERS_H_ */
