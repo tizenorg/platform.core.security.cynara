@@ -38,6 +38,10 @@ public:
     Logic();
     virtual ~Logic();
 
+    void bindAgentManager(const AgentManagerPtr &agentManager) {
+        m_agentManager = agentManager;
+    }
+
     void bindLinkMonitor(const LinkMonitorPtr &linkMonitor) {
         m_linkMonitor = linkMonitor;
     }
@@ -56,6 +60,7 @@ public:
 
     void unbindAll(void) {
         m_linkMonitor.reset();
+        m_agentManager.reset();
         m_pluginManager.reset();
         m_storage.reset();
         m_socketManager.reset();
@@ -71,6 +76,7 @@ public:
     virtual void execute(RequestContextPtr context, SignalRequestPtr request);
 
 private:
+    AgentManagerPtr m_agentManager;
     LinkMonitorPtr m_linkMonitor;
     PluginManagerPtr m_pluginManager;
     StoragePtr m_storage;

@@ -48,6 +48,7 @@
 #include <response/CodeResponse.h>
 #include <storage/Storage.h>
 
+#include <agent/AgentManager.h>
 #include <sockets/LinkMonitor.h>
 #include <sockets/SocketManager.h>
 
@@ -81,8 +82,9 @@ void Logic::execute(RequestContextPtr context, AdminCheckRequestPtr request) {
 
 void Logic::execute(RequestContextPtr context, AgentRegisterRequestPtr request) {
     m_linkMonitor->registerLink(context->responseQueue(), request->agentType());
+    auto result = m_agentManager->registerAgent(request->agentType(), context->responseQueue());
     context->returnResponse(context, std::make_shared<AgentRegisterResponse>(
-                            AgentRegisterResponse::DONE, request->sequenceNumber()));
+                            result, request->sequenceNumber()));
 }
 
 void Logic::execute(RequestContextPtr context, CancelRequestPtr request) {

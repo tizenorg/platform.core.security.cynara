@@ -26,6 +26,7 @@
 #include <log/log.h>
 #include <exceptions/InitException.h>
 
+#include <agent/AgentManager.h>
 #include <logic/Logic.h>
 #include <plugin/PluginManager.h>
 #include <sockets/LinkMonitor.h>
@@ -74,6 +75,7 @@ const std::string Cynara::pluginDir(void) {
 }
 
 void Cynara::init(void) {
+    m_agentManager = std::make_shared<AgentManager>();
     m_linkMonitor = std::make_shared<LinkMonitor>();
     m_logic = std::make_shared<Logic>();
     m_pluginManager = std::make_shared<PluginManager>(pluginDir());
@@ -81,6 +83,7 @@ void Cynara::init(void) {
     m_storageBackend = std::make_shared<InMemoryStorageBackend>(storageDir());
     m_storage = std::make_shared<Storage>(*m_storageBackend);
 
+    m_logic->bindAgentManager(m_agentManager);
     m_logic->bindLinkMonitor(m_linkMonitor);
     m_logic->bindPluginManager(m_pluginManager);
     m_logic->bindStorage(m_storage);
@@ -109,6 +112,7 @@ void Cynara::finalize(void) {
         m_socketManager->unbindAll();
     }
 
+    m_agentManager.reset();
     m_linkMonitor.reset();
     m_logic.reset();
     m_pluginManager.reset();
