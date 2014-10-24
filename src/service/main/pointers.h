@@ -27,6 +27,9 @@
 
 namespace Cynara {
 
+class AgentManager;
+typedef std::shared_ptr<AgentManager> AgentManagerPtr;
+
 class LinkMonitor;
 typedef std::shared_ptr<LinkMonitor> LinkMonitorPtr;
 
