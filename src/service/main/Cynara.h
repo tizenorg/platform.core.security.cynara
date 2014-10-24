@@ -29,6 +29,7 @@ namespace Cynara {
 
 class Cynara {
 private:
+    LinkMonitorPtr m_linkMonitor;
     LogicPtr m_logic;
     PluginManagerPtr m_pluginManager;
     SocketManagerPtr m_socketManager;

@@ -49,6 +49,7 @@
 #include <storage/Storage.h>
 
 #include <main/Cynara.h>
+#include <sockets/LinkMonitor.h>
 #include <sockets/SocketManager.h>
 
 #include "Logic.h"
@@ -80,7 +81,7 @@ void Logic::execute(RequestContextPtr context, AdminCheckRequestPtr request) {
 }
 
 void Logic::execute(RequestContextPtr context, AgentRegisterRequestPtr request) {
-    // MOCKUP
+    m_linkMonitor->registerLink(context->responseQueue());
     context->returnResponse(context, std::make_shared<AgentRegisterResponse>(
                             AgentRegisterResponse::DONE, request->sequenceNumber()));
 }
@@ -100,6 +101,8 @@ void Logic::execute(RequestContextPtr context, CheckRequestPtr request) {
 
 bool Logic::check(RequestContextPtr context UNUSED, const PolicyKey &key,
                   PolicyResult& result) {
+    m_linkMonitor->registerLink(context->responseQueue());
+
     result = m_storage->checkPolicy(key);
 
     switch (result.policyType()) {

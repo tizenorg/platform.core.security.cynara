@@ -27,6 +27,9 @@
 
 namespace Cynara {
 
+class LinkMonitor;
+typedef std::shared_ptr<LinkMonitor> LinkMonitorPtr;
+
 class Logic;
 typedef std::shared_ptr<Logic> LogicPtr;
 

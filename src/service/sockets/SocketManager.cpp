@@ -52,6 +52,8 @@
 #include <request/RequestContext.h>
 #include <stdexcept>
 
+#include <sockets/LinkMonitor.h>
+
 #include "SocketManager.h"
 
 namespace Cynara {
@@ -217,6 +219,7 @@ void SocketManager::readyForAccept(int fd) {
 
 void SocketManager::closeSocket(int fd) {
     LOGD("SocketManger closeSocket fd [%d] start", fd);
+    m_linkMonitor->unregisterLink(m_fds[fd].writeQueue());
     removeReadSocket(fd);
     removeWriteSocket(fd);
     m_fds[fd].clear();
