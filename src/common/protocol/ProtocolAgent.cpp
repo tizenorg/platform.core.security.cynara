@@ -140,19 +140,6 @@ ResponsePtr ProtocolAgent::extractResponseFromBuffer(BinaryQueue &bufferQueue) {
     return nullptr;
 }
 
-void ProtocolAgent::execute(RequestContextPtr context, AgentActionRequestPtr request) {
-    LOGD("Serializing AgentActionRequest: op [%" PRIu8 "], requestType [%" PRIu8 "], "
-         "data lengtgh <%zu>", OpAgentActionRequest, request->type(), request->data().size());
-
-    ProtocolFramePtr frame = ProtocolFrameSerializer::startSerialization(request->sequenceNumber());
-
-    ProtocolSerialization::serialize(*frame, OpAgentActionRequest);
-    ProtocolSerialization::serialize(*frame, request->type());
-    ProtocolSerialization::serialize(*frame, request->data());
-
-    ProtocolFrameSerializer::finishSerialization(frame, context->responseQueue());
-}
-
 void ProtocolAgent::execute(RequestContextPtr context, AgentRegisterRequestPtr request) {
     LOGD("Serializing AgentRegisterRequest: op [%" PRIu8 "], agent type <%s>",
          OpAgentRegisterRequest, request->agentType().c_str());
@@ -173,6 +160,19 @@ void ProtocolAgent::execute(RequestContextPtr context, AgentRegisterResponsePtr 
 
     ProtocolSerialization::serialize(*frame, OpAgentRegisterResponse);
     ProtocolSerialization::serialize(*frame, static_cast<ProtocolResponseCode>(response->m_code));
+
+    ProtocolFrameSerializer::finishSerialization(frame, context->responseQueue());
+}
+
+void ProtocolAgent::execute(RequestContextPtr context, AgentActionRequestPtr request) {
+    LOGD("Serializing AgentActionRequest: op [%" PRIu8 "], requestType [%" PRIu8 "], "
+         "data lengtgh <%zu>", OpAgentActionRequest, request->type(), request->data().size());
+
+    ProtocolFramePtr frame = ProtocolFrameSerializer::startSerialization(request->sequenceNumber());
+
+    ProtocolSerialization::serialize(*frame, OpAgentActionRequest);
+    ProtocolSerialization::serialize(*frame, request->type());
+    ProtocolSerialization::serialize(*frame, request->data());
 
     ProtocolFrameSerializer::finishSerialization(frame, context->responseQueue());
 }
