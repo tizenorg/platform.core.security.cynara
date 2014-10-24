@@ -46,17 +46,23 @@ public:
     void run(void);
     void mainLoopStop(void);
 
+    void bindLinkMonitor(const LinkMonitorPtr &linkMonitor) {
+        m_linkMonitor = linkMonitor;
+    }
+
     void bindLogic(LogicPtr logic) {
         m_logic = logic;
     }
 
     void unbindAll(void) {
+        m_linkMonitor.reset();
         m_logic.reset();
     }
 
     void disconnectAllClients(void);
 
 private:
+    LinkMonitorPtr m_linkMonitor;
     LogicPtr m_logic;
 
     typedef std::vector<Descriptor> FDVector;

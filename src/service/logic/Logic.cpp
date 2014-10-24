@@ -48,6 +48,7 @@
 #include <response/CodeResponse.h>
 #include <storage/Storage.h>
 
+#include <sockets/LinkMonitor.h>
 #include <sockets/SocketManager.h>
 
 #include "Logic.h"
@@ -79,7 +80,7 @@ void Logic::execute(RequestContextPtr context, AdminCheckRequestPtr request) {
 }
 
 void Logic::execute(RequestContextPtr context, AgentRegisterRequestPtr request) {
-    // MOCKUP
+    m_linkMonitor->registerLink(context->responseQueue(), request->agentType());
     context->returnResponse(context, std::make_shared<AgentRegisterResponse>(
                             AgentRegisterResponse::DONE, request->sequenceNumber()));
 }
@@ -99,6 +100,10 @@ void Logic::execute(RequestContextPtr context, CheckRequestPtr request) {
 
 bool Logic::check(RequestContextPtr context UNUSED, const PolicyKey &key,
                   PolicyResult& result) {
+    std::ostringstream stream;
+    stream << "Service@" << std::hex << &context->responseQueue();
+    m_linkMonitor->registerLink(context->responseQueue(), stream.str());
+
     result = m_storage->checkPolicy(key);
 
     switch (result.policyType()) {
