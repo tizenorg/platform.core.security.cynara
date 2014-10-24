@@ -58,6 +58,7 @@ public:
     virtual bool hasBucket(const PolicyBucketId &bucketId);
     virtual void deletePolicy(const PolicyBucketId &bucketId, const PolicyKey &key);
     virtual void deleteLinking(const PolicyBucketId &bucketId);
+    virtual void createDirectory();
 
 protected:
     InMemoryStorageBackend() {}
