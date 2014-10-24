@@ -39,6 +39,7 @@ extern const std::string admin;
 
 namespace StoragePath {
 extern const std::string dbDir;
+extern const std::string lockfile;
 } // namespace DBPath
 
 namespace PluginPath {

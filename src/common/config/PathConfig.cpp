@@ -52,6 +52,14 @@ namespace StoragePath {
 
 const std::string dbDir(statePath + "db/");
 
+const std::string lockfile(
+#ifdef CYNARA_LOCK_DIR
+        CYNARA_LOCK_DIR "cynara.lock"
+#else
+        "/var/lock/cynara/cynara.lock"
+#endif
+);
+
 } // namespace DBPath
 
 namespace PluginPath {

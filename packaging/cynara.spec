@@ -32,6 +32,7 @@ BuildRequires: pkgconfig(libsystemd-journal)
 
 %global state_path %{_localstatedir}/%{name}/
 %global tests_dir %{_datarootdir}/%{name}/tests
+%global lock_dir %{_localstatedir}/lock/%{user_name}/
 
 %if !%{defined build_type}
 %define build_type RELEASE
@@ -252,6 +253,7 @@ export CXXFLAGS="$CXXFLAGS -Wp,-U_FORTIFY_SOURCE"
 %endif
 
 export CXXFLAGS="$CXXFLAGS -DCYNARA_STATE_PATH=\\\"%{state_path}\\\" \
+                           -DCYNARA_LOCK_DIR=\\\"%{lock_dir}\\\" \
                            -DCYNARA_TESTS_DIR=\\\"%{tests_dir}\\\""
 export LDFLAGS+="-Wl,--rpath=%{_libdir}"
 
@@ -269,6 +271,7 @@ rm -rf %{buildroot}
 mkdir -p %{buildroot}/usr/lib/systemd/system/sockets.target.wants
 mkdir -p %{buildroot}/%{state_path}
 mkdir -p %{buildroot}/%{tests_dir}
+mkdir -p %{buildroot}/%{lock_dir}
 cp -a db* %{buildroot}/%{tests_dir}
 ln -s ../cynara.socket %{buildroot}/usr/lib/systemd/system/sockets.target.wants/cynara.socket
 ln -s ../cynara-admin.socket %{buildroot}/usr/lib/systemd/system/sockets.target.wants/cynara-admin.socket
@@ -296,6 +299,7 @@ if [ $1 = 1 ]; then
 fi
 
 chsmack -a System %{state_path}
+chsmack -a System %{lock_dir}
 
 systemctl restart %{name}.service
 
@@ -403,6 +407,7 @@ fi
 %attr(-,root,root) /usr/lib/systemd/system/sockets.target.wants/cynara-admin.socket
 %attr(-,root,root) /usr/lib/systemd/system/cynara-admin.socket
 %dir %attr(700,cynara,cynara) %{state_path}
+%dir %attr(700,cynara,cynara) %{lock_dir}
 
 %files -n libcynara-client
 %manifest libcynara-client.manifest
