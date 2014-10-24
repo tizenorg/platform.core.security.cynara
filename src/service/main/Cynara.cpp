@@ -59,6 +59,8 @@ void Cynara::init(void) {
 
     m_socketManager->bindLogic(m_logic);
 
+    m_databaseLock = std::make_shared<DatabaseLock>(PathConfig::StoragePath::lockfile);
+    m_databaseLock->lock(); // Wait until database lock can be acquired
     m_storage->load();
 }
 
@@ -84,6 +86,7 @@ void Cynara::finalize(void) {
     m_socketManager.reset();
     m_storageBackend.reset();
     m_storage.reset();
+    m_databaseLock.reset();
 }
 
 } // namespace Cynara
