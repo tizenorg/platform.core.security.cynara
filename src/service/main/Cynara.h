@@ -16,6 +16,7 @@
 /**
  * @file        src/service/main/Cynara.h
  * @author      Lukasz Wojciechowski <l.wojciechow@partner.samsung.com>
+ * @author      Aleksander Zdyb <a.zdyb@samsung.com>
  * @version     1.0
  * @brief       This file defines main class of cynara service
  */
@@ -23,6 +24,7 @@
 #ifndef SRC_SERVICE_MAIN_CYNARA_H_
 #define SRC_SERVICE_MAIN_CYNARA_H_
 
+#include <lock/DatabaseLock.h>
 #include <main/pointers.h>
 
 namespace Cynara {
@@ -43,6 +45,7 @@ private:
     SocketManagerPtr m_socketManager;
     StoragePtr m_storage;
     StorageBackendPtr m_storageBackend;
+    DatabaseLockPtr m_databaseLock;
 };
 
 } // namespace Cynara
