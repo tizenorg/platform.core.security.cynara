@@ -36,6 +36,8 @@ BuildRequires: pkgconfig(libsystemd-journal)
 %global lib_path %{_libdir}/%{name}/
 %global tests_dir %{_datarootdir}/%{name}/tests/
 %global conf_path %{_sysconfdir}/%{name}/
+%global lock_dir %{_localstatedir}/lock/%{user_name}/
+%global lock_file %{_localstatedir}/lock/%{user_name}/%{name}.lock
 
 %if !%{defined build_type}
 %define build_type RELEASE
@@ -176,6 +178,7 @@ export CXXFLAGS="$CXXFLAGS -Wp,-U_FORTIFY_SOURCE"
 export CXXFLAGS="$CXXFLAGS -DCYNARA_STATE_PATH=\\\"%{state_path}\\\" \
                            -DCYNARA_LIB_PATH=\\\"%{lib_path}\\\" \
                            -DCYNARA_TESTS_DIR=\\\"%{tests_dir}\\\" \
+                           -DCYNARA_LOCK_FILE=\\\"%{lock_file}\\\" \
                            -DCYNARA_CONFIGURATION_DIR=\\\"%{conf_path}\\\""
 export LDFLAGS+="-Wl,--rpath=%{_libdir}"
 
@@ -197,6 +200,8 @@ mkdir -p %{buildroot}/%{state_path}
 mkdir -p %{buildroot}/%{tests_dir}/empty_db
 mkdir -p %{buildroot}/%{lib_path}/plugin/client
 mkdir -p %{buildroot}/%{lib_path}/plugin/service
+mkdir -p %{buildroot}/%{lock_dir}
+touch %{buildroot}/%{lock_file}
 
 cp -a db* %{buildroot}/%{tests_dir}
 ln -s ../cynara.socket %{buildroot}/usr/lib/systemd/system/sockets.target.wants/cynara.socket
@@ -233,6 +238,8 @@ if [ $1 = 1 ]; then
 fi
 
 chsmack -a System %{state_path}
+chsmack -a System %{lock_dir}
+chsmack -a System %{lock_file}
 
 systemctl restart %{name}.service
 
@@ -296,6 +303,8 @@ fi
 %attr(-,root,root) /usr/lib/systemd/system/cynara-agent.socket
 %dir %attr(700,cynara,cynara) %{state_path}
 %dir %attr(755,cynara,cynara) %{lib_path}/plugin/service
+%dir %attr(700,cynara,cynara) %{lock_dir}
+%attr(700,cynara,cynara) %{lock_file}
 
 %files -n cynara-devel
 %{_includedir}/cynara/*.h
