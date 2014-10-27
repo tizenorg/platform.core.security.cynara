@@ -16,6 +16,7 @@
 /**
  * @file        src/common/config/PathConfig.cpp
  * @author      Zofia Abramowska <z.abramowska@samsung.com>
+ * @author      Aleksander Zdyb <a.zdyb@samsung.com>
  * @version     1.0
  * @brief       This file specifies PathConfig namespace containing values of default cynara paths
  */
@@ -52,6 +53,17 @@ const std::string agent(clientPath + "cynara-agent.socket");
 
 namespace StoragePath {
 const std::string dbDir(statePath + "db/");
+
+const std::string lockFilePath(
+#ifdef CYNARA_LOCK_DIR
+        CYNARA_LOCK_DIR
+#else
+        "/var/lock/cynara/"
+#endif
+);
+
+const std::string lockFile(lockFilePath + "cynara.lock");
+
 } // namespace StoragePath
 
 namespace PluginPath {
