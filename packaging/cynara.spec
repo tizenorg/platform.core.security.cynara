@@ -36,6 +36,8 @@ BuildRequires: pkgconfig(libsystemd-journal)
 %global lib_path %{_libdir}/%{name}/
 %global tests_dir %{_datarootdir}/%{name}/tests/
 %global conf_path %{_sysconfdir}/%{name}/
+%global lock_dir %{_localstatedir}/lock/%{user_name}/
+%global lock_file %{lock_dir}%{name}.lock
 
 %if !%{defined build_type}
 %define build_type RELEASE
@@ -182,7 +184,9 @@ export LDFLAGS+="-Wl,--rpath=%{_libdir}"
 %cmake . \
         -DBUILD_TESTS=ON \
         -DCMAKE_BUILD_TYPE=%{?build_type} \
-        -DCMAKE_VERBOSE_MAKEFILE=ON
+        -DCMAKE_VERBOSE_MAKEFILE=ON \
+        -DCYNARA_LOCK_FILE="%{lock_file}"
+
 make %{?jobs:-j%jobs}
 
 %install
@@ -233,6 +237,8 @@ if [ $1 = 1 ]; then
 fi
 
 chsmack -a System %{state_path}
+chsmack -a System %{lock_dir}
+chsmack -a System %{lock_file}
 
 systemctl restart %{name}.service
 
@@ -296,6 +302,8 @@ fi
 %attr(-,root,root) /usr/lib/systemd/system/cynara-agent.socket
 %dir %attr(700,cynara,cynara) %{state_path}
 %dir %attr(755,cynara,cynara) %{lib_path}/plugin/service
+%dir %attr(700,cynara,cynara) %{lock_dir}
+%attr(700,cynara,cynara) %{lock_file}
 
 %files -n cynara-devel
 %{_includedir}/cynara/*.h
