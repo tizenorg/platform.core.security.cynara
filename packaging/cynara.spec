@@ -50,15 +50,13 @@ and tests (cynara-tests)
 
 %package devel
 Summary:    Cynara development files
-#Requires:   libcynara-client = %{version}-%{release}
-#Requires:   libcynara-client-async = %{version}-%{release}
-#Requires:   libcynara-client-commons = %{version}-%{release}
-#Requires:   libcynara-admin = %{version}-%{release}
-#Requires:   libcynara-commons = %{version}-%{release}
-#Requires:   libcynara-creds-commons = %{version}-%{release}
-#Requires:   libcynara-creds-dbus = %{version}-%{release}
-#Requires:   libcynara-creds-socket = %{version}-%{release}
-#Requires:   libcynara-session = %{version}-%{release}
+Requires:   libcynara-admin = %{version}-%{release}
+Requires:   libcynara-client = %{version}-%{release}
+Requires:   libcynara-commons = %{version}-%{release}
+Requires:   libcynara-creds-commons = %{version}-%{release}
+Requires:   libcynara-creds-dbus = %{version}-%{release}
+Requires:   libcynara-creds-socket = %{version}-%{release}
+Requires:   libcynara-session = %{version}-%{release}
 
 %description devel
 Cynara development files
@@ -254,6 +252,7 @@ fi
 
 %files devel
 %{_includedir}/cynara/*.h
+%{_includedir}/cynara/attributes/*.h
 %{_includedir}/cynara/types/*.h
 %{_libdir}/pkgconfig/*.pc
 %{_libdir}/*.so
