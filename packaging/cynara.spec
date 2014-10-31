@@ -252,6 +252,7 @@ fi
 
 %files devel
 %{_includedir}/cynara/*.h
+%{_includedir}/cynara/attributes/*.h
 %{_includedir}/cynara/types/*.h
 %{_libdir}/pkgconfig/*.pc
 %{_libdir}/*.so

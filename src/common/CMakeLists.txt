@@ -91,3 +91,8 @@ INSTALL(FILES
     ${COMMON_PATH}/types/PolicyType.h
     DESTINATION ${INCLUDE_INSTALL_DIR}/cynara/types
     )
+
+INSTALL(FILES
+    ${COMMON_PATH}/attributes/attributes.h
+    DESTINATION ${INCLUDE_INSTALL_DIR}/cynara/attributes
+    )
