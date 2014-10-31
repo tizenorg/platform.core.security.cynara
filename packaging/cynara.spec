@@ -57,6 +57,7 @@ Requires:   libcynara-creds-commons = %{version}-%{release}
 Requires:   libcynara-creds-dbus = %{version}-%{release}
 Requires:   libcynara-creds-socket = %{version}-%{release}
 Requires:   libcynara-session = %{version}-%{release}
+Requires:   dbus-devel
 
 %description devel
 Cynara development files
