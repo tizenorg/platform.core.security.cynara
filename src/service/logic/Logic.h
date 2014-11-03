@@ -31,6 +31,7 @@
 #include <request/CheckRequestManager.h>
 #include <request/pointers.h>
 #include <request/RequestTaker.h>
+#include <sockets/LinkMonitor.h>
 
 namespace Cynara {
 
@@ -45,6 +46,8 @@ public:
 
     void bindLinkMonitor(const LinkMonitorPtr &linkMonitor) {
         m_linkMonitor = linkMonitor;
+        m_linkMonitor->registerDisconnectionCallback(
+                std::bind(&Logic::linkDisconnectedCallback, this, std::placeholders::_1));
     }
 
     void bindPluginManager(PluginManagerPtr pluginManager) {
@@ -66,6 +69,8 @@ public:
         m_storage.reset();
         m_socketManager.reset();
     }
+
+    void linkDisconnectedCallback(const LinkId linkId);
 
     virtual void execute(RequestContextPtr context, AdminCheckRequestPtr request);
     virtual void execute(RequestContextPtr context, AgentActionRequestPtr request);
@@ -95,6 +100,9 @@ private:
     bool cancel(const PolicyKey &key, ProtocolFrameSequenceNumber checkId,
                 const PluginData &agentData, const RequestContextPtr &context,
                 const ExternalPluginPtr &plugin);
+
+    void handleAgentTalkerDisconnection(const AgentTalkerPtr &agentTalkerPtr);
+    void handleClientDisconnection(const CheckContextPtr &checkContextPtr);
 
     void onPoliciesChanged(void);
 };

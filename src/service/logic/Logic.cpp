@@ -329,4 +329,49 @@ void Logic::onPoliciesChanged(void) {
     //todo remove all saved contexts (if there will be any saved contexts)
 }
 
+void Logic::handleAgentTalkerDisconnection(const AgentTalkerPtr &agentTalkerPtr) {
+    CheckContextPtr checkContextPtr = m_checkRequestManager.getContext(agentTalkerPtr);
+    if (checkContextPtr == nullptr) {
+        LOGE("No matching check context for agent talker.");
+        m_agentManager->removeTalker(agentTalkerPtr);
+        return;
+    }
+
+    cancel(checkContextPtr->m_key, checkContextPtr->m_checkId, PluginData(),
+           checkContextPtr->m_requestContext, checkContextPtr->m_plugin);
+
+    m_agentManager->removeTalker(agentTalkerPtr);
+    m_checkRequestManager.removeRequest(checkContextPtr);
+}
+
+void Logic::handleClientDisconnection(const CheckContextPtr &checkContextPtr) {
+    LOGD("Handle client disconnection");
+
+    if (!checkContextPtr->m_agentTalker->cancel()) {
+        LOGE("Error in sending cancel request to agent: <%s>",
+             checkContextPtr->m_agentTalker->agentType().c_str());
+        m_agentManager->removeTalker(checkContextPtr->m_agentTalker);
+        m_checkRequestManager.removeRequest(checkContextPtr);
+    }
+}
+
+void Logic::linkDisconnectedCallback(const LinkId linkId) {
+    LOGD("Link disconnected");
+
+    auto talkers = m_agentManager->getAllTalkers();
+    for (auto it = talkers.begin(); it != talkers.end(); ++it) {
+        if (&it->second->linkId() == &linkId) {
+            handleAgentTalkerDisconnection(it->second);
+        }
+    }
+    m_agentManager->unregisterAgent(linkId);
+
+    auto contexts = m_checkRequestManager.getAllContexts();
+    for (auto it = contexts.begin(); it != contexts.end(); ++it) {
+        if (&it->first.first.get() == &linkId) {
+            handleClientDisconnection(it->second);
+        }
+    }
+}
+
 } // namespace Cynara
