@@ -68,6 +68,7 @@ public:
     }
 
     virtual void execute(RequestContextPtr context, AdminCheckRequestPtr request);
+    virtual void execute(RequestContextPtr context, AgentActionRequestPtr request);
     virtual void execute(RequestContextPtr context, AgentRegisterRequestPtr request);
     virtual void execute(RequestContextPtr context, CancelRequestPtr request);
     virtual void execute(RequestContextPtr context, CheckRequestPtr request);
@@ -88,6 +89,12 @@ private:
                ProtocolFrameSequenceNumber checkId, PolicyResult &result);
     bool pluginCheck(const RequestContextPtr &context, const PolicyKey &key,
                      ProtocolFrameSequenceNumber checkId, PolicyResult &result);
+    bool update(const PolicyKey &key, ProtocolFrameSequenceNumber checkId,
+                const PluginData &agentData, const RequestContextPtr &request,
+                const ExternalPluginPtr &plugin);
+    bool cancel(const PolicyKey &key, ProtocolFrameSequenceNumber checkId,
+                const PluginData &agentData, const RequestContextPtr &context,
+                const ExternalPluginPtr &plugin);
 
     void onPoliciesChanged(void);
 };
