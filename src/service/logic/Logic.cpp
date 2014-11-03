@@ -21,8 +21,11 @@
  */
 
 #include <csignal>
+#include <cinttypes>
+#include <functional>
 #include <memory>
 
+#include <log/log.h>
 #include <common.h>
 #include <log/log.h>
 #include <exceptions/BucketNotExistsException.h>
@@ -95,14 +98,14 @@ void Logic::execute(RequestContextPtr context, CancelRequestPtr request) {
 
 void Logic::execute(RequestContextPtr context, CheckRequestPtr request) {
     PolicyResult result(PredefinedPolicyType::DENY);
-    if (check(context, request->key(), result)) {
+    if (check(context, request->key(), request->sequenceNumber(), result)) {
         context->returnResponse(context, std::make_shared<CheckResponse>(result,
                                 request->sequenceNumber()));
     }
 }
 
-bool Logic::check(RequestContextPtr context UNUSED, const PolicyKey &key,
-                  PolicyResult& result) {
+bool Logic::check(const RequestContextPtr &context, const PolicyKey &key,
+                  ProtocolFrameSequenceNumber checkId, PolicyResult &result) {
     m_linkMonitor->registerLink(context->responseQueue());
 
     result = m_storage->checkPolicy(key);
@@ -116,9 +119,19 @@ bool Logic::check(RequestContextPtr context UNUSED, const PolicyKey &key,
             return true;
     }
 
+    return pluginCheck(context, key, checkId, result);
+}
+
+bool Logic::pluginCheck(const RequestContextPtr &context, const PolicyKey &key,
+                        ProtocolFrameSequenceNumber checkId, PolicyResult &result) {
+
+    LOGD("Trying to check policy: <%s> in plugin.", key.toString().c_str());
+
     ExternalPluginPtr plugin = m_pluginManager->getPlugin(result.policyType());
     if (!plugin) {
-        throw PluginNotFoundException(result);
+        LOGE("Plugin not found for policy: [0x%x]", result.policyType());
+        result = PolicyResult();
+        return true;
     }
 
     AgentType requiredAgent;
@@ -130,12 +143,32 @@ bool Logic::check(RequestContextPtr context UNUSED, const PolicyKey &key,
     switch (ret) {
         case ExternalPluginInterface::PluginStatus::ANSWER_READY:
             return true;
-        case ExternalPluginInterface::PluginStatus::ANSWER_NOTREADY:
-            //todo send request to agent
-            //context should be saved in plugin in order to return answer when ready
+        case ExternalPluginInterface::PluginStatus::ANSWER_NOTREADY: {
+                result = PolicyResult(PredefinedPolicyType::DENY);
+                if (!m_agentManager->agentExists(requiredAgent)) {
+                    LOGE("Required agent: <%s> is not registered.", requiredAgent.c_str());
+                    return true;
+                }
+
+                AgentTalkerPtr agentTalker = m_agentManager->createTalker(requiredAgent);
+                if (!agentTalker) {
+                    LOGE("Required agent talker for: <%s> could not be created.",
+                         requiredAgent.c_str());
+                    return true;
+                }
+
+                CheckContextPtr checkContextPtr = m_checkRequestManager.createContext(key, context,
+                        checkId, plugin, agentTalker);
+                if (!agentTalker->send(pluginData)) {
+                    LOGE("Error sending data to agent: <%s>", requiredAgent.c_str());
+                    m_checkRequestManager.removeRequest(checkContextPtr);
+                    m_agentManager->removeTalker(agentTalker);
+                    return true;
+                }
+            }
             return false;
         default:
-            throw PluginErrorException(key);
+            throw PluginErrorException(key); // This 'throw' should be removed or handled properly.
     }
 }
 
