@@ -84,8 +84,13 @@ private:
     StoragePtr m_storage;
     SocketManagerPtr m_socketManager;
 
-    bool check(RequestContextPtr context, const PolicyKey &key, PolicyResult& result);
-
+    bool check(const RequestContextPtr &context, const PolicyKey &key,
+               ProtocolFrameSequenceNumber checkId, PolicyResult &result);
+    bool pluginCheck(const RequestContextPtr &context, const PolicyKey &key,
+                     ProtocolFrameSequenceNumber checkId, PolicyResult &result);
+    bool update(const PolicyKey &key, ProtocolFrameSequenceNumber checkId,
+                const PluginData &agentData, const RequestContextPtr &request,
+                const ExternalPluginPtr &plugin);
     void onPoliciesChanged(void);
 };
 
