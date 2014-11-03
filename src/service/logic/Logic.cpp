@@ -63,6 +63,7 @@
 #include "Logic.h"
 
 namespace Cynara {
+
 Logic::Logic() {
 }
 
@@ -205,16 +206,21 @@ bool Logic::pluginCheck(const RequestContextPtr &context, const PolicyKey &key,
         case ServicePluginInterface::PluginStatus::ANSWER_READY:
             return true;
         case ServicePluginInterface::PluginStatus::ANSWER_NOTREADY: {
+            result = PolicyResult(PredefinedPolicyType::DENY);
                 AgentTalkerPtr agentTalker = m_agentManager->createTalker(requiredAgent);
                 if (!agentTalker) {
                     LOGE("Required agent talker for: <%s> could not be created.",
                          requiredAgent.c_str());
-                    result = PolicyResult(PredefinedPolicyType::DENY);
                     return true;
                 }
 
-                CheckContextPtr checkContextPtr = m_checkRequestManager.createContext(key, context,
-                        checkId, servicePlugin, agentTalker);
+                if (!m_checkRequestManager.createContext(key, context, checkId, servicePlugin,
+                                                         agentTalker)) {
+                    LOGE("Check context for checkId: [%" PRIu16 "] could not be created.",
+                         checkId);
+                    m_agentManager->removeTalker(agentTalker);
+                    return true;
+                }
                 agentTalker->send(pluginData);
             }
             return false;
@@ -302,14 +308,48 @@ void Logic::execute(RequestContextPtr context, SetPoliciesRequestPtr request) {
                             request->sequenceNumber()));
 }
 
-void Logic::contextClosed(RequestContextPtr context UNUSED) {
-    //We don't care now, but we will
+void Logic::contextClosed(RequestContextPtr context) {
+    LOGD("context closed");
+
+    LinkId linkId = context->responseQueue();
+
+    m_agentManager->cleanupAgent(linkId, [&](const AgentTalkerPtr &talker) -> void {
+                                 handleAgentTalkerDisconnection(talker); });
+
+    m_checkRequestManager.cancelRequests(linkId,
+                                         [&](const CheckContextPtr &checkContextPtr) -> void {
+                                         handleClientDisconnection(checkContextPtr); });
 }
 
 void Logic::onPoliciesChanged(void) {
     m_storage->save();
     m_socketManager->disconnectAllClients();
     //todo remove all saved contexts (if there will be any saved contexts)
+}
+
+void Logic::handleAgentTalkerDisconnection(const AgentTalkerPtr &agentTalkerPtr) {
+    CheckContextPtr checkContextPtr = m_checkRequestManager.getContext(agentTalkerPtr);
+    if (checkContextPtr == nullptr) {
+        LOGE("No matching check context for agent talker.");
+        return;
+    }
+
+    if (!checkContextPtr->cancelled() && checkContextPtr->m_requestContext->responseQueue()) {
+        PolicyResult result(PredefinedPolicyType::DENY);
+        checkContextPtr->m_requestContext->returnResponse(checkContextPtr->m_requestContext,
+                std::make_shared<CheckResponse>(result, checkContextPtr->m_checkId));
+    }
+
+    m_checkRequestManager.removeRequest(checkContextPtr);
+}
+
+void Logic::handleClientDisconnection(const CheckContextPtr &checkContextPtr) {
+    LOGD("Handle client disconnection");
+
+    if (!checkContextPtr->cancelled()) {
+        checkContextPtr->cancel();
+        checkContextPtr->m_agentTalker->cancel();
+    }
 }
 
 } // namespace Cynara
