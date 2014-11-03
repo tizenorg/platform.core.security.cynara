@@ -28,6 +28,7 @@
 
 #include <main/pointers.h>
 #include <plugin/PluginManager.h>
+#include <request/CheckRequestManager.h>
 #include <request/pointers.h>
 #include <request/RequestTaker.h>
 
@@ -77,6 +78,7 @@ public:
 
 private:
     AgentManagerPtr m_agentManager;
+    CheckRequestManager m_checkRequestManager;
     LinkMonitorPtr m_linkMonitor;
     PluginManagerPtr m_pluginManager;
     StoragePtr m_storage;
