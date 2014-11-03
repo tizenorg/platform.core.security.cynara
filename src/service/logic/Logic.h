@@ -91,6 +91,10 @@ private:
     bool update(const PolicyKey &key, ProtocolFrameSequenceNumber checkId,
                 const PluginData &agentData, const RequestContextPtr &request,
                 const ExternalPluginPtr &plugin);
+    bool cancel(const PolicyKey &key, ProtocolFrameSequenceNumber checkId,
+                const PluginData &agentData, const RequestContextPtr &context,
+                const ExternalPluginPtr &plugin);
+
     void onPoliciesChanged(void);
 };
 
