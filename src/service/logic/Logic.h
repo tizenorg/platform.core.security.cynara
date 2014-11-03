@@ -89,6 +89,9 @@ private:
                 const PluginData &agentData, const RequestContextPtr &request,
                 const ExternalPluginPtr &plugin);
 
+    void handleAgentTalkerDisconnection(const AgentTalkerPtr &agentTalkerPtr);
+    void handleClientDisconnection(const CheckContextPtr &checkContextPtr);
+
     void onPoliciesChanged(void);
 };
 
