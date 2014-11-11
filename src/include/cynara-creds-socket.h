@@ -28,16 +28,14 @@
 
 #include <sys/types.h>
 
-#include "cynara-creds-commons.h"
-
 #ifdef __cplusplus
 extern "C" {
 #endif
 
 /**
  * \par Description:
- * Creates a client identification string with given method. Client is a process at the other
- * side of socket.
+ * Creates a client identification string with default system method.
+ * Client is a process at the other side of socket.
  *
  * \par Purpose:
  * Client identification string is required for cynara_check() and cynara_async_check() functions.
@@ -62,21 +60,19 @@ extern "C" {
  * Allocated string is returned only, when function succeeds.
  *
  * \param[in] socket_fd Descriptor of open connected UNIX socket
- * \param[in] method Method of client identifier creation
  * \param[out] client Placeholder for allocated string containing client id
  *
  * \return CYNARA_API_SUCCESS on success
  *         CYNARA_API_INVALID_PARAM when client is NULL or socket_fd is not valid connected socket
  *                                  descriptor
- *         CYNARA_API_METHOD_NOT_SUPPORTED when requested method is not supported
  *         CYNARA_API_OUT_OF_MEMORY when there was error allocating memory
  */
-int cynara_creds_socket_get_client(int socket_fd, enum cynara_client_creds method, char **client);
+int cynara_creds_socket_get_client(int socket_fd, char **client);
 
 /**
  * \par Description:
- * Creates a user identification string with given method. User is an executor of process
- * at the other side of socket.
+ * Creates a user identification string with default system method.
+ * User is an executor of process at the other side of socket.
  *
  * \par Purpose:
  * User identification string is required for cynara_check() and cynara_async_check() functions.
@@ -101,16 +97,14 @@ int cynara_creds_socket_get_client(int socket_fd, enum cynara_client_creds metho
  * Allocated string is returned only, when function succeeds.
  *
  * \param[in] socket_fd Descriptor of open connected UNIX socket
- * \param[in] method Method of user identifier creation
  * \param[out] user Placeholder for allocated string containing user id
  *
  * \return CYNARA_API_SUCCESS on success
  *         CYNARA_API_INVALID_PARAM when user is NULL or socket_fd is not valid connected socket
  *                                  descriptor
- *         CYNARA_API_METHOD_NOT_SUPPORTED when requested method is not supported
  *         CYNARA_API_OUT_OF_MEMORY when there was error allocating memory
  */
-int cynara_creds_socket_get_user(int socket_fd, enum cynara_user_creds method, char **user);
+int cynara_creds_socket_get_user(int socket_fd, char **user);
 
 /**
  * \par Description:

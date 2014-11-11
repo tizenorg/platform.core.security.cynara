@@ -18,6 +18,7 @@
  * @author      Radoslaw Bartosiak <r.bartosiak@samsung.com>
  * @author      Aleksander Zdyb <a.zdyb@samsung.com>
  * @author      Lukasz Wojciechowski <l.wojciechow@partner.samsung.com>
+ * @author      Rafal Krypa <r.krypa@samsung.com>
  * @version     1.0
  * @brief       Implementation of external libcynara-creds-socket API
  */
@@ -34,9 +35,14 @@
 #include <cynara-error.h>
 
 CYNARA_API
-int cynara_creds_socket_get_client(int socket_fd, enum cynara_client_creds method, char **client) {
+int cynara_creds_socket_get_client(int socket_fd, char **client) {
     if (client == nullptr)
         return CYNARA_API_INVALID_PARAM;
+
+    enum cynara_client_creds method;
+    int ret = cynara_creds_get_default_client_method(&method);
+    if (ret != CYNARA_API_SUCCESS)
+        return ret;
 
     switch (method) {
         case cynara_client_creds::CLIENT_METHOD_SMACK:
@@ -44,14 +50,19 @@ int cynara_creds_socket_get_client(int socket_fd, enum cynara_client_creds metho
         case cynara_client_creds::CLIENT_METHOD_PID:
             return getClientPid(socket_fd, client);
         default:
-            return CYNARA_API_METHOD_NOT_SUPPORTED;
+            return CYNARA_API_UNKNOWN_ERROR;
     }
 }
 
 CYNARA_API
-int cynara_creds_socket_get_user(int socket_fd, enum cynara_user_creds method, char **user) {
+int cynara_creds_socket_get_user(int socket_fd, char **user) {
     if (user == nullptr)
         return CYNARA_API_INVALID_PARAM;
+
+    enum cynara_user_creds method;
+    int ret = cynara_creds_get_default_user_method(&method);
+    if (ret != CYNARA_API_SUCCESS)
+        return ret;
 
     switch (method) {
         case cynara_user_creds::USER_METHOD_UID:
@@ -59,7 +70,7 @@ int cynara_creds_socket_get_user(int socket_fd, enum cynara_user_creds method, c
         case cynara_user_creds::USER_METHOD_GID:
             return getUserGid(socket_fd, user);
         default:
-            return CYNARA_API_METHOD_NOT_SUPPORTED;
+            return CYNARA_API_UNKNOWN_ERROR;
     }
 }
 

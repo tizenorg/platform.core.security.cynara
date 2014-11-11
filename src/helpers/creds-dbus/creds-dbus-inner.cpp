@@ -182,7 +182,7 @@ int getUserId(DBusConnection *connection, const char *uniqueName, char **user) {
 int getUserGid(DBusConnection *connection UNUSED, const char *uniqueName UNUSED,
                char **user UNUSED) {
     //todo
-    return CYNARA_API_METHOD_NOT_SUPPORTED;
+    return CYNARA_API_UNKNOWN_ERROR;
 }
 
 int getPid(DBusConnection *connection, const char *uniqueName, pid_t *pid) {

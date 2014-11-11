@@ -18,6 +18,7 @@
  * @author      Radoslaw Bartosiak <r.bartosiak@samsung.com>
  * @author      Aleksander Zdyb <a.zdyb@samsung.com>
  * @author      Lukasz Wojciechowski <l.wojciechow@partner.samsung.com>
+ * @author      Rafal Krypa <r.krypa@samsung.com>
  * @version     1.0
  * @brief       Implementation of external libcynara-creds-dbus API
  */
@@ -33,9 +34,14 @@
 
 CYNARA_API
 int cynara_creds_dbus_get_client(DBusConnection *connection, const char *uniqueName,
-                                 enum cynara_client_creds method, char **client) {
+                                 char **client) {
     if (connection == nullptr || uniqueName == nullptr || client == nullptr)
         return CYNARA_API_INVALID_PARAM;
+
+    enum cynara_client_creds method;
+    int ret = cynara_creds_get_default_client_method(&method);
+    if (ret != CYNARA_API_SUCCESS)
+        return ret;
 
     switch (method) {
         case cynara_client_creds::CLIENT_METHOD_SMACK:
@@ -43,15 +49,20 @@ int cynara_creds_dbus_get_client(DBusConnection *connection, const char *uniqueN
         case cynara_client_creds::CLIENT_METHOD_PID:
             return getClientPid(connection, uniqueName, client);
         default:
-            return CYNARA_API_METHOD_NOT_SUPPORTED;
+            return CYNARA_API_UNKNOWN_ERROR;
     }
 }
 
 CYNARA_API
 int cynara_creds_dbus_get_user(DBusConnection *connection, const char *uniqueName,
-                               enum cynara_user_creds method, char **user) {
+                               char **user) {
     if (connection == nullptr || uniqueName == nullptr || user == nullptr)
         return CYNARA_API_INVALID_PARAM;
+
+    enum cynara_user_creds method;
+    int ret = cynara_creds_get_default_user_method(&method);
+    if (ret != CYNARA_API_SUCCESS)
+        return ret;
 
     switch (method) {
         case cynara_user_creds::USER_METHOD_UID:
@@ -59,7 +70,7 @@ int cynara_creds_dbus_get_user(DBusConnection *connection, const char *uniqueNam
         case cynara_user_creds::USER_METHOD_GID:
             return getUserGid(connection, uniqueName, user);
         default:
-            return CYNARA_API_METHOD_NOT_SUPPORTED;
+            return CYNARA_API_UNKNOWN_ERROR;
     }
 }
 

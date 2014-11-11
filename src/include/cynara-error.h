@@ -56,9 +56,6 @@
 /*! \brief   indicating that service is not available */
 #define CYNARA_API_SERVICE_NOT_AVAILABLE -5
 
-/*! \brief   indicating that provided method is not supported by library */
-#define CYNARA_API_METHOD_NOT_SUPPORTED  -6
-
 /*! \brief   cynara service does not allow to perform requested operation */
 #define CYNARA_API_OPERATION_NOT_ALLOWED -7
 

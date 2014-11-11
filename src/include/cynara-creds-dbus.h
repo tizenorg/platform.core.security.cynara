@@ -28,15 +28,14 @@
 #include <dbus/dbus.h>
 #include <sys/types.h>
 
-#include "cynara-creds-commons.h"
-
 #ifdef __cplusplus
 extern "C" {
 #endif
 
 /**
  * \par Description:
- * Creates a client identification string with given method. Client is a process identified by the
+ * Creates a client identification string with default system method.
+ * Client is a process identified by the
  * unique name at the other side of the dbus connection.
  *
  * \par Purpose:
@@ -64,22 +63,20 @@ extern "C" {
  *
  * \param[in] connection DBus connection to a bus. It manages incomming and outgoing messages
  * \param[in] uniqueName DBus identifier of the client
- * \param[in] method Method of client identifier creation
  * \param[out] client Placeholder for allocated string containing client id
  *
  * \return CYNARA_API_SUCCESS on success
  *         CYNARA_API_INVALID_PARAM when client is NULL or uniqueName or client has wrong
  *                                  value (i.e NULL or non-existing)
- *         CYNARA_API_METHOD_NOT_SUPPORTED when requested method is not supported
  *         CYNARA_API_OUT_OF_MEMORY when there was error allocating memory
  */
 int cynara_creds_dbus_get_client(DBusConnection *connection, const char *uniqueName,
-                                 enum cynara_client_creds method, char **client);
+                                 char **client);
 
 /**
  * \par Description:
- * Creates a user identification string with given method. User is an executor of process
- * at the other side of socket.
+ * Creates a user identification string with default system method.
+ * User is an executor of process at the other side of socket.
  *
  * \par Purpose:
  * User identification string is required for cynara_check() and cynara_async_check() functions.
@@ -106,17 +103,15 @@ int cynara_creds_dbus_get_client(DBusConnection *connection, const char *uniqueN
  *
  * \param[in] connection DBus connection to a bus. It manages incomming and outgoing messages
  * \param[in] uniqueName DBus identifier of the client invoked by the user
- * \param[in] method Method of client identifier creation
  * \param[out] user Placeholder for allocated string containing user id
  *
  * \return CYNARA_API_SUCCESS on success
  *         CYNARA_API_INVALID_PARAM when user is NULL or connection is not valid DBus connection or
  *                                  uniqueName does not represent a process conected to the DBus
- *         CYNARA_API_METHOD_NOT_SUPPORTED when requested method is not supported
  *         CYNARA_API_OUT_OF_MEMORY when there was error allocating memory
  */
 int cynara_creds_dbus_get_user(DBusConnection *connection, const char *uniqueName,
-                               enum cynara_user_creds method, char **user);
+                               char **user);
 
 /**
  * \par Description:
