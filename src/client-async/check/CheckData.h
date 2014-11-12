@@ -38,6 +38,7 @@ class CheckData
 public:
     CheckData(const PolicyKey &key, const std::string &session, const ResponseCallback &callback)
         : m_key(key), m_session(session), m_callback(callback),  m_cancelled(false) {}
+    CheckData(CheckData&&) = default;
     ~CheckData() {}
 
     const PolicyKey &key(void) const {
