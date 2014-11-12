@@ -51,8 +51,8 @@ public:
     virtual int cancelRequest(cynara_check_id checkId);
 
 private:
-    typedef std::map<ProtocolFrameSequenceNumber, CheckData> CheckMap;
-    typedef std::pair<ProtocolFrameSequenceNumber, CheckData> CheckPair;
+    typedef std::map<ProtocolFrameSequenceNumber, CheckDataPtr> CheckMap;
+    typedef std::pair<ProtocolFrameSequenceNumber, CheckDataPtr> CheckPair;
 
     StatusCallback m_statusCallback;
     PluginCachePtr m_cache;

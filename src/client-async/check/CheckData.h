@@ -67,6 +67,8 @@ private:
     bool m_cancelled;
 };
 
+typedef std::shared_ptr<CheckData> CheckDataPtr;
+
 } // namespace Cynara
 
 #endif // SRC_CLIENT_ASYNC_CHECK_CHECKDATA_H_
