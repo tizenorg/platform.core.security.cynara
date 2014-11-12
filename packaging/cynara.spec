@@ -228,10 +228,10 @@ if [ $1 -gt 1 ] ; then
     # upgrade
     VERSION_INDICATOR="$(ls /usr/lib/libcynara-commons\.so\.*\.*\.*)"
     OLD_VERSION="${VERSION_INDICATOR##*so\.}"
-    %{_sbindir}/cynara/cynara-db-migration.sh upgrade -f ${OLD_VERSION} -t %{version}
+    %{_sbindir}/cynara-db-migration upgrade -f ${OLD_VERSION} -t %{version}
 else
     # install
-    %{_sbindir}/cynara/cynara-db-migration.sh install -t %{version}
+    %{_sbindir}/cynara-db-migration install -t %{version}
 fi
 
 %post
@@ -257,7 +257,7 @@ fi
 
 %postun
 if [ $1 = 0 ]; then
-    %{_sbindir}/cynara/cynara-db-migration.sh uninstall -f %{version}
+    %{_sbindir}/cynara-db-migration uninstall -f %{version}
     userdel -r %{user_name} > /dev/null 2>&1
     groupdel %{user_name} > /dev/null 2>&1
     systemctl daemon-reload
@@ -371,7 +371,7 @@ fi
 
 %files -n cynara-db-migration
 %manifest cynara-db-migration.manifest
-%attr(700,root,root) %{_sbindir}/cynara/cynara-db-migration.sh
+%attr(700,root,root) %{_sbindir}/cynara-db-migration
 
 %files -n cyad
 %manifest cyad.manifest
