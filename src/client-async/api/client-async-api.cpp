@@ -61,7 +61,7 @@ int cynara_async_initialize(cynara_async **pp_cynara,
 
 CYNARA_API
 void cynara_async_finish(cynara_async *p_cynara) {
-    if (!p_cynara->impl->isOperationPermitted())
+    if (!p_cynara->impl->isFinishPermitted())
         return;
     delete p_cynara;
 }
@@ -73,9 +73,6 @@ int cynara_async_check_cache(cynara_async *p_cynara, const char *client, const c
         return CYNARA_API_INVALID_PARAM;
     if (!client || !client_session || !user || !privilege)
         return CYNARA_API_INVALID_PARAM;
-
-    if (!p_cynara->impl->isOperationPermitted())
-        return CYNARA_API_OPERATION_NOT_ALLOWED;
 
     return Cynara::tryCatch([&]() {
         std::string clientStr;
@@ -106,9 +103,6 @@ int cynara_async_create_request(cynara_async *p_cynara, const char *client,
     if (!client || !client_session || !user || !privilege)
         return CYNARA_API_INVALID_PARAM;
 
-    if (!p_cynara->impl->isOperationPermitted())
-        return CYNARA_API_OPERATION_NOT_ALLOWED;
-
     return Cynara::tryCatch([&]() {
         std::string clientStr;
         std::string clientSessionStr;
@@ -138,9 +132,6 @@ int cynara_async_process(cynara_async *p_cynara) {
     if (!p_cynara || !p_cynara->impl)
         return CYNARA_API_INVALID_PARAM;
 
-    if (!p_cynara->impl->isOperationPermitted())
-        return CYNARA_API_OPERATION_NOT_ALLOWED;
-
     return Cynara::tryCatch([&]() {
         return p_cynara->impl->process();
     });
@@ -150,9 +141,6 @@ CYNARA_API
 int cynara_async_cancel_request(cynara_async *p_cynara, cynara_check_id check_id) {
     if (!p_cynara || !p_cynara->impl)
         return CYNARA_API_INVALID_PARAM;
-
-    if (!p_cynara->impl->isOperationPermitted())
-        return CYNARA_API_OPERATION_NOT_ALLOWED;
 
     return Cynara::tryCatch([&]() {
         return p_cynara->impl->cancelRequest(check_id);
