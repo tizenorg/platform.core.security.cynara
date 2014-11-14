@@ -49,6 +49,7 @@ public:
                               void *userResponseData);
     virtual int process(void);
     virtual int cancelRequest(cynara_check_id checkId);
+    virtual bool isOperationsNotPermitted();
 
 private:
     typedef std::map<ProtocolFrameSequenceNumber, CheckData> CheckMap;
@@ -59,6 +60,7 @@ private:
     SocketClientAsyncPtr m_socketClient;
     CheckMap m_checks;
     SequenceContainer m_sequenceContainer;
+    bool m_operationsNotPermitted;
 
     bool checkCacheValid(void);
     void prepareRequestsToSend(void);

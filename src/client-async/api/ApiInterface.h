@@ -42,6 +42,7 @@ public:
                               void *userResponseData) = 0;
     virtual int process(void) = 0;
     virtual int cancelRequest(cynara_check_id checkId) = 0;
+    virtual bool isOperationsNotPermitted() = 0;
 };
 
 } // namespace Cynara

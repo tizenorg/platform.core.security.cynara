@@ -43,7 +43,7 @@
 namespace Cynara {
 
 Logic::Logic(cynara_status_callback callback, void *userStatusData)
-    : m_statusCallback(callback, userStatusData) {
+    : m_statusCallback(callback, userStatusData), m_operationsNotPermitted(false) {
     m_socketClient = std::make_shared<SocketClientAsync>(
         SocketPath::client, std::make_shared<ProtocolClient>());
 
@@ -54,11 +54,13 @@ Logic::Logic(cynara_status_callback callback, void *userStatusData)
 }
 
 Logic::~Logic() {
+    m_operationsNotPermitted = true;
     for (auto &kv : m_checks) {
         if (!kv.second.cancelled())
             kv.second.callback().onFinish(kv.first);
     }
     m_statusCallback.onDisconnected();
+    m_operationsNotPermitted = false;
 }
 
 int Logic::checkCache(const std::string &client, const std::string &session,
@@ -85,8 +87,10 @@ int Logic::createRequest(const std::string &client, const std::string &session,
     m_checks.insert(CheckPair(sequenceNumber, CheckData(key, session, responseCallback)));
     m_socketClient->appendRequest(std::make_shared<CheckRequest>(key, sequenceNumber));
 
+    m_operationsNotPermitted = true;
     m_statusCallback.onStatusChange(m_socketClient->getSockFd(),
                                     cynara_async_status::CYNARA_STATUS_FOR_RW);
+    m_operationsNotPermitted = false;
     checkId = static_cast<cynara_check_id>(sequenceNumber);
 
     return CYNARA_API_SUCCESS;
@@ -118,10 +122,17 @@ int Logic::cancelRequest(cynara_check_id checkId) {
 
     it->second.cancel();
     it->second.callback().onCancel(it->first);
+    m_operationsNotPermitted = true;
     m_statusCallback.onStatusChange(m_socketClient->getSockFd(),
                                     cynara_async_status::CYNARA_STATUS_FOR_RW);
+    m_operationsNotPermitted = false;
 
     return CYNARA_API_SUCCESS;
+}
+
+bool Logic::isOperationsNotPermitted()
+{
+    return m_operationsNotPermitted;
 }
 
 bool Logic::checkCacheValid(void) {
@@ -143,8 +154,10 @@ void Logic::prepareRequestsToSend(void) {
 bool Logic::processOut(void) {
     switch (m_socketClient->sendToCynara()) {
         case Socket::SendStatus::ALL_DATA_SENT:
+            m_operationsNotPermitted = true;
             m_statusCallback.onStatusChange(m_socketClient->getSockFd(),
                                             cynara_async_status::CYNARA_STATUS_FOR_READ);
+            m_operationsNotPermitted = false;
         case Socket::SendStatus::PARTIAL_DATA_SENT:
             return true;
         default:
@@ -237,12 +250,16 @@ bool Logic::connect(void) {
     switch (m_socketClient->connect()) {
         case Socket::ConnectionStatus::CONNECTION_SUCCEEDED:
             prepareRequestsToSend();
+            m_operationsNotPermitted = true;
             m_statusCallback.onStatusChange(m_socketClient->getSockFd(), socketDataStatus());
+            m_operationsNotPermitted = false;
             return true;
         case Socket::ConnectionStatus::CONNECTION_IN_PROGRESS:
             prepareRequestsToSend();
+            m_operationsNotPermitted = true;
             m_statusCallback.onStatusChange(m_socketClient->getSockFd(),
                                             cynara_async_status::CYNARA_STATUS_FOR_RW);
+            m_operationsNotPermitted = false;
             return true;
         default:
             onServiceNotAvailable();
@@ -256,7 +273,9 @@ int Logic::completeConnection(bool &completed) {
             completed = true;
             return CYNARA_API_SUCCESS;
         case Socket::ConnectionStatus::CONNECTION_SUCCEEDED:
+            m_operationsNotPermitted = true;
             m_statusCallback.onStatusChange(m_socketClient->getSockFd(), socketDataStatus());
+            m_operationsNotPermitted = false;
             completed = true;
             return CYNARA_API_SUCCESS;
         case Socket::ConnectionStatus::CONNECTION_IN_PROGRESS:
@@ -272,17 +291,21 @@ int Logic::completeConnection(bool &completed) {
 
 void Logic::onServiceNotAvailable(void)
 {
+    m_operationsNotPermitted = true;
     for (auto &kv : m_checks) {
         if (!kv.second.cancelled())
             kv.second.callback().onDisconnected(kv.first);
     }
     m_checks.clear();
     m_sequenceContainer.clear();
+    m_operationsNotPermitted = false;
 }
 
 void Logic::onDisconnected(void) {
+    m_operationsNotPermitted = true;
     m_cache->clear();
     m_statusCallback.onDisconnected();
+    m_operationsNotPermitted = false;
 }
 
 } // namespace Cynara
