@@ -55,7 +55,7 @@ public:
 
     virtual ~InvalidProtocolException() {};
 
-    virtual const std::string message(void) const {
+    virtual const std::string &message(void) const {
         return m_whatMessage;
     }
 
