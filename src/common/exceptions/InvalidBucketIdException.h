@@ -31,13 +31,12 @@ namespace Cynara {
 
 class InvalidBucketIdException : public Exception {
 public:
-    InvalidBucketIdException(const std::string &bucketId) : m_bucketId(bucketId) {};
+    InvalidBucketIdException(const std::string &bucket) : m_bucketId(bucket) {
+        m_message = "Bucket ID " + bucketId() + " contains forbidden characters";
+    };
     virtual ~InvalidBucketIdException() {};
 
-    const std::string message(void) const {
-        if (m_message.empty()) {
-            m_message = "Bucket ID " + bucketId() + " contains forbidden characters";
-        }
+    const std::string &message(void) const {
         return m_message;
     }
 

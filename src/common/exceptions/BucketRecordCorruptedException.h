@@ -50,7 +50,7 @@ public:
         return copy;
     }
 
-    virtual const std::string message(void) const {
+    virtual const std::string &message(void) const {
         if (m_whatMsg.empty()) {
             m_whatMsg = "Bucket record corrupted at"
                 + formatedFilename()
