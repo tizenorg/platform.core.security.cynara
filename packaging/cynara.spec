@@ -301,6 +301,9 @@ cp ./conf/creds.conf %{buildroot}/%{conf_path}/creds.conf
 mkdir -p %{buildroot}/usr/lib/systemd/system/sockets.target.wants
 mkdir -p %{buildroot}/%{state_path}
 mkdir -p %{buildroot}/%{tests_dir}/empty_db
+mkdir -p %{buildroot}/%{state_path}/plugin/client
+mkdir -p %{buildroot}/%{state_path}/plugin/server
+
 cp -a db* %{buildroot}/%{tests_dir}
 ln -s ../cynara.socket %{buildroot}/usr/lib/systemd/system/sockets.target.wants/cynara.socket
 ln -s ../cynara-admin.socket %{buildroot}/usr/lib/systemd/system/sockets.target.wants/cynara-admin.socket
