@@ -6,7 +6,7 @@ namespace SupportedTypes {
 
 namespace Service {
 //service
-const Cynara::PolicyType ASK_USER = 13;
+const Cynara::PolicyType ASK_USER = 10;
 }
 
 namespace Client {

@@ -1,7 +1,9 @@
+#include <time.h>
+
 #include <cynara-client-plugin.h>
 #include <cynara-error.h>
 
-#include "SupportedTypes.h"
+#include <SupportedTypes.h>
 
 using namespace Cynara;
 
@@ -41,8 +43,12 @@ public:
         return false;
     }
 
+    void invalidate() {
+
+    }
+
     virtual int toResult(const ClientSession &session, PolicyResult &result) {
-        (void)session;
+        (void) session;
         (void) result;
         return CYNARA_API_ACCESS_ALLOWED;
     }

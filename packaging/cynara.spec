@@ -305,6 +305,7 @@ fi
 %{_libdir}/libcynara-client-async.so.*
 %{_libdir}/libcynara-client-commons.so.*
 %dir %attr(755,cynara,cynara) %{lib_path}/plugin/client
+%{lib_path}/plugin/client/libclient-plugin.so
 
 %files -n libcynara-admin
 %manifest libcynara-admin.manifest
