@@ -20,8 +20,6 @@
  * @brief       Tests for Cynara::PolicyKey
  */
 
-
-
 #include <gtest/gtest.h>
 #include <gmock/gmock.h>
 
@@ -42,4 +40,10 @@ TEST(PolicyKey, to_string) {
 
     PolicyKey pk3(PKF::createWildcard(), PKF::create("u"), PKF::createWildcard());
     ASSERT_EQ("*\tu\t*", pk3.toString());
+
+    PolicyKey pk4(PKF::createAny(), PKF::createAny(), PKF::createAny());
+    ASSERT_EQ("#\t#\t#", pk4.toString());
+
+    PolicyKey pk5(PKF::createWildcard(), PKF::create("u"), PKF::createAny());
+    ASSERT_EQ("*\tu\t#", pk5.toString());
 }
