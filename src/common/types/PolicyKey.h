@@ -39,32 +39,53 @@ public:
     PolicyKeyFeature(const PolicyKeyFeature &) = default;
     PolicyKeyFeature(PolicyKeyFeature &&) = default;
 
+    PolicyKeyFeature& operator=(const PolicyKeyFeature &) = default;
+    PolicyKeyFeature& operator=(PolicyKeyFeature &&) = default;
+
     typedef std::string ValueType;
 
     static PolicyKeyFeature create(ValueType value) {
         return PolicyKeyFeature(value);
     }
 
-    static PolicyKeyFeature createWildcard() {
-        return PolicyKeyFeature();
+    static PolicyKeyFeature createWildcard(void) {
+        return PolicyKeyFeature(m_wildcardValue);
+    }
+
+    static PolicyKeyFeature createAny(void) {
+        return PolicyKeyFeature(m_anyValue);
     }
 
     // TODO: Different features (client, user, privilege)
     //       shouldn't be comparable
     bool operator==(const PolicyKeyFeature &other) const {
-        return anyWildcard(*this, other) || valuesMatch(*this, other);
+        return anyAny(*this, other) || anyWildcard(*this, other) || valuesMatch(*this, other);
     }
 
     bool operator==(const PolicyKeyFeature::ValueType &other) const {
-        return anyWildcard(*this, other) || valuesMatch(*this, other);
+        return anyAny(*this, other) || anyWildcard(*this, other) || valuesMatch(*this, other);
     }
 
-    const std::string &toString() const;
+    const std::string &toString(void) const;
+
+    const ValueType& value(void) const {
+        return m_value;
+    }
+    bool isWildcard(void) const {
+        return m_isWildcard;
+    }
+    bool isAny(void) const {
+        return m_isAny;
+    }
 
 protected:
     PolicyKeyFeature(const ValueType &value) : m_value(value),
-        m_isWildcard(value == PolicyKeyFeature::m_wildcardValue) {}
-    PolicyKeyFeature() : m_value(m_wildcardValue), m_isWildcard(true) {}
+        m_isWildcard(value == PolicyKeyFeature::m_wildcardValue),
+        m_isAny(value == PolicyKeyFeature::m_anyValue) {}
+
+    static bool anyAny(const PolicyKeyFeature &pkf1, const PolicyKeyFeature &pkf2) {
+        return pkf1.isAny() || pkf2.isAny();
+    }
 
     static bool anyWildcard(const PolicyKeyFeature &pkf1, const PolicyKeyFeature &pkf2) {
         return pkf1.isWildcard() || pkf2.isWildcard();
@@ -77,15 +98,10 @@ protected:
 private:
     ValueType m_value;
     bool m_isWildcard;
-    static std::string m_wildcardValue;
+    bool m_isAny;
 
-public:
-    bool isWildcard() const {
-        return m_isWildcard;
-    }
-    const ValueType& value() const {
-        return m_value;
-    }
+    const static std::string m_wildcardValue;
+    const static std::string m_anyValue;
 };
 
 class PolicyKey
@@ -104,30 +120,32 @@ public:
     PolicyKey(const PolicyKey &) = default;
     PolicyKey(PolicyKey &&) = default;
 
+    PolicyKey& operator=(const PolicyKey &) = default;
+    PolicyKey& operator=(PolicyKey &&) = default;
+
     bool operator==(const PolicyKey &other) const {
         return std::tie(m_client, m_user, m_privilege)
             == std::tie(other.m_client, other.m_user, other.m_privilege);
     }
 
-    std::string toString() const;
+    std::string toString(void) const;
+
+    const PolicyKeyFeature &client(void) const {
+        return m_client;
+    }
+
+    const PolicyKeyFeature &user(void) const {
+        return m_user;
+    }
+
+    const PolicyKeyFeature &privilege(void) const {
+        return m_privilege;
+    }
 
 private:
     PolicyKeyFeature m_client;
     PolicyKeyFeature m_user;
     PolicyKeyFeature m_privilege;
-
-public:
-    const PolicyKeyFeature &client() const {
-        return m_client;
-    }
-
-    const PolicyKeyFeature &user() const {
-        return m_user;
-    }
-
-    const PolicyKeyFeature &privilege() const {
-        return m_privilege;
-    }
 };
 
 bool operator ==(const PolicyKeyFeature::ValueType &pkf1, const PolicyKeyFeature &pkf2);

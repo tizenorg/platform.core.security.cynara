@@ -27,13 +27,14 @@
 
 namespace Cynara {
 
-std::string PolicyKeyFeature::m_wildcardValue = "*";
+const std::string PolicyKeyFeature::m_wildcardValue = "*";
+const std::string PolicyKeyFeature::m_anyValue = "#";
 
-const std::string &PolicyKeyFeature::toString() const {
-    return isWildcard() ? m_wildcardValue : value();
+const std::string &PolicyKeyFeature::toString(void) const {
+    return value();
 }
 
-std::string PolicyKey::toString() const {
+std::string PolicyKey::toString(void) const {
     std::stringstream ss;
     ss << client().toString() << "\t"
        << user().toString() << "\t"
