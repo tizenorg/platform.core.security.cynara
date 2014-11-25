@@ -245,6 +245,63 @@ int cynara_admin_check(struct cynara_admin *p_cynara_admin,
                        const char *client, const char *user, const char *privilege,
                        int *result, char **result_extra);
 
+/**
+ * \par Description:
+ * Lists filtered cynara policies from single bucket.
+ *
+ * \par Purpose:
+ * This API should be used to list policies from single bucket.
+ *
+ * \par Typical use case:
+ * List all policies matching defined filter.
+ *
+ * \par Method of function operation:
+ * Policies are arranged into buckets. Every bucket contains set of policies. Each of policy is
+ * identified with tripple {client, user, privilege}. Function lists all policies from single bucket
+ * with matching client, user and privilege names.
+ *
+ * CYNARA_ADMIN_ANY can be used to match any client, user or privilege, e.g
+ *
+ * List with paramaters: {client = CYNARA_ADMIN_ANY, user = "alice", privilege = CYNARA_ADMIN_ANY}
+ * will match all policies related to "alice", so will match {"app1", "alice", "gps"} and
+ * {CYNARA_ADMIN_WILDCARD, "alice", "sms"}, but won't match {"app3", CYNARA_ADMIN_WILDCARD, "call"}.
+ *
+ * List with paramaters: {client = "calculator", user = CYNARA_ADMIN_WILDCARD,
+ * privilege = CYNARA_ADMIN_ANY} will match {"calculator", CYNARA_ADMIN_WILDCARD, "sms"} but won't
+ * match {CYNARA_ADMIN_WILDCARD, CYNARA_ADMIN_WILDCARD, "sms"} nor {"calculator", "bob", "sms"}
+ *
+ * Matching policies are returned as NULL terminated array of pointers to cynara_admin_policy
+ * structures.
+ *
+ * If any of: bucket, client, user, privilege, policies is NULL then CYNARA_API_INVALID_PARAM
+ * is returned.
+ * If there is no bucket with given name CYNARA_API_BUCKET_NOT_FOUND is returned.
+ *
+ * In case of successful call CYNARA_API_SUCCESS is returned and *policies points to newly created
+ * array of pointers to struct cynara_admin_policy. It is responsibility of caller to release:
+ * * all non-NULL const char* pointers in all cynara_admin_policy structures;
+ * * all pointers to cynara_admin_policy structures kept in *policies array;
+ * * *policies array itself.
+ * All allocation made by cynara admin library are done with malloc(3) function and must be released
+ * with free(3) function.
+ *
+ * \par Sync (or) Async:
+ * This is a Synchronous API.
+ *
+ * \param[in] p_cynara_admin cynara admin structure.
+ * \param[in] bucket name.
+ * \param[in] client filer for client name.
+ * \param[in] user_filter for user name
+ * \param[in] privilege_filter for privilege
+ * \param[out] policies placeholder for NULL terminated array of pointers to policy structures.
+ *
+ * \return CYNARA_API_SUCCESS on success, or error code otherwise.
+ *
+ * \brief Lists policies from cynara database.
+ */
+int cynara_admin_list_policies(struct cynara_admin *p_cynara_admin, const char *bucket,
+                               const char *client, const char *user, const char *privilege,
+                               struct cynara_admin_policy ***policies);
 #ifdef __cplusplus
 }
 #endif
