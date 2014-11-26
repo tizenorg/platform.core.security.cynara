@@ -16,142 +16,53 @@
 /**
  * @file        src/admin/logic/Logic.cpp
  * @author      Lukasz Wojciechowski <l.wojciechow@partner.samsung.com>
+ * @author      Aleksander Zdyb <a.zdyb@samsung.com>
  * @version     1.0
  * @brief       This file contains implementation of Logic class - main libcynara-admin class
  */
 
-#include <cinttypes>
 #include <memory>
 
-#include <cynara-error.h>
 #include <common.h>
-#include <config/PathConfig.h>
-#include <exceptions/Exception.h>
-#include <exceptions/UnexpectedErrorException.h>
+#include <exceptions/DatabaseBusyException.h>
 #include <log/log.h>
-#include <protocol/Protocol.h>
-#include <protocol/ProtocolAdmin.h>
-#include <request/AdminCheckRequest.h>
-#include <request/InsertOrUpdateBucketRequest.h>
-#include <request/pointers.h>
-#include <request/RemoveBucketRequest.h>
-#include <request/SetPoliciesRequest.h>
-#include <response/CheckResponse.h>
-#include <response/CodeResponse.h>
-#include <response/pointers.h>
-#include <sockets/SocketClient.h>
-#include <types/ProtocolFields.h>
 
 #include "Logic.h"
+#include "OfflineLogic.h"
+#include "OnlineLogic.h"
 
 namespace Cynara {
 
-Logic::Logic() {
-    m_socketClient = std::make_shared<SocketClient>(PathConfig::SocketPath::admin,
-                                                    std::make_shared<ProtocolAdmin>());
-}
-
-ProtocolFrameSequenceNumber generateSequenceNumber(void) {
-    static ProtocolFrameSequenceNumber sequenceNumber = 0;
-    return ++sequenceNumber;
-}
-
-bool Logic::ensureConnection(void) {
-    return m_socketClient->isConnected() || m_socketClient->connect();
-}
-
-template<typename T, typename... Args>
-int Logic::askCynaraAndInterpreteCodeResponse(Args... args) {
-    if (!ensureConnection()) {
-        LOGE("Cannot connect to cynara. Service not available.");
-        return CYNARA_API_SERVICE_NOT_AVAILABLE;
-    }
-
-    ProtocolFrameSequenceNumber sequenceNumber = generateSequenceNumber();
-
-    //Ask cynara service
-    CodeResponsePtr codeResponse;
-
-    RequestPtr request = std::make_shared<T>(args..., sequenceNumber);
-    ResponsePtr response;
-    while (!(response = m_socketClient->askCynaraServer(request))) {
-        if (!m_socketClient->connect())
-            return CYNARA_API_SERVICE_NOT_AVAILABLE;
-    }
-
-    codeResponse = std::dynamic_pointer_cast<CodeResponse>(response);
-    if (!codeResponse) {
-        LOGC("Critical error. Casting Response to CodeResponse failed.");
-        return CYNARA_API_UNKNOWN_ERROR;
-    }
-
-    LOGD("codeResponse: code [%" PRIu16 "]", codeResponse->m_code);
-    switch (codeResponse->m_code) {
-        case CodeResponse::Code::OK:
-            LOGI("Policies set successfully.");
-            return CYNARA_API_SUCCESS;
-        case CodeResponse::Code::NOT_ALLOWED:
-            LOGE("Cynara service answered: Operation not allowed.");
-            return CYNARA_API_OPERATION_NOT_ALLOWED;
-        case CodeResponse::Code::NO_BUCKET:
-            LOGE("Trying to use unexisting bucket.");
-            return CYNARA_API_BUCKET_NOT_FOUND;
-        case CodeResponse::Code::FAILED:
-            LOGC("Cynara service answered: Operation failed.");
-            return CYNARA_API_OPERATION_FAILED;
-        default:
-            LOGE("Unexpected response code from server: [%d]",
-                 static_cast<int>(codeResponse->m_code));
-            return CYNARA_API_UNKNOWN_ERROR;
-    }
-}
+Logic::Logic() : m_onlineLogic(std::make_shared<OnlineLogic>()) {}
 
 int Logic::setPolicies(const ApiInterface::PoliciesByBucket &insertOrUpdate,
                        const ApiInterface::KeysByBucket &remove) {
-    return askCynaraAndInterpreteCodeResponse<SetPoliciesRequest>(insertOrUpdate, remove);
+    return api()->setPolicies(insertOrUpdate, remove);
 }
 
 int Logic::insertOrUpdateBucket(const PolicyBucketId &bucket,
                                 const PolicyResult &policyResult) {
-    return askCynaraAndInterpreteCodeResponse<InsertOrUpdateBucketRequest>(bucket, policyResult);
+    return api()->insertOrUpdateBucket(bucket, policyResult);
 }
 
 int Logic::removeBucket(const PolicyBucketId &bucket) {
-    return askCynaraAndInterpreteCodeResponse<RemoveBucketRequest>(bucket);
+    return api()->removeBucket(bucket);
 }
 
 int Logic::adminCheck(const PolicyBucketId &startBucket, bool recursive, const PolicyKey &key,
                       PolicyResult &result) {
-    if (!ensureConnection()) {
-        LOGE("Cannot connect to cynara. Service not available.");
-        return CYNARA_API_SERVICE_NOT_AVAILABLE;
+    return api()->adminCheck(startBucket, recursive, key, result);
+}
+
+std::shared_ptr<ApiInterface> Logic::api(void) {
+    try {
+        auto offlineLogic = std::make_shared<OfflineLogic>();
+        LOGI("Admin uses offline API");
+        return offlineLogic;
+    } catch (const DatabaseBusyException &) {
+        LOGI("Admin uses online API");
+        return m_onlineLogic;
     }
-
-    ProtocolFrameSequenceNumber sequenceNumber = generateSequenceNumber();
-
-    //Ask cynara service
-    CheckResponsePtr checkResponse;
-
-    RequestPtr request = std::make_shared<AdminCheckRequest>(key, startBucket, recursive,
-                                                             sequenceNumber);
-    ResponsePtr response;
-    while (!(response = m_socketClient->askCynaraServer(request))) {
-        if (!m_socketClient->connect())
-            return CYNARA_API_SERVICE_NOT_AVAILABLE;
-    }
-
-    checkResponse = std::dynamic_pointer_cast<CheckResponse>(response);
-    if (!checkResponse) {
-        LOGC("Casting Response to CheckResponse failed.");
-        return CYNARA_API_UNKNOWN_ERROR;
-    }
-
-    LOGD("checkResponse: policyType [%" PRIu16 "], metadata <%s>",
-         checkResponse->m_resultRef.policyType(),
-         checkResponse->m_resultRef.metadata().c_str());
-
-    result = checkResponse->m_resultRef;
-    return CYNARA_API_SUCCESS;
 }
 
 } // namespace Cynara
