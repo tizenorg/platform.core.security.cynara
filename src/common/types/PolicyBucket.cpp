@@ -89,6 +89,15 @@ void PolicyBucket::deletePolicy(std::function<bool(PolicyPtr)> predicate) {
     }
 }
 
+void PolicyBucket::listPolicies(const PolicyKey &filter, std::vector<Policy> &policies) {
+    policies.clear();
+    for (auto iter = m_policyCollection.begin(); iter != m_policyCollection.end(); ++iter) {
+        auto &policyPtr = iter->second;
+        if (policyPtr->key().matchFilter(filter))
+            policies.push_back(*policyPtr);
+    }
+}
+
 PolicyMap PolicyBucket::makePolicyMap(const PolicyCollection &policies) {
     PolicyMap result;
     for (const auto &policy : policies) {
