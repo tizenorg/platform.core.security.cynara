@@ -154,6 +154,11 @@ void Storage::deletePolicies(const std::map<PolicyBucketId, std::vector<PolicyKe
     }
 }
 
+void Storage::listPolicies(const PolicyBucketId &bucketId, const PolicyKey &filter,
+                           std::vector<Policy> &policies) {
+    m_backend.listPolicies(bucketId, filter, policies);
+}
+
 void Storage::load(void) {
     m_backend.load();
 }

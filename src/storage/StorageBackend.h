@@ -53,6 +53,9 @@ public:
     virtual void deletePolicy(const PolicyBucketId &bucketId, const PolicyKey &key) = 0;
     virtual void deleteLinking(const PolicyBucketId &bucket) = 0;
 
+    virtual void listPolicies(const PolicyBucketId &bucketId, const PolicyKey &filter,
+                              std::vector<Policy> &policies) = 0;
+
     virtual void load(void) = 0;
     virtual void save(void) = 0;
 };
