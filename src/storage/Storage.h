@@ -53,6 +53,9 @@ public:
     void addOrUpdateBucket(const PolicyBucketId &bucketId, const PolicyResult &defaultBucketPolicy);
     void deleteBucket(const PolicyBucketId &bucketId);
 
+    void listPolicies(const PolicyBucketId &bucketId, const PolicyKey &filter,
+                      std::vector<Policy> &policies);
+
     void load(void);
     void save(void);
 

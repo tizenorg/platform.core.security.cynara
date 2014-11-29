@@ -28,6 +28,7 @@
 #include <algorithm>
 #include <memory>
 #include <string>
+#include <vector>
 
 #include <exceptions/NotImplementedException.h>
 #include <types/pointers.h>
@@ -62,6 +63,7 @@ public:
     PolicyBucket filtered(const PolicyKey &key) const;
     void insertPolicy(PolicyPtr policy);
     void deletePolicy(const PolicyKey &key);
+    void listPolicies(const PolicyKey &filter, std::vector<Policy> &policies);
 
     // TODO: Try to change interface, so this method is not needed
     void deletePolicy(std::function<bool(PolicyPtr)> predicate);

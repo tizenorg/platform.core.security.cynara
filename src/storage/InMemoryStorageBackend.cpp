@@ -201,6 +201,16 @@ void InMemoryStorageBackend::deleteLinking(const PolicyBucketId &bucketId) {
     }
 }
 
+void InMemoryStorageBackend::listPolicies(const PolicyBucketId &bucketId, const PolicyKey &filter,
+                                          std::vector<Policy> &policies) {
+    try {
+        auto &bucket = buckets().at(bucketId);
+        bucket.listPolicies(filter, policies);
+    } catch (const std::out_of_range &) {
+        throw BucketNotExistsException(bucketId);
+    }
+}
+
 void InMemoryStorageBackend::openFileStream(std::shared_ptr<std::ifstream> stream,
                                             const std::string &filename) {
     // TODO: Consider adding exceptions to streams and handling them:
