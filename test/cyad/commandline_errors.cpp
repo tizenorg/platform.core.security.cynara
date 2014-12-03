@@ -48,3 +48,39 @@ TEST_F(CyadCommandlineTest, unknownOption) {
     Cynara::CyadCommandlineParser parser(this->argc(), this->argv());
     ASSERT_ERROR_MSG(Cynara::CyadCmdlineErrors::UNKNOWN_OPTION, parser.parseMain());
 }
+
+TEST_F(CyadCommandlineTest, deleteBucketNoBucket) {
+    prepare_argv({ "./cyad", "--delete-bucket" });
+    Cynara::CyadCommandlineParser parser(this->argc(), this->argv());
+    ASSERT_ERROR_MSG(Cynara::CyadCmdlineErrors::NO_BUCKET, parser.parseMain());
+}
+
+TEST_F(CyadCommandlineTest, deleteBucketUnknownOption) {
+    prepare_argv({ "./cyad", "--delete-bucket=bucket", "--unknown" });
+    Cynara::CyadCommandlineParser parser(this->argc(), this->argv());
+    ASSERT_ERROR_MSG(Cynara::CyadCmdlineErrors::UNKNOWN_OPTION_DELETE_BUCKET, parser.parseMain());
+}
+
+TEST_F(CyadCommandlineTest, addBucketNoBucket) {
+    prepare_argv({ "./cyad", "--add-bucket" });
+    Cynara::CyadCommandlineParser parser(this->argc(), this->argv());
+    ASSERT_ERROR_MSG(Cynara::CyadCmdlineErrors::NO_BUCKET, parser.parseMain());
+}
+
+TEST_F(CyadCommandlineTest, addBucketNoPolicy) {
+    prepare_argv({ "./cyad", "--add-bucket=bucket" });
+    Cynara::CyadCommandlineParser parser(this->argc(), this->argv());
+    ASSERT_ERROR_MSG(Cynara::CyadCmdlineErrors::NO_POLICY, parser.parseMain());
+}
+
+TEST_F(CyadCommandlineTest, addBucketInvalidPolicy) {
+    prepare_argv({ "./cyad", "--add-bucket=bucket", "--policy=NaN" });
+    Cynara::CyadCommandlineParser parser(this->argc(), this->argv());
+    ASSERT_ERROR_MSG(Cynara::CyadCmdlineErrors::INVALID_POLICY, parser.parseMain());
+}
+
+TEST_F(CyadCommandlineTest, addBucketUnknownOption) {
+    prepare_argv({ "./cyad", "--add-bucket=bucket", "--unknown", "--policy=42" });
+    Cynara::CyadCommandlineParser parser(this->argc(), this->argv());
+    ASSERT_ERROR_MSG(Cynara::CyadCmdlineErrors::UNKNOWN_OPTION_ADD_BUCKET, parser.parseMain());
+}

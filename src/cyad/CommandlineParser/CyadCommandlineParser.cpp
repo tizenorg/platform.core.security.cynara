@@ -29,12 +29,29 @@ namespace Cynara {
 namespace CyadCmdlineArgs {
     const char HELP = 'h';
     const char * const HELP_LONG = "help";
+
+    const char ADD_BUCKET = 'b';
+    const char * const ADD_BUCKET_LONG = "add-bucket";
+
+    const char DELETE_BUCKET = 'c';
+    const char * const DELETE_BUCKET_LONG = "delete-bucket";
+
+    const char POLICY = 'p';
+    const char * const POLICY_LONG = "policy";
+
+    const char METADATA = 'm';
+    const char * const METADATA_LONG = "metadata";
 }
 
 namespace CyadCmdlineErrors {
     const char * const UNKNOWN_ERROR = "Unknown error";
     const char * const NO_OPTION = "No option specified";
     const char * const UNKNOWN_OPTION = "Unknown option";
+    const char * const UNKNOWN_OPTION_ADD_BUCKET = "Unknown option in --add-bucket";
+    const char * const UNKNOWN_OPTION_DELETE_BUCKET = "Unknown option in --delete-bucket";
+    const char * const NO_POLICY = "No --policy specified";
+    const char * const NO_BUCKET = "No bucket specified";
+    const char * const INVALID_POLICY = "Invalid --policy option";
 }
 
 CyadCommandlineParser::CyadCommandlineParser(int argc, char * const *argv)
@@ -46,7 +63,9 @@ std::shared_ptr<ParsingResult> CyadCommandlineParser::parseMain(void) {
     namespace Args = CyadCmdlineArgs;
 
     const struct option long_options[] = {
-        { Args::HELP_LONG, no_argument, nullptr, Args::HELP },
+        { Args::HELP_LONG,          no_argument,       nullptr, Args::HELP },
+        { Args::ADD_BUCKET_LONG,    required_argument, nullptr, Args::ADD_BUCKET },
+        { Args::DELETE_BUCKET_LONG, required_argument, nullptr, Args::DELETE_BUCKET },
         { nullptr, 0, nullptr, 0 }
     };
 
@@ -57,8 +76,23 @@ std::shared_ptr<ParsingResult> CyadCommandlineParser::parseMain(void) {
         case CyadCmdlineArgs::HELP:
             return std::make_shared<HelpParsingResult>();
 
+        case CyadCmdlineArgs::ADD_BUCKET:
+            return parseAddBucket(optarg);
+
+        case CyadCmdlineArgs::DELETE_BUCKET:
+            return parseDeleteBucket(optarg);
+
         case '?': // Unknown option
             return std::make_shared<ErrorParsingResult>(CyadCmdlineErrors::UNKNOWN_OPTION);
+
+        case ':': // Missing argument
+            switch (optopt) {
+            case CyadCmdlineArgs::ADD_BUCKET:
+            case CyadCmdlineArgs::DELETE_BUCKET:
+                return std::make_shared<ErrorParsingResult>(CyadCmdlineErrors::NO_BUCKET);
+            };
+            // Shall never happen, but let's just make compiler happy.
+            return std::make_shared<ErrorParsingResult>(CyadCmdlineErrors::UNKNOWN_ERROR);
 
         default:
             return std::make_shared<ErrorParsingResult>(CyadCmdlineErrors::UNKNOWN_OPTION);
@@ -66,6 +100,61 @@ std::shared_ptr<ParsingResult> CyadCommandlineParser::parseMain(void) {
     }
 
     return std::make_shared<ErrorParsingResult>(CyadCmdlineErrors::NO_OPTION);
+}
+
+std::shared_ptr<ParsingResult> CyadCommandlineParser::parseAddBucket(const char *bucketId) {
+    namespace Errors = CyadCmdlineErrors;
+
+    const struct option long_options[] = {
+        { CyadCmdlineArgs::POLICY_LONG, required_argument, nullptr, CyadCmdlineArgs::POLICY },
+        { CyadCmdlineArgs::METADATA_LONG, required_argument, nullptr, CyadCmdlineArgs::METADATA },
+        { nullptr, 0, nullptr, 0 }
+    };
+
+    const char *policy = nullptr;
+    const char *metadata = "";
+
+    int opt;
+    while ((opt = getopt_long(m_argc, m_argv, ":", long_options, nullptr)) != -1) {
+        switch(opt) {
+        case CyadCmdlineArgs::POLICY:
+            policy = optarg;
+            break;
+        case CyadCmdlineArgs::METADATA:
+            metadata = optarg;
+            break;
+        default:
+            return std::make_shared<ErrorParsingResult>(Errors::UNKNOWN_OPTION_ADD_BUCKET);
+        }
+    }
+
+    if (policy != nullptr) {
+        try {
+            PolicyType policyType = std::stoi(policy);
+            return std::make_shared<AddBucketParsingResult>(bucketId, policyType, metadata);
+        } catch (const std::invalid_argument &ex) {
+            return std::make_shared<ErrorParsingResult>(Errors::INVALID_POLICY);
+        } catch (const std::out_of_range &ex) {
+            return std::make_shared<ErrorParsingResult>(Errors::INVALID_POLICY);
+        }
+    }
+
+    return std::make_shared<ErrorParsingResult>(Errors::NO_POLICY);
+}
+
+std::shared_ptr<ParsingResult> CyadCommandlineParser::parseDeleteBucket(const char *bucketId) {
+    namespace Errors = CyadCmdlineErrors;
+
+    // Expect no additional options
+    const struct option long_options[] = {
+        { nullptr, 0, nullptr, 0 }
+    };
+
+    if (getopt_long(m_argc, m_argv, ":", long_options, nullptr) == -1) {
+        return std::make_shared<DeleteBucketParsingResult>(bucketId);
+    } else {
+        return std::make_shared<ErrorParsingResult>(Errors::UNKNOWN_OPTION_DELETE_BUCKET);
+    }
 }
 
 } /* namespace Cynara */
