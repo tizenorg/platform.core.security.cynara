@@ -34,12 +34,29 @@ namespace Cynara {
 namespace CyadCmdlineArgs {
     extern const char HELP;
     extern const char *HELP_LONG;
+
+    extern const char ADD_BUCKET;
+    extern const char *ADD_BUCKET_LONG;
+
+    extern const char DELETE_BUCKET;
+    extern const char *DELETE_BUCKET_LONG;
+
+    extern const char POLICY;
+    extern const char *POLICY_LONG;
+
+    extern const char METADATA;
+    extern const char *METADATA_LONG;
 }
 
 namespace CyadCmdlineErrors {
     extern const char *UNKNOWN_ERROR;
     extern const char *NO_OPTION;
     extern const char *UNKNOWN_OPTION;
+    extern const char *UNKNOWN_OPTION_ADD_BUCKET;
+    extern const char *UNKNOWN_OPTION_DELETE_BUCKET;
+    extern const char *NO_POLICY;
+    extern const char *NO_BUCKET;
+    extern const char *INVALID_POLICY;
 }
 
 class CyadCommandlineParser {
@@ -48,6 +65,8 @@ public:
     virtual ~CyadCommandlineParser();
 
     std::shared_ptr<ParsingResult> parseMain(void);
+    std::shared_ptr<ParsingResult> parseAddBucket(const char *bucketId);
+    std::shared_ptr<ParsingResult> parseDeleteBucket(const char *bucketId);
 
 private:
     int m_argc;

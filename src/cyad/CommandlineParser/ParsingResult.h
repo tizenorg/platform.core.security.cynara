@@ -71,6 +71,45 @@ public:
     virtual void run(Cyad &cyad);
 };
 
+class AddBucketParsingResult : public ParsingResult {
+public:
+    AddBucketParsingResult(const PolicyBucketId &bucketId, const PolicyType &policyType,
+                           const PolicyResult::PolicyMetadata &metadata)
+        : m_bucketId(bucketId), m_policyType(policyType), m_metadata(metadata) {}
+
+    virtual ~AddBucketParsingResult() = default;
+
+    const PolicyBucketId &bucketId(void) const {
+        return m_bucketId;
+    }
+
+    const PolicyType &policyType(void) const {
+        return m_policyType;
+    }
+
+    const PolicyResult::PolicyMetadata &metadata(void) {
+        return m_metadata;
+    }
+
+private:
+    PolicyBucketId m_bucketId;
+    PolicyType m_policyType;
+    PolicyResult::PolicyMetadata m_metadata;
+};
+
+class DeleteBucketParsingResult : public ParsingResult {
+public:
+    explicit DeleteBucketParsingResult(const PolicyBucketId &bucketId) : m_bucketId(bucketId) {}
+    virtual ~DeleteBucketParsingResult() = default;
+
+    const PolicyBucketId &bucketId(void) const {
+        return m_bucketId;
+    }
+
+private:
+    PolicyBucketId m_bucketId;
+};
+
 } /* namespace Cynara */
 
 #endif /* SRC_CYAD_COMMANDLINEPARSER_PARSINGRESULT_H_ */
