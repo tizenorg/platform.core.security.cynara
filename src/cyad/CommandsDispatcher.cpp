@@ -46,4 +46,15 @@ void CommandsDispatcher::execute(ErrorParsingResult &result) {
     m_outStream << std::endl << helpMessage << std::endl;
 }
 
+void CommandsDispatcher::execute(DeleteBucketParsingResult &result) {
+    m_adminApiWrapper.cynara_admin_set_bucket(nullptr, result.bucketId().c_str(),
+                                              CYNARA_ADMIN_DELETE, nullptr);
+}
+
+void CommandsDispatcher::execute(AddBucketParsingResult &result) {
+    const char *metadata = result.metadata().empty() ? nullptr : result.metadata().c_str();
+    m_adminApiWrapper.cynara_admin_set_bucket(nullptr, result.bucketId().c_str(),
+                                              result.policyType(), metadata);
+}
+
 } /* namespace Cynara */

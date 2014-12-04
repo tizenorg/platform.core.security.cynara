@@ -56,3 +56,67 @@ TEST(CommandsDispatcher, noApi) {
     dispatcher.execute(helpResult);
     dispatcher.execute(errorResult);
 }
+
+TEST(CommandsDispatcher, deleteBucket) {
+    using ::testing::_;
+    using ::testing::Return;
+    using ::testing::StrEq;
+    using ::testing::IsNull;
+
+    std::stringstream devNull;
+    FakeAdminApiWrapper adminApi;
+
+    Cynara::CommandsDispatcher dispatcher(devNull, adminApi);
+    Cynara::DeleteBucketParsingResult result("test-bucket");
+
+    EXPECT_CALL(adminApi,
+            cynara_admin_set_bucket(_, StrEq("test-bucket"), CYNARA_ADMIN_DELETE, IsNull()))
+        .WillOnce(Return(0));
+
+    dispatcher.execute(result);
+}
+
+TEST(CommandsDispatcher, addBucket) {
+    using ::testing::_;
+    using ::testing::Return;
+    using ::testing::StrEq;
+    using ::testing::IsNull;
+    using Cynara::PolicyBucketId;
+    using Cynara::PolicyType;
+    using Cynara::PolicyResult;
+
+    std::stringstream devNull;
+    FakeAdminApiWrapper adminApi;
+    Cynara::CommandsDispatcher dispatcher(devNull, adminApi);
+
+    typedef std::tuple<PolicyBucketId, PolicyType, PolicyResult::PolicyMetadata> BucketData;
+    typedef std::vector<BucketData> Buckets;
+    const Buckets buckets = { BucketData("test-bucket-1", CYNARA_ADMIN_ALLOW, ""),
+                              BucketData("test-bucket-2", CYNARA_ADMIN_DENY, ""),
+                              BucketData("test-bucket-3", CYNARA_ADMIN_BUCKET, "additional-bucket"),
+                              BucketData("test-bucket-2", CYNARA_ADMIN_NONE, ""),
+                              BucketData("test-bucket-4", 42, "douglas-noel-adams") };
+
+    for (const auto &bucket : buckets) {
+        const auto &bucketId = std::get<0>(bucket);
+        const auto &policyType = std::get<1>(bucket);
+        const auto &metadata = std::get<2>(bucket);
+
+        SCOPED_TRACE(bucketId);
+
+        Cynara::AddBucketParsingResult result(bucketId, policyType, metadata);
+
+        if (metadata.empty() == false) {
+            EXPECT_CALL(adminApi,
+                    cynara_admin_set_bucket(_, StrEq(bucketId.c_str()), policyType,
+                                            StrEq(metadata.c_str())))
+                .WillOnce(Return(0));
+        } else {
+            EXPECT_CALL(adminApi,
+                    cynara_admin_set_bucket(_, StrEq(bucketId.c_str()), policyType, IsNull()))
+                .WillOnce(Return(0));
+        }
+
+        dispatcher.execute(result);
+    }
+}

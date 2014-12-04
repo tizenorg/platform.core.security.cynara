@@ -38,6 +38,8 @@ public:
     virtual void execute(ParsingResult &);
     virtual void execute(HelpParsingResult &);
     virtual void execute(ErrorParsingResult &);
+    virtual void execute(DeleteBucketParsingResult &);
+    virtual void execute(AddBucketParsingResult &);
 
 private:
     const std::string helpMessage = "Cyad's future help message";
