@@ -41,6 +41,7 @@
 #include <types/PolicyResult.h>
 #include <types/PolicyType.h>
 
+#include <storage/config/StorageConfig.h>
 #include <storage/BucketDeserializer.h>
 #include <storage/Integrity.h>
 #include <storage/StorageDeserializer.h>
@@ -50,9 +51,10 @@
 
 namespace Cynara {
 
-const std::string InMemoryStorageBackend::m_indexFilename = "buckets";
-const std::string InMemoryStorageBackend::m_backupFilenameSuffix = "~";
-const std::string InMemoryStorageBackend::m_bucketFilenamePrefix = "_";
+// TODO: Break lines below (according to Cynara's code style).
+const std::string InMemoryStorageBackend::m_indexFilename(StorageConfig::DatabaseConfig::indexFilename);
+const std::string InMemoryStorageBackend::m_backupFilenameSuffix(StorageConfig::DatabaseConfig::backupFilenameSuffix);
+const std::string InMemoryStorageBackend::m_bucketFilenamePrefix(StorageConfig::DatabaseConfig::bucketFilenamePrefix);
 
 void InMemoryStorageBackend::load(void) {
     Integrity integrity(m_dbPath, m_indexFilename, m_backupFilenameSuffix, m_bucketFilenamePrefix);

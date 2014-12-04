@@ -47,6 +47,7 @@ SET(CYNARA_SOURCES_FOR_TESTS
     ${CYNARA_SRC}/common/types/PolicyType.cpp
     ${CYNARA_SRC}/helpers/creds-commons/CredsCommonsInner.cpp
     ${CYNARA_SRC}/helpers/creds-commons/creds-commons.cpp
+    ${CYNARA_SRC}/storage/config/StorageConfig.cpp
     ${CYNARA_SRC}/storage/BucketDeserializer.cpp
     ${CYNARA_SRC}/storage/InMemoryStorageBackend.cpp
     ${CYNARA_SRC}/storage/Integrity.cpp
