@@ -38,4 +38,12 @@ void HelpCyadCommand::run(CommandsDispatcher &dispatcher) {
     dispatcher.execute(*this);
 }
 
+void AddBucketCyadCommand::run(CommandsDispatcher &dispatcher) {
+    dispatcher.execute(*this);
+}
+
+void DeleteBucketCyadCommand::run(CommandsDispatcher &dispatcher) {
+    dispatcher.execute(*this);
+}
+
 } /* namespace Cynara */
