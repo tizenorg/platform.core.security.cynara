@@ -17,36 +17,32 @@
  * @file        src/cyad/AdminApiWrapper.h
  * @author      Aleksander Zdyb <a.zdyb@samsung.com>
  * @version     1.0
- * @brief       Wrapper around cynara-admin API
+ * @brief       Wrapper around cynara-admin API (base)
  */
 
-#ifndef SRC_CYAD_ADMINAPIWRAPPER_H_
-#define SRC_CYAD_ADMINAPIWRAPPER_H_
-
-#include "BaseAdminApiWrapper.h"
+#ifndef SRC_CYAD_BASEADMINAPIWRAPPER_H_
+#define SRC_CYAD_BASEADMINAPIWRAPPER_H_
 
 struct cynara_admin;
 struct cynara_admin_policy;
 
 namespace Cynara {
 
-class AdminApiWrapper : public BaseAdminApiWrapper {
+class BaseAdminApiWrapper {
 public:
-    AdminApiWrapper();
-    virtual ~AdminApiWrapper();
-
-    virtual int cynara_admin_initialize(struct cynara_admin **pp_cynara_admin);
-    virtual int cynara_admin_finish(struct cynara_admin *p_cynara_admin);
+    virtual ~BaseAdminApiWrapper() = default;
+    virtual int cynara_admin_initialize(struct cynara_admin **pp_cynara_admin) = 0;
+    virtual int cynara_admin_finish(struct cynara_admin *p_cynara_admin) = 0;
     virtual int cynara_admin_set_policies(struct cynara_admin *p_cynara_admin,
-                                          const struct cynara_admin_policy *const *policies);
+                                          const struct cynara_admin_policy *const *policies) = 0;
     virtual int cynara_admin_set_bucket(struct cynara_admin *p_cynara_admin, const char *bucket,
-                                        int operation, const char *extra);
+                                        int operation, const char *extra) = 0;
     virtual int cynara_admin_check(struct cynara_admin *p_cynara_admin,
                                    const char *start_bucket, const int recursive,
                                    const char *client, const char *user, const char *privilege,
-                                   int *result, char **result_extra);
+                                   int *result, char **result_extra) = 0;
 };
 
 } /* namespace Cynara */
 
-#endif /* SRC_CYAD_ADMINAPIWRAPPER_H_ */
+#endif /* SRC_CYAD_BASEADMINAPIWRAPPER_H_ */

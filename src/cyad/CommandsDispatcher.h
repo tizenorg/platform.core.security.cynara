@@ -25,14 +25,16 @@
 
 #include <ostream>
 
-#include <cyad/AdminApiWrapper.h>
+#include <cyad/BaseAdminApiWrapper.h>
 #include <cyad/CommandlineParser/CyadCommand.h>
+
+struct cynara_admin;
 
 namespace Cynara {
 
 class CommandsDispatcher {
 public:
-    CommandsDispatcher(std::ostream &outStream, AdminApiWrapper &adminApiWrapper);
+    CommandsDispatcher(std::ostream &outStream, BaseAdminApiWrapper &adminApiWrapper);
     virtual ~CommandsDispatcher();
 
     virtual void execute(CyadCommand &);
@@ -44,7 +46,8 @@ public:
 private:
     const std::string helpMessage = "Cyad's future help message";
     std::ostream &m_outStream;
-    AdminApiWrapper &m_adminApiWrapper;
+    BaseAdminApiWrapper &m_adminApiWrapper;
+    struct cynara_admin *m_cynaraAdmin;
 };
 
 } /* namespace Cynara */

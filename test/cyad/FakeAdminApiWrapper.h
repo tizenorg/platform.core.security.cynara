@@ -26,12 +26,14 @@
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
 
-#include <cyad/AdminApiWrapper.h>
+#include <cyad/BaseAdminApiWrapper.h>
 
-class FakeAdminApiWrapper : public Cynara::AdminApiWrapper {
+class FakeAdminApiWrapper : public Cynara::BaseAdminApiWrapper {
 public:
-    using AdminApiWrapper::AdminApiWrapper;
+    using BaseAdminApiWrapper::BaseAdminApiWrapper;
 
+    MOCK_METHOD1(cynara_admin_initialize, int(struct cynara_admin **pp_cynara_admin));
+    MOCK_METHOD1(cynara_admin_finish, int(struct cynara_admin *p_cynara_admin));
     MOCK_METHOD2(cynara_admin_set_policies, int(struct cynara_admin *p_cynara_admin,
                  const struct cynara_admin_policy *const *policies));
     MOCK_METHOD4(cynara_admin_set_bucket, int(struct cynara_admin *p_cynara_admin,

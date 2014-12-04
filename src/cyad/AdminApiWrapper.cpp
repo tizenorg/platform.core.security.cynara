@@ -20,7 +20,7 @@
  * @brief       Wrapper around cynara-admin API
  */
 
-#include <common/attributes/attributes.h>
+#include <cynara-admin.h>
 
 #include "AdminApiWrapper.h"
 
@@ -30,23 +30,30 @@ AdminApiWrapper::AdminApiWrapper() {}
 
 AdminApiWrapper::~AdminApiWrapper() {}
 
-int AdminApiWrapper::cynara_admin_set_policies(struct cynara_admin *p_cynara_admin UNUSED,
-                                       const struct cynara_admin_policy *const *policies UNUSED) {
-    return 0;
+int AdminApiWrapper::cynara_admin_initialize(struct cynara_admin **pp_cynara_admin) {
+    return ::cynara_admin_initialize(pp_cynara_admin);
 }
 
-int AdminApiWrapper::cynara_admin_set_bucket(struct cynara_admin *p_cynara_admin UNUSED,
-                                             const char *bucket UNUSED, int operation UNUSED,
-                                             const char *extra UNUSED) {
-    return 0;
+int AdminApiWrapper::cynara_admin_finish(struct cynara_admin *p_cynara_admin) {
+    return ::cynara_admin_finish(p_cynara_admin);
 }
 
-int AdminApiWrapper::cynara_admin_check(struct cynara_admin *p_cynara_admin UNUSED,
-                                        const char *start_bucket UNUSED, const int recursive UNUSED,
-                                        const char *client UNUSED, const char *user UNUSED,
-                                        const char *privilege UNUSED, int *result UNUSED,
-                                        char **result_extra UNUSED) {
-    return 0;
+int AdminApiWrapper::cynara_admin_set_policies(struct cynara_admin *p_cynara_admin,
+                                               const struct cynara_admin_policy *const *policies) {
+    return ::cynara_admin_set_policies(p_cynara_admin, policies);
+}
+
+int AdminApiWrapper::cynara_admin_set_bucket(struct cynara_admin *p_cynara_admin,
+                                             const char *bucket, int operation, const char *extra) {
+    return ::cynara_admin_set_bucket(p_cynara_admin, bucket, operation, extra);
+}
+
+int AdminApiWrapper::cynara_admin_check(struct cynara_admin *p_cynara_admin,
+                                        const char *start_bucket, const int recursive,
+                                        const char *client, const char *user, const char *privilege,
+                                        int *result, char **result_extra) {
+    return ::cynara_admin_check(p_cynara_admin, start_bucket, recursive, client, user, privilege,
+                              result, result_extra);
 }
 
 } /* namespace Cynara */
