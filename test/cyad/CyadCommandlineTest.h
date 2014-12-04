@@ -29,8 +29,8 @@
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
 
+#include <cyad/CommandlineParser/CyadCommand.h>
 #include <cyad/CommandlineParser/CyadCommandlineParser.h>
-#include <cyad/CommandlineParser/ParsingResult.h>
 
 class CyadCommandlineTest : public ::testing::Test {
 public:

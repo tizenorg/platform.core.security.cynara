@@ -27,7 +27,7 @@
 #include <string>
 #include <unordered_map>
 
-#include <cyad/CommandlineParser/ParsingResult.h>
+#include <cyad/CommandlineParser/CyadCommand.h>
 
 namespace Cynara {
 
@@ -64,9 +64,9 @@ public:
     CyadCommandlineParser(int argc, char * const *argv);
     virtual ~CyadCommandlineParser();
 
-    std::shared_ptr<ParsingResult> parseMain(void);
-    std::shared_ptr<ParsingResult> parseAddBucket(const char *bucketId);
-    std::shared_ptr<ParsingResult> parseDeleteBucket(const char *bucketId);
+    std::shared_ptr<CyadCommand> parseMain(void);
+    std::shared_ptr<CyadCommand> parseAddBucket(const char *bucketId);
+    std::shared_ptr<CyadCommand> parseDeleteBucket(const char *bucketId);
 
 private:
     int m_argc;

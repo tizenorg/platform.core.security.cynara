@@ -20,8 +20,8 @@
  * @brief       ParsingResult class
  */
 
-#ifndef SRC_CYAD_COMMANDLINEPARSER_PARSINGRESULT_H_
-#define SRC_CYAD_COMMANDLINEPARSER_PARSINGRESULT_H_
+#ifndef SRC_CYAD_COMMANDLINEPARSER_CYADCOMMAND_H_
+#define SRC_CYAD_COMMANDLINEPARSER_CYADCOMMAND_H_
 
 #include <string>
 
@@ -33,10 +33,10 @@ namespace Cynara {
 
 class CommandsDispatcher;
 
-class ParsingResult {
+class CyadCommand {
 public:
-    ParsingResult() = default;
-    virtual ~ParsingResult() = default;
+    CyadCommand() = default;
+    virtual ~CyadCommand() = default;
 
     virtual void run(CommandsDispatcher &dispatcher);
 
@@ -45,10 +45,10 @@ public:
     }
 };
 
-class ErrorParsingResult : public ParsingResult {
+class ErrorCyadCommand : public CyadCommand {
 public:
-    ErrorParsingResult(const std::string &message) : m_message(message) {};
-    virtual ~ErrorParsingResult() = default;
+    ErrorCyadCommand(const std::string &message) : m_message(message) {};
+    virtual ~ErrorCyadCommand() = default;
 
     virtual void run(CommandsDispatcher &dispatcher);
 
@@ -64,20 +64,20 @@ private:
     std::string m_message;
 };
 
-class HelpParsingResult : public ParsingResult {
+class HelpCyadCommand : public CyadCommand {
 public:
-    using ParsingResult::ParsingResult;
+    using CyadCommand::CyadCommand;
 
     virtual void run(CommandsDispatcher &dispatcher);
 };
 
-class AddBucketParsingResult : public ParsingResult {
+class AddBucketCyadCommand : public CyadCommand {
 public:
-    AddBucketParsingResult(const PolicyBucketId &bucketId, const PolicyType &policyType,
-                           const PolicyResult::PolicyMetadata &metadata)
+    AddBucketCyadCommand(const PolicyBucketId &bucketId, const PolicyType &policyType,
+                         const PolicyResult::PolicyMetadata &metadata)
         : m_bucketId(bucketId), m_policyType(policyType), m_metadata(metadata) {}
 
-    virtual ~AddBucketParsingResult() = default;
+    virtual ~AddBucketCyadCommand() = default;
 
     const PolicyBucketId &bucketId(void) const {
         return m_bucketId;
@@ -97,10 +97,10 @@ private:
     PolicyResult::PolicyMetadata m_metadata;
 };
 
-class DeleteBucketParsingResult : public ParsingResult {
+class DeleteBucketCyadCommand : public CyadCommand {
 public:
-    explicit DeleteBucketParsingResult(const PolicyBucketId &bucketId) : m_bucketId(bucketId) {}
-    virtual ~DeleteBucketParsingResult() = default;
+    explicit DeleteBucketCyadCommand(const PolicyBucketId &bucketId) : m_bucketId(bucketId) {}
+    virtual ~DeleteBucketCyadCommand() = default;
 
     const PolicyBucketId &bucketId(void) const {
         return m_bucketId;
@@ -112,4 +112,4 @@ private:
 
 } /* namespace Cynara */
 
-#endif /* SRC_CYAD_COMMANDLINEPARSER_PARSINGRESULT_H_ */
+#endif /* SRC_CYAD_COMMANDLINEPARSER_CYADCOMMAND_H_ */

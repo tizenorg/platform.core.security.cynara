@@ -31,7 +31,7 @@
 #include <cynara-policy-types.h>
 
 #include <cyad/AdminApiWrapper.h>
-#include <cyad/CommandlineParser/ParsingResult.h>
+#include <cyad/CommandlineParser/CyadCommand.h>
 #include <cyad/CommandsDispatcher.h>
 
 #include "FakeAdminApiWrapper.h"
@@ -48,9 +48,9 @@ TEST(CommandsDispatcher, noApi) {
 
     Cynara::CommandsDispatcher dispatcher(devNull, adminApi);
 
-    Cynara::ParsingResult result;
-    Cynara::HelpParsingResult helpResult;
-    Cynara::ErrorParsingResult errorResult("Fake error");
+    Cynara::CyadCommand result;
+    Cynara::HelpCyadCommand helpResult;
+    Cynara::ErrorCyadCommand errorResult("Fake error");
 
     dispatcher.execute(result);
     dispatcher.execute(helpResult);
@@ -67,7 +67,7 @@ TEST(CommandsDispatcher, deleteBucket) {
     FakeAdminApiWrapper adminApi;
 
     Cynara::CommandsDispatcher dispatcher(devNull, adminApi);
-    Cynara::DeleteBucketParsingResult result("test-bucket");
+    Cynara::DeleteBucketCyadCommand result("test-bucket");
 
     EXPECT_CALL(adminApi,
             cynara_admin_set_bucket(_, StrEq("test-bucket"), CYNARA_ADMIN_DELETE, IsNull()))
@@ -104,7 +104,7 @@ TEST(CommandsDispatcher, addBucket) {
 
         SCOPED_TRACE(bucketId);
 
-        Cynara::AddBucketParsingResult result(bucketId, policyType, metadata);
+        Cynara::AddBucketCyadCommand result(bucketId, policyType, metadata);
 
         if (metadata.empty() == false) {
             EXPECT_CALL(adminApi,

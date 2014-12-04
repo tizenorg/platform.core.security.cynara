@@ -59,7 +59,7 @@ CyadCommandlineParser::CyadCommandlineParser(int argc, char * const *argv)
 
 CyadCommandlineParser::~CyadCommandlineParser() {}
 
-std::shared_ptr<ParsingResult> CyadCommandlineParser::parseMain(void) {
+std::shared_ptr<CyadCommand> CyadCommandlineParser::parseMain(void) {
     namespace Args = CyadCmdlineArgs;
 
     const struct option long_options[] = {
@@ -74,7 +74,7 @@ std::shared_ptr<ParsingResult> CyadCommandlineParser::parseMain(void) {
     while ((opt = getopt_long(m_argc, m_argv, ":", long_options, nullptr)) != -1) {
         switch(opt) {
         case CyadCmdlineArgs::HELP:
-            return std::make_shared<HelpParsingResult>();
+            return std::make_shared<HelpCyadCommand>();
 
         case CyadCmdlineArgs::ADD_BUCKET:
             return parseAddBucket(optarg);
@@ -83,26 +83,26 @@ std::shared_ptr<ParsingResult> CyadCommandlineParser::parseMain(void) {
             return parseDeleteBucket(optarg);
 
         case '?': // Unknown option
-            return std::make_shared<ErrorParsingResult>(CyadCmdlineErrors::UNKNOWN_OPTION);
+            return std::make_shared<ErrorCyadCommand>(CyadCmdlineErrors::UNKNOWN_OPTION);
 
         case ':': // Missing argument
             switch (optopt) {
             case CyadCmdlineArgs::ADD_BUCKET:
             case CyadCmdlineArgs::DELETE_BUCKET:
-                return std::make_shared<ErrorParsingResult>(CyadCmdlineErrors::NO_BUCKET);
+                return std::make_shared<ErrorCyadCommand>(CyadCmdlineErrors::NO_BUCKET);
             };
             // Shall never happen, but let's just make compiler happy.
-            return std::make_shared<ErrorParsingResult>(CyadCmdlineErrors::UNKNOWN_ERROR);
+            return std::make_shared<ErrorCyadCommand>(CyadCmdlineErrors::UNKNOWN_ERROR);
 
         default:
-            return std::make_shared<ErrorParsingResult>(CyadCmdlineErrors::UNKNOWN_OPTION);
+            return std::make_shared<ErrorCyadCommand>(CyadCmdlineErrors::UNKNOWN_OPTION);
         }
     }
 
-    return std::make_shared<ErrorParsingResult>(CyadCmdlineErrors::NO_OPTION);
+    return std::make_shared<ErrorCyadCommand>(CyadCmdlineErrors::NO_OPTION);
 }
 
-std::shared_ptr<ParsingResult> CyadCommandlineParser::parseAddBucket(const char *bucketId) {
+std::shared_ptr<CyadCommand> CyadCommandlineParser::parseAddBucket(const char *bucketId) {
     namespace Errors = CyadCmdlineErrors;
 
     const struct option long_options[] = {
@@ -124,25 +124,25 @@ std::shared_ptr<ParsingResult> CyadCommandlineParser::parseAddBucket(const char 
             metadata = optarg;
             break;
         default:
-            return std::make_shared<ErrorParsingResult>(Errors::UNKNOWN_OPTION_ADD_BUCKET);
+            return std::make_shared<ErrorCyadCommand>(Errors::UNKNOWN_OPTION_ADD_BUCKET);
         }
     }
 
     if (policy != nullptr) {
         try {
             PolicyType policyType = std::stoi(policy);
-            return std::make_shared<AddBucketParsingResult>(bucketId, policyType, metadata);
+            return std::make_shared<AddBucketCyadCommand>(bucketId, policyType, metadata);
         } catch (const std::invalid_argument &ex) {
-            return std::make_shared<ErrorParsingResult>(Errors::INVALID_POLICY);
+            return std::make_shared<ErrorCyadCommand>(Errors::INVALID_POLICY);
         } catch (const std::out_of_range &ex) {
-            return std::make_shared<ErrorParsingResult>(Errors::INVALID_POLICY);
+            return std::make_shared<ErrorCyadCommand>(Errors::INVALID_POLICY);
         }
     }
 
-    return std::make_shared<ErrorParsingResult>(Errors::NO_POLICY);
+    return std::make_shared<ErrorCyadCommand>(Errors::NO_POLICY);
 }
 
-std::shared_ptr<ParsingResult> CyadCommandlineParser::parseDeleteBucket(const char *bucketId) {
+std::shared_ptr<CyadCommand> CyadCommandlineParser::parseDeleteBucket(const char *bucketId) {
     namespace Errors = CyadCmdlineErrors;
 
     // Expect no additional options
@@ -151,9 +151,9 @@ std::shared_ptr<ParsingResult> CyadCommandlineParser::parseDeleteBucket(const ch
     };
 
     if (getopt_long(m_argc, m_argv, ":", long_options, nullptr) == -1) {
-        return std::make_shared<DeleteBucketParsingResult>(bucketId);
+        return std::make_shared<DeleteBucketCyadCommand>(bucketId);
     } else {
-        return std::make_shared<ErrorParsingResult>(Errors::UNKNOWN_OPTION_DELETE_BUCKET);
+        return std::make_shared<ErrorCyadCommand>(Errors::UNKNOWN_OPTION_DELETE_BUCKET);
     }
 }
 

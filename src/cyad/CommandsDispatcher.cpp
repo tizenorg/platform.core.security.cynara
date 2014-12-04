@@ -31,27 +31,27 @@ CommandsDispatcher::CommandsDispatcher(std::ostream &outStream, AdminApiWrapper 
 
 CommandsDispatcher::~CommandsDispatcher() {}
 
-void CommandsDispatcher::execute(ParsingResult &) {
+void CommandsDispatcher::execute(CyadCommand &) {
     m_outStream << "Whatever you wanted, it's not implemented" << std::endl;
 }
 
-void CommandsDispatcher::execute(HelpParsingResult &) {
+void CommandsDispatcher::execute(HelpCyadCommand &) {
     m_outStream << helpMessage << std::endl;
 }
 
-void CommandsDispatcher::execute(ErrorParsingResult &result) {
+void CommandsDispatcher::execute(ErrorCyadCommand &result) {
     m_outStream << "There was an error in commandline options:" << std::endl;
     m_outStream << result.message() << std::endl;
 
     m_outStream << std::endl << helpMessage << std::endl;
 }
 
-void CommandsDispatcher::execute(DeleteBucketParsingResult &result) {
+void CommandsDispatcher::execute(DeleteBucketCyadCommand &result) {
     m_adminApiWrapper.cynara_admin_set_bucket(nullptr, result.bucketId().c_str(),
                                               CYNARA_ADMIN_DELETE, nullptr);
 }
 
-void CommandsDispatcher::execute(AddBucketParsingResult &result) {
+void CommandsDispatcher::execute(AddBucketCyadCommand &result) {
     const char *metadata = result.metadata().empty() ? nullptr : result.metadata().c_str();
     m_adminApiWrapper.cynara_admin_set_bucket(nullptr, result.bucketId().c_str(),
                                               result.policyType(), metadata);

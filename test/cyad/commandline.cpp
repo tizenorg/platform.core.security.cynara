@@ -25,8 +25,8 @@
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
 
+#include <cyad/CommandlineParser/CyadCommand.h>
 #include <cyad/CommandlineParser/CyadCommandlineParser.h>
-#include <cyad/CommandlineParser/ParsingResult.h>
 
 #include "CyadCommandlineTest.h"
 
@@ -34,7 +34,7 @@ TEST_F(CyadCommandlineTest, help) {
     prepare_argv({ "./cyad", "--help" });
     Cynara::CyadCommandlineParser parser(this->argc(), this->argv());
 
-    auto result = std::dynamic_pointer_cast<Cynara::HelpParsingResult>(parser.parseMain());
+    auto result = std::dynamic_pointer_cast<Cynara::HelpCyadCommand>(parser.parseMain());
     ASSERT_NE(nullptr, result);
 }
 
@@ -42,7 +42,7 @@ TEST_F(CyadCommandlineTest, deleteBucket) {
     prepare_argv({ "./cyad", "--delete-bucket=bucket" });
     Cynara::CyadCommandlineParser parser(this->argc(), this->argv());
 
-    auto result = std::dynamic_pointer_cast<Cynara::DeleteBucketParsingResult>(parser.parseMain());
+    auto result = std::dynamic_pointer_cast<Cynara::DeleteBucketCyadCommand>(parser.parseMain());
     ASSERT_NE(nullptr, result);
     ASSERT_EQ("bucket", result->bucketId());
 }
@@ -51,7 +51,7 @@ TEST_F(CyadCommandlineTest, addBucket) {
     prepare_argv({ "./cyad", "--add-bucket=bucket", "--policy=42" });
     Cynara::CyadCommandlineParser parser(this->argc(), this->argv());
 
-    auto result = std::dynamic_pointer_cast<Cynara::AddBucketParsingResult>(parser.parseMain());
+    auto result = std::dynamic_pointer_cast<Cynara::AddBucketCyadCommand>(parser.parseMain());
     ASSERT_NE(nullptr, result);
     ASSERT_EQ("bucket", result->bucketId());
     ASSERT_EQ(42, result->policyType());
@@ -65,7 +65,7 @@ TEST_F(CyadCommandlineTest, addBucketWithMetadata) {
     prepare_argv({ "./cyad", "--add-bucket=adams", "--policy=42", "--metadata=" + ultimateAnswer });
     Cynara::CyadCommandlineParser parser(this->argc(), this->argv());
 
-    auto result = std::dynamic_pointer_cast<Cynara::AddBucketParsingResult>(parser.parseMain());
+    auto result = std::dynamic_pointer_cast<Cynara::AddBucketCyadCommand>(parser.parseMain());
     ASSERT_NE(nullptr, result);
     ASSERT_EQ("adams", result->bucketId());
     ASSERT_EQ(42, result->policyType());

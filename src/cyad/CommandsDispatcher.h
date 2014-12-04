@@ -26,7 +26,7 @@
 #include <ostream>
 
 #include <cyad/AdminApiWrapper.h>
-#include <cyad/CommandlineParser/ParsingResult.h>
+#include <cyad/CommandlineParser/CyadCommand.h>
 
 namespace Cynara {
 
@@ -35,11 +35,11 @@ public:
     CommandsDispatcher(std::ostream &outStream, AdminApiWrapper &adminApiWrapper);
     virtual ~CommandsDispatcher();
 
-    virtual void execute(ParsingResult &);
-    virtual void execute(HelpParsingResult &);
-    virtual void execute(ErrorParsingResult &);
-    virtual void execute(DeleteBucketParsingResult &);
-    virtual void execute(AddBucketParsingResult &);
+    virtual void execute(CyadCommand &);
+    virtual void execute(HelpCyadCommand &);
+    virtual void execute(ErrorCyadCommand &);
+    virtual void execute(DeleteBucketCyadCommand &);
+    virtual void execute(AddBucketCyadCommand &);
 
 private:
     const std::string helpMessage = "Cyad's future help message";

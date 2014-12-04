@@ -25,13 +25,13 @@
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
 
+#include <cyad/CommandlineParser/CyadCommand.h>
 #include <cyad/CommandlineParser/CyadCommandlineParser.h>
-#include <cyad/CommandlineParser/ParsingResult.h>
 
 #include "CyadCommandlineTest.h"
 
 #define ASSERT_ERROR_MSG(msg,rawResult) { \
-    auto result = std::dynamic_pointer_cast<Cynara::ErrorParsingResult>(rawResult); \
+    auto result = std::dynamic_pointer_cast<Cynara::ErrorCyadCommand>(rawResult); \
     ASSERT_NE(nullptr, result); \
     ASSERT_TRUE(result->isError()); \
     ASSERT_EQ(msg, result->message()); \

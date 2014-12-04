@@ -22,19 +22,19 @@
 
 #include <cyad/Cyad.h>
 
-#include "ParsingResult.h"
+#include "CyadCommand.h"
 
 namespace Cynara {
 
-void ParsingResult::run(CommandsDispatcher &dispatcher) {
+void CyadCommand::run(CommandsDispatcher &dispatcher) {
     dispatcher.execute(*this);
 }
 
-void ErrorParsingResult::run(CommandsDispatcher &dispatcher) {
+void ErrorCyadCommand::run(CommandsDispatcher &dispatcher) {
     dispatcher.execute(*this);
 }
 
-void HelpParsingResult::run(CommandsDispatcher &dispatcher) {
+void HelpCyadCommand::run(CommandsDispatcher &dispatcher) {
     dispatcher.execute(*this);
 }
 
