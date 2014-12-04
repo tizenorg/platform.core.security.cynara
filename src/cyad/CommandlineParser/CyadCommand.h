@@ -79,6 +79,8 @@ public:
 
     virtual ~AddBucketCyadCommand() = default;
 
+    virtual void run(CommandsDispatcher &dispatcher);
+
     const PolicyBucketId &bucketId(void) const {
         return m_bucketId;
     }
@@ -101,6 +103,8 @@ class DeleteBucketCyadCommand : public CyadCommand {
 public:
     explicit DeleteBucketCyadCommand(const PolicyBucketId &bucketId) : m_bucketId(bucketId) {}
     virtual ~DeleteBucketCyadCommand() = default;
+
+    virtual void run(CommandsDispatcher &dispatcher);
 
     const PolicyBucketId &bucketId(void) const {
         return m_bucketId;
