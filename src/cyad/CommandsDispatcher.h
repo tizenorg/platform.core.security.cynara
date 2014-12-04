@@ -13,33 +13,38 @@
  *    See the License for the specific language governing permissions and
  *    limitations under the License.
  */
-/*
- * @file        src/cyad/Cyad.h
- * @author      Aleksander Zdyb <a.zdybsamsung.com>
+/**
+ * @file        src/cyad/CommandsDispatcher.h
+ * @author      Aleksander Zdyb <a.zdyb@samsung.com>
  * @version     1.0
- * @brief       A commandline tool to manage Cynara's database
+ * @brief       CommandsDispatcher class
  */
 
-#ifndef SRC_CYAD_CYAD_H_
-#define SRC_CYAD_CYAD_H_
+#ifndef SRC_CYAD_COMMANDSDISPATCHER_H_
+#define SRC_CYAD_COMMANDSDISPATCHER_H_
+
+#include <ostream>
 
 #include <cyad/AdminApiWrapper.h>
-#include <cyad/CommandlineParser/CyadCommandlineParser.h>
-#include <cyad/CommandsDispatcher.h>
+#include <cyad/CommandlineParser/ParsingResult.h>
 
 namespace Cynara {
 
-class Cyad {
+class CommandsDispatcher {
 public:
-    Cyad(int argc, char **argv);
-    virtual ~Cyad();
+    CommandsDispatcher(std::ostream &outStream, AdminApiWrapper &adminApiWrapper);
+    virtual ~CommandsDispatcher();
+
+    virtual void execute(ParsingResult &);
+    virtual void execute(HelpParsingResult &);
+    virtual void execute(ErrorParsingResult &);
 
 private:
-    AdminApiWrapper m_adminApiWrapper;
-    CommandsDispatcher m_dispatcher;
-    CyadCommandlineParser m_parser;
+    const std::string helpMessage = "Cyad's future help message";
+    std::ostream &m_outStream;
+    AdminApiWrapper &m_adminApiWrapper;
 };
 
 } /* namespace Cynara */
 
-#endif /* SRC_CYAD_CYAD_H_ */
+#endif /* SRC_CYAD_COMMANDSDISPATCHER_H_ */

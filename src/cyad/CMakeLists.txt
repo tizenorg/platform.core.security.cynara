@@ -19,9 +19,11 @@
 SET(CYAD_PATH ${CYNARA_PATH}/cyad)
 
 SET(CYAD_SOURCES
+    ${CYAD_PATH}/AdminApiWrapper.cpp
     ${CYAD_PATH}/Cyad.cpp
     ${CYAD_PATH}/CommandlineParser/CyadCommandlineParser.cpp
     ${CYAD_PATH}/CommandlineParser/ParsingResult.cpp
+    ${CYAD_PATH}/CommandsDispatcher.cpp
     ${CYAD_PATH}/main.cpp
     )
 

@@ -26,19 +26,13 @@
 
 namespace Cynara {
 
-Cyad::Cyad(int argc, char **argv) : m_parser(argc, argv) {
+Cyad::Cyad(int argc, char **argv)
+    : m_dispatcher(std::cout, m_adminApiWrapper), m_parser(argc, argv) {
+
     auto result = m_parser.parseMain();
-    result->run(*this);
+    result->run(m_dispatcher);
 }
 
 Cyad::~Cyad() {}
-
-void Cyad::execute(ParsingResult &) {
-    std::cout << "Whatever you wanted, it's not implemented" << std::endl;
-}
-
-void Cyad::execute(HelpParsingResult &) {
-    std::cout << "Cyad's future help message" << std::endl;
-}
 
 } /* namespace Cynara */

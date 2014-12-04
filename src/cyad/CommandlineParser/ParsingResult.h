@@ -31,14 +31,14 @@
 
 namespace Cynara {
 
-class Cyad;
+class CommandsDispatcher;
 
 class ParsingResult {
 public:
     ParsingResult() = default;
     virtual ~ParsingResult() = default;
 
-    virtual void run(Cyad &cyad);
+    virtual void run(CommandsDispatcher &dispatcher);
 
     virtual bool isError(void) const {
         return false;
@@ -50,7 +50,7 @@ public:
     ErrorParsingResult(const std::string &message) : m_message(message) {};
     virtual ~ErrorParsingResult() = default;
 
-    virtual void run(Cyad &cyad);
+    virtual void run(CommandsDispatcher &dispatcher);
 
     virtual bool isError(void) const {
         return true;
@@ -68,7 +68,7 @@ class HelpParsingResult : public ParsingResult {
 public:
     using ParsingResult::ParsingResult;
 
-    virtual void run(Cyad &cyad);
+    virtual void run(CommandsDispatcher &dispatcher);
 };
 
 class AddBucketParsingResult : public ParsingResult {

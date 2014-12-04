@@ -26,16 +26,16 @@
 
 namespace Cynara {
 
-void ParsingResult::run(Cyad &cyad) {
-    cyad.execute(*this);
+void ParsingResult::run(CommandsDispatcher &dispatcher) {
+    dispatcher.execute(*this);
 }
 
-void ErrorParsingResult::run(Cyad &cyad) {
-    cyad.execute(*this);
+void ErrorParsingResult::run(CommandsDispatcher &dispatcher) {
+    dispatcher.execute(*this);
 }
 
-void HelpParsingResult::run(Cyad &cyad) {
-    cyad.execute(*this);
+void HelpParsingResult::run(CommandsDispatcher &dispatcher) {
+    dispatcher.execute(*this);
 }
 
 } /* namespace Cynara */
