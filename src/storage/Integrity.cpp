@@ -30,6 +30,7 @@
 #include <unistd.h>
 
 #include <log/log.h>
+#include <config/PathConfig.h>
 #include <exceptions/CannotCreateFileException.h>
 #include <exceptions/UnexpectedErrorException.h>
 
@@ -37,7 +38,7 @@
 
 namespace Cynara {
 
-const std::string Integrity::m_guardFilename = "guard";
+const std::string Integrity::m_guardFilename(PathConfig::StoragePath::guardFilename);
 
 bool Integrity::backupGuardExists(void) const {
     struct stat buffer;
@@ -104,7 +105,8 @@ void Integrity::deleteNonIndexedFiles(BucketPresenceTester tester) {
     while (errno = 0, (direntPtr = readdir(dirPtr)) != nullptr) {
         std::string filename = direntPtr->d_name;
         //ignore all special files (working dir, parent dir, index)
-        if ("." == filename || ".." == filename || "buckets" == filename) {
+        if ("." == filename || ".." == filename
+         || PathConfig::StoragePath::indexFilename == filename) {
             continue;
         }
 
