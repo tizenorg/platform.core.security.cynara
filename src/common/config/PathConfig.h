@@ -42,6 +42,11 @@ extern const std::string agent;
 namespace StoragePath {
 extern const std::string dbDir;
 extern const std::string lockFile;
+extern const std::string indexFilename;
+extern const std::string guardFilename;
+extern const std::string checksumFilename;
+extern const std::string bucketFilenamePrefix;
+extern const std::string backupFilenameSuffix;
 } // namespace StoragePath
 
 namespace PluginPath {
