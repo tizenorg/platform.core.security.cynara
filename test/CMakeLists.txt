@@ -1,4 +1,4 @@
-# Copyright (c) 2014 Samsung Electronics Co., Ltd All Rights Reserved
+# Copyright (c) 2014-2015 Samsung Electronics Co., Ltd All Rights Reserved
 #
 #    Licensed under the Apache License, Version 2.0 (the "License");
 #    you may not use this file except in compliance with the License.
@@ -23,6 +23,7 @@ ADD_DEFINITIONS("-DCYNARA_NO_LOGS")
 SET(CYNARA_SRC ${PROJECT_SOURCE_DIR}/src)
 
 SET(CYNARA_SOURCES_FOR_TESTS
+    ${CYNARA_SRC}/common/config/PathConfig.cpp
     ${CYNARA_SRC}/common/containers/BinaryQueue.cpp
     ${CYNARA_SRC}/common/protocol/ProtocolAdmin.cpp
     ${CYNARA_SRC}/common/protocol/ProtocolFrame.cpp
