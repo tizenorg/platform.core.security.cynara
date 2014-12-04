@@ -99,6 +99,7 @@ Client libraries for checking policies: synchronous and asynchronous
 %package -n libcynara-admin
 Summary:    Cynara - admin client library
 Requires:   cynara = %{version}-%{release}
+Requires:   libcynara-commons = %{version}-%{release}
 
 %description -n libcynara-admin
 admin client library for setting, listing and removing policies
