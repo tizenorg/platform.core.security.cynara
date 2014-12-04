@@ -28,9 +28,9 @@
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
 
+#include <cynara-error.h>
 #include <cynara-policy-types.h>
 
-#include <cyad/AdminApiWrapper.h>
 #include <cyad/CommandlineParser/CyadCommand.h>
 #include <cyad/CommandsDispatcher.h>
 
@@ -43,14 +43,21 @@
  * - Check if no API calls were made
  */
 TEST(CommandsDispatcher, noApi) {
+    using ::testing::_;
+    using ::testing::Return;
+
     std::stringstream devNull;
     FakeAdminApiWrapper adminApi;
+
+    EXPECT_CALL(adminApi, cynara_admin_initialize(_)).WillOnce(Return(CYNARA_API_SUCCESS));
+    EXPECT_CALL(adminApi, cynara_admin_finish(_)).WillOnce(Return(CYNARA_API_SUCCESS));
 
     Cynara::CommandsDispatcher dispatcher(devNull, adminApi);
 
     Cynara::CyadCommand result;
     Cynara::HelpCyadCommand helpResult;
     Cynara::ErrorCyadCommand errorResult("Fake error");
+
 
     dispatcher.execute(result);
     dispatcher.execute(helpResult);
@@ -66,12 +73,15 @@ TEST(CommandsDispatcher, deleteBucket) {
     std::stringstream devNull;
     FakeAdminApiWrapper adminApi;
 
+    EXPECT_CALL(adminApi, cynara_admin_initialize(_)).WillOnce(Return(CYNARA_API_SUCCESS));
+    EXPECT_CALL(adminApi, cynara_admin_finish(_)).WillOnce(Return(CYNARA_API_SUCCESS));
+
     Cynara::CommandsDispatcher dispatcher(devNull, adminApi);
     Cynara::DeleteBucketCyadCommand result("test-bucket");
 
     EXPECT_CALL(adminApi,
             cynara_admin_set_bucket(_, StrEq("test-bucket"), CYNARA_ADMIN_DELETE, IsNull()))
-        .WillOnce(Return(0));
+        .WillOnce(Return(CYNARA_API_SUCCESS));
 
     dispatcher.execute(result);
 }
@@ -87,6 +97,10 @@ TEST(CommandsDispatcher, addBucket) {
 
     std::stringstream devNull;
     FakeAdminApiWrapper adminApi;
+
+    EXPECT_CALL(adminApi, cynara_admin_initialize(_)).WillOnce(Return(CYNARA_API_SUCCESS));
+    EXPECT_CALL(adminApi, cynara_admin_finish(_)).WillOnce(Return(CYNARA_API_SUCCESS));
+
     Cynara::CommandsDispatcher dispatcher(devNull, adminApi);
 
     typedef std::tuple<PolicyBucketId, PolicyType, PolicyResult::PolicyMetadata> BucketData;
@@ -110,11 +124,11 @@ TEST(CommandsDispatcher, addBucket) {
             EXPECT_CALL(adminApi,
                     cynara_admin_set_bucket(_, StrEq(bucketId.c_str()), policyType,
                                             StrEq(metadata.c_str())))
-                .WillOnce(Return(0));
+                .WillOnce(Return(CYNARA_API_SUCCESS));
         } else {
             EXPECT_CALL(adminApi,
                     cynara_admin_set_bucket(_, StrEq(bucketId.c_str()), policyType, IsNull()))
-                .WillOnce(Return(0));
+                .WillOnce(Return(CYNARA_API_SUCCESS));
         }
 
         dispatcher.execute(result);
