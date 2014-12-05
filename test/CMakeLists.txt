@@ -28,6 +28,9 @@ SET(CYNARA_SOURCES_FOR_TESTS
     ${CYNARA_SRC}/common/types/PolicyKeyHelpers.cpp
     ${CYNARA_SRC}/common/types/PolicyResult.cpp
     ${CYNARA_SRC}/common/types/PolicyType.cpp
+    ${CYNARA_SRC}/cyad/CommandlineParser/CyadCommandlineParser.cpp
+    ${CYNARA_SRC}/cyad/CommandlineParser/ParsingResult.cpp
+    ${CYNARA_SRC}/cyad/Cyad.cpp
     ${CYNARA_SRC}/helpers/creds-commons/CredsCommonsInner.cpp
     ${CYNARA_SRC}/helpers/creds-commons/creds-commons.cpp
     ${CYNARA_SRC}/storage/BucketDeserializer.cpp
@@ -43,6 +46,8 @@ SET(CYNARA_TESTS_SOURCES
     common/exceptions/bucketrecordcorrupted.cpp
     common/types/policybucket.cpp
     credsCommons/parser/Parser.cpp
+    cyad/commandline.cpp
+    cyad/commandline_errors.cpp
     helpers.cpp
     storage/performance/bucket.cpp
     storage/storage/policies.cpp
