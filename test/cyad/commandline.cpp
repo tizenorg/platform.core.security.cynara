@@ -25,6 +25,7 @@
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
 
+#include <common/types/PolicyKey.h>
 #include <cyad/CommandlineParser/CyadCommand.h>
 #include <cyad/CommandlineParser/CyadCommandlineParser.h>
 
@@ -70,4 +71,34 @@ TEST_F(CyadCommandlineTest, setBucketWithMetadata) {
     ASSERT_EQ("adams", result->bucketId());
     ASSERT_EQ(42, result->policyType());
     ASSERT_EQ(ultimateAnswer, result->metadata());
+}
+
+TEST_F(CyadCommandlineTest, addPolicy) {
+    prepare_argv({ "./cyad", "--set-policy", "--bucket=some-bucket",
+                   "--client=client", "--user=user", "--privilege=privilege",
+                   "--policy=42" });
+    Cynara::CyadCommandlineParser parser(this->argc(), this->argv());
+
+    auto result = std::dynamic_pointer_cast<Cynara::SetPolicyCyadCommand>(parser.parseMain());
+    ASSERT_NE(nullptr, result);
+    ASSERT_EQ("some-bucket", result->bucketId());
+
+    ASSERT_EQ(Cynara::PolicyKey("client", "user", "privilege"), result->policyKey());
+    ASSERT_EQ(42, result->policyType());
+    ASSERT_TRUE(result->metadata().empty());
+}
+
+TEST_F(CyadCommandlineTest, addPolicyWithMetadata) {
+    prepare_argv({ "./cyad", "--set-policy", "--bucket=some-bucket",
+                   "--client=client", "--user=user", "--privilege=privilege",
+                   "--policy=42", "--metadata=some-metadata" });
+    Cynara::CyadCommandlineParser parser(this->argc(), this->argv());
+
+    auto result = std::dynamic_pointer_cast<Cynara::SetPolicyCyadCommand>(parser.parseMain());
+    ASSERT_NE(nullptr, result);
+    ASSERT_EQ("some-bucket", result->bucketId());
+
+    ASSERT_EQ(Cynara::PolicyKey("client", "user", "privilege"), result->policyKey());
+    ASSERT_EQ(42, result->policyType());
+    ASSERT_EQ("some-metadata", result->metadata());
 }

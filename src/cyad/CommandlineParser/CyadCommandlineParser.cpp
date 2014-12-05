@@ -21,6 +21,9 @@
  */
 
 #include <getopt.h>
+#include <map>
+
+#include <cyad/CommandlineParser/PolicyParsingException.h>
 
 #include "CyadCommandlineParser.h"
 
@@ -41,6 +44,21 @@ namespace CyadCmdlineArgs {
 
     const char METADATA = 'm';
     const char * const METADATA_LONG = "metadata";
+
+    const char BUCKET = 'k';
+    const char * const BUCKET_LONG = "bucket";
+
+    const char SET_POLICY = 's';
+    const char * const SET_POLICY_LONG = "set-policy";
+
+    const char CLIENT = 'l';
+    const char * const CLIENT_LONG = "client";
+
+    const char USER = 'u';
+    const char * const USER_LONG = "user";
+
+    const char PRIVILEGE = 'r';
+    const char * const PRIVILEGE_LONG = "privilege";
 }
 
 namespace CyadCmdlineErrors {
@@ -49,9 +67,12 @@ namespace CyadCmdlineErrors {
     const char * const UNKNOWN_OPTION = "Unknown option";
     const char * const UNKNOWN_OPTION_SET_BUCKET = "Unknown option in --set-bucket";
     const char * const UNKNOWN_OPTION_DELETE_BUCKET = "Unknown option in --delete-bucket";
+    const char * const UNKNOWN_OPTION_SET_POLICY = "Unknown option in --set-policy";
     const char * const NO_POLICY = "No --policy specified";
     const char * const NO_BUCKET = "No bucket specified";
     const char * const INVALID_POLICY = "Invalid --policy option";
+    const char * const OPTION_MISSING_SET_POLICY = "One or more option missing in --set-policy";
+    const char * const ARGUMENT_MISSING_SET_POLICY = "One or more argument missing in --set-policy";
 }
 
 CyadCommandlineParser::CyadCommandlineParser(int argc, char * const *argv)
@@ -66,6 +87,7 @@ std::shared_ptr<CyadCommand> CyadCommandlineParser::parseMain(void) {
         { Args::HELP_LONG,          no_argument,       nullptr, Args::HELP },
         { Args::SET_BUCKET_LONG,    required_argument, nullptr, Args::SET_BUCKET },
         { Args::DELETE_BUCKET_LONG, required_argument, nullptr, Args::DELETE_BUCKET },
+        { Args::SET_POLICY_LONG,    no_argument,       nullptr, Args::SET_POLICY },
         { nullptr, 0, nullptr, 0 }
     };
 
@@ -76,11 +98,14 @@ std::shared_ptr<CyadCommand> CyadCommandlineParser::parseMain(void) {
         case CyadCmdlineArgs::HELP:
             return std::make_shared<HelpCyadCommand>();
 
-        case CyadCmdlineArgs::SET_BUCKET:
+        case Args::SET_BUCKET:
             return parseSetBucket(optarg);
 
-        case CyadCmdlineArgs::DELETE_BUCKET:
+        case Args::DELETE_BUCKET:
             return parseDeleteBucket(optarg);
+
+        case Args::SET_POLICY:
+            return parseSetPolicy();
 
         case '?': // Unknown option
             return std::make_shared<ErrorCyadCommand>(CyadCmdlineErrors::UNKNOWN_OPTION);
@@ -130,11 +155,9 @@ std::shared_ptr<CyadCommand> CyadCommandlineParser::parseSetBucket(const char *b
 
     if (policy != nullptr) {
         try {
-            PolicyType policyType = std::stoi(policy);
+            auto policyType = parsePolicyType(policy);
             return std::make_shared<SetBucketCyadCommand>(bucketId, policyType, metadata);
-        } catch (const std::invalid_argument &ex) {
-            return std::make_shared<ErrorCyadCommand>(Errors::INVALID_POLICY);
-        } catch (const std::out_of_range &ex) {
+        } catch (const PolicyParsingException &) {
             return std::make_shared<ErrorCyadCommand>(Errors::INVALID_POLICY);
         }
     }
@@ -155,6 +178,82 @@ std::shared_ptr<CyadCommand> CyadCommandlineParser::parseDeleteBucket(const char
     } else {
         return std::make_shared<ErrorCyadCommand>(Errors::UNKNOWN_OPTION_DELETE_BUCKET);
     }
+}
+
+std::shared_ptr<CyadCommand> CyadCommandlineParser::parseSetPolicy(void) {
+    namespace Args = CyadCmdlineArgs;
+    namespace Errors = CyadCmdlineErrors;
+
+    const struct option long_options[] = {
+        { Args::CLIENT_LONG,    required_argument, nullptr, Args::CLIENT },
+        { Args::USER_LONG,      required_argument, nullptr, Args::USER },
+        { Args::PRIVILEGE_LONG, required_argument, nullptr, Args::PRIVILEGE },
+        { Args::BUCKET_LONG,    required_argument, nullptr, Args::BUCKET },
+        { Args::POLICY_LONG,    required_argument, nullptr, Args::POLICY },
+        { Args::METADATA_LONG,  required_argument, nullptr, Args::METADATA },
+        { nullptr, 0, nullptr, 0 }
+    };
+
+    typedef std::map<char, const char *> OptionsValues;
+    OptionsValues values = { { Args::CLIENT,    nullptr },
+                             { Args::USER,      nullptr },
+                             { Args::PRIVILEGE, nullptr },
+                             { Args::BUCKET,    nullptr },
+                             { Args::POLICY,    nullptr } };
+
+    const char *metadata = "";
+
+    int opt;
+    while ((opt = getopt_long(m_argc, m_argv, ":", long_options, nullptr)) != -1) {
+        switch(opt) {
+        case Args::CLIENT:
+        case Args::USER:
+        case Args::PRIVILEGE:
+        case Args::BUCKET:
+        case Args::POLICY:
+            values[opt] = optarg;
+            break;
+        case Args::METADATA:
+            metadata = optarg;
+            break;
+        case ':': // Missing argument
+            return std::make_shared<ErrorCyadCommand>(Errors::ARGUMENT_MISSING_SET_POLICY);
+        default:
+            return std::make_shared<ErrorCyadCommand>(Errors::UNKNOWN_OPTION_SET_POLICY);
+        }
+    }
+
+    for (const auto &val : values) {
+        if (val.second == nullptr) {
+            // TODO: Identify actual option
+            return std::make_shared<ErrorCyadCommand>(Errors::OPTION_MISSING_SET_POLICY);
+        }
+    }
+
+    try {
+        auto policyType = parsePolicyType(values[Args::POLICY]);
+        return std::make_shared<SetPolicyCyadCommand>(values[Args::BUCKET], policyType, metadata,
+                                                      PolicyKey(values[Args::CLIENT],
+                                                                values[Args::USER],
+                                                                values[Args::PRIVILEGE]));
+    } catch (const PolicyParsingException &) {
+        return std::make_shared<ErrorCyadCommand>(Errors::INVALID_POLICY);
+    }
+
+
+
+    return std::make_shared<ErrorCyadCommand>(Errors::UNKNOWN_ERROR);
+}
+
+PolicyType CyadCommandlineParser::parsePolicyType(const char *rawPolicy) {
+    // TODO: Check for human-readable literals, like ALLOW, DENY, BUCKET and so on
+    try {
+        return std::stoi(rawPolicy);
+    } catch (const std::invalid_argument &) {
+    } catch (const std::out_of_range &) {
+    }
+
+    throw PolicyParsingException();
 }
 
 } /* namespace Cynara */

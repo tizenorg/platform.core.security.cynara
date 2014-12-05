@@ -26,6 +26,7 @@
 #include <string>
 
 #include <types/PolicyBucketId.h>
+#include <types/PolicyKey.h>
 #include <types/PolicyResult.h>
 #include <types/PolicyType.h>
 
@@ -112,6 +113,40 @@ public:
 
 private:
     PolicyBucketId m_bucketId;
+};
+
+class SetPolicyCyadCommand : public CyadCommand {
+public:
+    SetPolicyCyadCommand(const PolicyBucketId &bucketId, const PolicyType &policyType,
+                         const PolicyResult::PolicyMetadata &metadata, const PolicyKey &policyKey)
+        : m_bucketId(bucketId), m_policyType(policyType), m_metadata(metadata),
+          m_policyKey(policyKey) {}
+
+    virtual ~SetPolicyCyadCommand() = default;
+
+    virtual void run(CommandsDispatcher &dispatcher);
+
+    const PolicyBucketId &bucketId(void) const {
+        return m_bucketId;
+    }
+
+    const PolicyType &policyType(void) const {
+        return m_policyType;
+    }
+
+    const PolicyResult::PolicyMetadata &metadata(void) {
+        return m_metadata;
+    }
+
+    const PolicyKey &policyKey() const {
+            return m_policyKey;
+    }
+
+private:
+    PolicyBucketId m_bucketId;
+    PolicyType m_policyType;
+    PolicyResult::PolicyMetadata m_metadata;
+    PolicyKey m_policyKey;
 };
 
 } /* namespace Cynara */
