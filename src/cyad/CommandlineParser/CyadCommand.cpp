@@ -38,7 +38,7 @@ void HelpCyadCommand::run(CommandsDispatcher &dispatcher) {
     dispatcher.execute(*this);
 }
 
-void AddBucketCyadCommand::run(CommandsDispatcher &dispatcher) {
+void SetBucketCyadCommand::run(CommandsDispatcher &dispatcher) {
     dispatcher.execute(*this);
 }
 

@@ -41,7 +41,7 @@ public:
     virtual void execute(HelpCyadCommand &);
     virtual void execute(ErrorCyadCommand &);
     virtual void execute(DeleteBucketCyadCommand &);
-    virtual void execute(AddBucketCyadCommand &);
+    virtual void execute(SetBucketCyadCommand &);
 
 private:
     const std::string helpMessage = "Cyad's future help message";

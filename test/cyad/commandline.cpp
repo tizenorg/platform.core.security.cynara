@@ -47,25 +47,25 @@ TEST_F(CyadCommandlineTest, deleteBucket) {
     ASSERT_EQ("bucket", result->bucketId());
 }
 
-TEST_F(CyadCommandlineTest, addBucket) {
-    prepare_argv({ "./cyad", "--add-bucket=bucket", "--policy=42" });
+TEST_F(CyadCommandlineTest, setBucket) {
+    prepare_argv({ "./cyad", "--set-bucket=bucket", "--policy=42" });
     Cynara::CyadCommandlineParser parser(this->argc(), this->argv());
 
-    auto result = std::dynamic_pointer_cast<Cynara::AddBucketCyadCommand>(parser.parseMain());
+    auto result = std::dynamic_pointer_cast<Cynara::SetBucketCyadCommand>(parser.parseMain());
     ASSERT_NE(nullptr, result);
     ASSERT_EQ("bucket", result->bucketId());
     ASSERT_EQ(42, result->policyType());
     ASSERT_TRUE(result->metadata().empty());
 }
 
-TEST_F(CyadCommandlineTest, addBucketWithMetadata) {
+TEST_F(CyadCommandlineTest, setBucketWithMetadata) {
     const std::string ultimateAnswer = "Answer to The Ultimate Question of Life,"
                                        " the Universe, and Everything";
 
-    prepare_argv({ "./cyad", "--add-bucket=adams", "--policy=42", "--metadata=" + ultimateAnswer });
+    prepare_argv({ "./cyad", "--set-bucket=adams", "--policy=42", "--metadata=" + ultimateAnswer });
     Cynara::CyadCommandlineParser parser(this->argc(), this->argv());
 
-    auto result = std::dynamic_pointer_cast<Cynara::AddBucketCyadCommand>(parser.parseMain());
+    auto result = std::dynamic_pointer_cast<Cynara::SetBucketCyadCommand>(parser.parseMain());
     ASSERT_NE(nullptr, result);
     ASSERT_EQ("adams", result->bucketId());
     ASSERT_EQ(42, result->policyType());
