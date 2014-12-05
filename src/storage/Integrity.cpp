@@ -32,6 +32,7 @@
 #include <log/log.h>
 #include <exceptions/CannotCreateFileException.h>
 #include <exceptions/UnexpectedErrorException.h>
+#include <storage/config/StorageConfig.h>
 
 #include "Integrity.h"
 
@@ -104,7 +105,9 @@ void Integrity::deleteNonIndexedFiles(BucketPresenceTester tester) {
     while (errno = 0, (direntPtr = readdir(dirPtr)) != nullptr) {
         std::string filename = direntPtr->d_name;
         //ignore all special files (working dir, parent dir, index)
-        if ("." == filename || ".." == filename || "buckets" == filename) {
+        if ("." == filename || ".." == filename
+         || StorageConfig::DatabaseConfig::indexFilename == filename
+         || StorageConfig::ChecksumConfig::checksumFilename == filename) {
             continue;
         }
 
