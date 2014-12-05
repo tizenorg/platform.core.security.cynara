@@ -20,6 +20,9 @@
  * @brief       CommandsDispatcher class (implementation)
  */
 
+#include <cstring>
+
+#include <cynara-admin-types.h>
 #include <cynara-policy-types.h>
 
 #include "CommandsDispatcher.h"
@@ -62,6 +65,26 @@ void CommandsDispatcher::execute(SetBucketCyadCommand &result) {
     m_adminApiWrapper.cynara_admin_set_bucket(m_cynaraAdmin,
                                               result.bucketId().c_str(),
                                               result.policyType(), metadata);
+}
+
+// TODO: Implement a bulk version, so user doesn't have to insert policies one by one
+void CommandsDispatcher::execute(SetPolicyCyadCommand &result) {
+    cynara_admin_policy policy;
+    policy.bucket = strdup(result.bucketId().c_str());
+    policy.client = strdup(result.policyKey().client().toString().c_str());
+    policy.user = strdup(result.policyKey().user().toString().c_str());
+    policy.privilege = strdup(result.policyKey().privilege().toString().c_str());
+    policy.result = result.policyType();
+    policy.result_extra = result.metadata().empty() ? nullptr : strdup(result.metadata().c_str());
+
+    const cynara_admin_policy *policies[2] = { &policy, nullptr };
+    m_adminApiWrapper.cynara_admin_set_policies(m_cynaraAdmin, policies);
+
+    free(policy.bucket);
+    free(policy.client);
+    free(policy.user);
+    free(policy.privilege);
+    free(policy.result_extra);
 }
 
 } /* namespace Cynara */
