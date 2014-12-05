@@ -46,6 +46,18 @@ namespace CyadCmdlineArgs {
 
     extern const char METADATA;
     extern const char * const METADATA_LONG;
+
+    extern const char BUCKET;
+    extern const char * const BUCKET_LONG;
+
+    extern const char CLIENT;
+    extern const char * const CLIENT_LONG;
+
+    extern const char USER;
+    extern const char * const USER_LONG;
+
+    extern const char PRIVILEGE;
+    extern const char * const PRIVILEGE_LONG;
 }
 
 namespace CyadCmdlineErrors {
@@ -54,9 +66,12 @@ namespace CyadCmdlineErrors {
     extern const char * const UNKNOWN_OPTION;
     extern const char * const UNKNOWN_OPTION_SET_BUCKET;
     extern const char * const UNKNOWN_OPTION_DELETE_BUCKET;
+    extern const char * const UNKNOWN_OPTION_SET_POLICY;
     extern const char * const NO_POLICY;
     extern const char * const NO_BUCKET;
     extern const char * const INVALID_POLICY;
+    extern const char * const OPTION_MISSING_SET_POLICY;
+    extern const char * const ARGUMENT_MISSING_SET_POLICY;
 }
 
 class CyadCommandlineParser {
@@ -67,6 +82,10 @@ public:
     std::shared_ptr<CyadCommand> parseMain(void);
     std::shared_ptr<CyadCommand> parseSetBucket(const char *bucketId);
     std::shared_ptr<CyadCommand> parseDeleteBucket(const char *bucketId);
+    std::shared_ptr<CyadCommand> parseSetPolicy(void);
+
+protected:
+    static PolicyType parsePolicyType(const char *rawPolicy);
 
 private:
     int m_argc;

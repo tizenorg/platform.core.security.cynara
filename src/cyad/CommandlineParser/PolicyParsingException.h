@@ -13,41 +13,25 @@
  *    See the License for the specific language governing permissions and
  *    limitations under the License.
  */
-/*
- * @file        ParsingResult.cpp
+/**
+ * @file        src/cyad/CommandlineParser/PolicyParsingException.h
  * @author      Aleksander Zdyb <a.zdyb@samsung.com>
  * @version     1.0
- * @brief       ParsingResult class implementation
+ * @brief       PolicyParsingException
  */
 
-#include <cyad/Cyad.h>
+#ifndef SRC_CYAD_COMMANDLINEPARSER_POLICYPARSINGEXCEPTION_H_
+#define SRC_CYAD_COMMANDLINEPARSER_POLICYPARSINGEXCEPTION_H_
 
-#include "CyadCommand.h"
+#include <exception>
 
 namespace Cynara {
 
-void CyadCommand::run(CommandsDispatcher &dispatcher) {
-    dispatcher.execute(*this);
-}
-
-void ErrorCyadCommand::run(CommandsDispatcher &dispatcher) {
-    dispatcher.execute(*this);
-}
-
-void HelpCyadCommand::run(CommandsDispatcher &dispatcher) {
-    dispatcher.execute(*this);
-}
-
-void SetBucketCyadCommand::run(CommandsDispatcher &dispatcher) {
-    dispatcher.execute(*this);
-}
-
-void DeleteBucketCyadCommand::run(CommandsDispatcher &dispatcher) {
-    dispatcher.execute(*this);
-}
-
-void SetPolicyCyadCommand::run(CommandsDispatcher &dispatcher) {
-    dispatcher.execute(*this);
-}
+class PolicyParsingException : public std::exception {
+public:
+    using std::exception::exception;
+};
 
 } /* namespace Cynara */
+
+#endif /* SRC_CYAD_COMMANDLINEPARSER_POLICYPARSINGEXCEPTION_H_ */
