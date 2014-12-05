@@ -104,9 +104,10 @@ void Integrity::deleteNonIndexedFiles(BucketPresenceTester tester) {
 
     while (errno = 0, (direntPtr = readdir(dirPtr)) != nullptr) {
         std::string filename = direntPtr->d_name;
-        //ignore all special files (working dir, parent dir, index)
+        //ignore all special files (working dir, parent dir, index, checksums)
         if ("." == filename || ".." == filename
-         || PathConfig::StoragePath::indexFilename == filename) {
+         || PathConfig::StoragePath::indexFilename == filename
+         || PathConfig::StoragePath::checksumFilename == filename) {
             continue;
         }
 
