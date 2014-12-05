@@ -28,13 +28,46 @@
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
 
+#include <cynara-admin-types.h>
 #include <cynara-error.h>
 #include <cynara-policy-types.h>
 
+#include <common/types/PolicyKey.h>
 #include <cyad/CommandlineParser/CyadCommand.h>
 #include <cyad/CommandsDispatcher.h>
 
 #include "FakeAdminApiWrapper.h"
+
+
+bool operator==(const cynara_admin_policy &lhs, const cynara_admin_policy &rhs) {
+    auto strEq = [] (const char *lhs, const char *rhs) -> bool {
+        if (lhs != nullptr && rhs != nullptr)
+            return strcmp(lhs, rhs) == 0;
+        else
+            return lhs == rhs;
+    };
+
+    return lhs.result == rhs.result
+            && strEq(lhs.bucket, rhs.bucket)
+            && strEq(lhs.client, rhs.client)
+            && strEq(lhs.user, rhs.user)
+            && strEq(lhs.privilege, rhs.privilege)
+            && strEq(lhs.result_extra, rhs.result_extra);
+}
+
+bool operator!=(const cynara_admin_policy &lhs, const cynara_admin_policy &rhs) {
+    return !(lhs == rhs);
+}
+
+MATCHER_P(AdmPolicyListEq, policies, "") {
+    unsigned i = 0;
+    while(policies[i] != nullptr && arg[i] != nullptr) {
+        if (*policies[i] != *arg[i])
+            return false;
+        ++i;
+    }
+    return policies[i] == nullptr && arg[i] == nullptr;
+}
 
 /**
  * @brief   Dispatcher should not touch admin API on help or error
@@ -133,4 +166,57 @@ TEST(CommandsDispatcher, setBucket) {
 
         dispatcher.execute(result);
     }
+}
+
+TEST(CommandsDispatcher, setPolicy) {
+    using ::testing::_;
+    using ::testing::Return;
+
+    std::stringstream devNull;
+    FakeAdminApiWrapper adminApi;
+
+    EXPECT_CALL(adminApi, cynara_admin_initialize(_)).WillOnce(Return(CYNARA_API_SUCCESS));
+    EXPECT_CALL(adminApi, cynara_admin_finish(_)).WillOnce(Return(CYNARA_API_SUCCESS));
+
+    Cynara::CommandsDispatcher dispatcher(devNull, adminApi);
+    Cynara::SetPolicyCyadCommand result("test-bucket", CYNARA_ADMIN_ALLOW, "",
+                                        Cynara::PolicyKey("client", "user", "privilege"));
+
+    // TODO: free test policies
+    cynara_admin_policy testPolicy = { strdup("test-bucket"), strdup("client"), strdup("user"),
+                                       strdup("privilege"), CYNARA_ADMIN_ALLOW, nullptr };
+
+    cynara_admin_policy *testPolicies[2] = { &testPolicy, nullptr };
+
+    EXPECT_CALL(adminApi, cynara_admin_set_policies(_, AdmPolicyListEq(testPolicies)))
+        .WillOnce(Return(CYNARA_API_SUCCESS));
+
+    dispatcher.execute(result);
+}
+
+TEST(CommandsDispatcher, setPolicyWithMetadata) {
+    using ::testing::_;
+    using ::testing::Return;
+
+    std::stringstream devNull;
+    FakeAdminApiWrapper adminApi;
+
+    EXPECT_CALL(adminApi, cynara_admin_initialize(_)).WillOnce(Return(CYNARA_API_SUCCESS));
+    EXPECT_CALL(adminApi, cynara_admin_finish(_)).WillOnce(Return(CYNARA_API_SUCCESS));
+
+    Cynara::CommandsDispatcher dispatcher(devNull, adminApi);
+    Cynara::SetPolicyCyadCommand result("test-bucket", CYNARA_ADMIN_ALLOW, "metadata",
+                                        Cynara::PolicyKey("client", "user", "privilege"));
+
+    // TODO: free test policies
+    cynara_admin_policy testPolicy = { strdup("test-bucket"), strdup("client"), strdup("user"),
+                                       strdup("privilege"), CYNARA_ADMIN_ALLOW,
+                                       strdup("metadata") };
+
+    cynara_admin_policy *testPolicies[2] = { &testPolicy, nullptr };
+
+    EXPECT_CALL(adminApi, cynara_admin_set_policies(_, AdmPolicyListEq(testPolicies)))
+        .WillOnce(Return(CYNARA_API_SUCCESS));
+
+    dispatcher.execute(result);
 }
