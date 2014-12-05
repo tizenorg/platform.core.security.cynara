@@ -86,7 +86,7 @@ TEST(CommandsDispatcher, deleteBucket) {
     dispatcher.execute(result);
 }
 
-TEST(CommandsDispatcher, addBucket) {
+TEST(CommandsDispatcher, setBucket) {
     using ::testing::_;
     using ::testing::Return;
     using ::testing::StrEq;
@@ -118,7 +118,7 @@ TEST(CommandsDispatcher, addBucket) {
 
         SCOPED_TRACE(bucketId);
 
-        Cynara::AddBucketCyadCommand result(bucketId, policyType, metadata);
+        Cynara::SetBucketCyadCommand result(bucketId, policyType, metadata);
 
         if (metadata.empty() == false) {
             EXPECT_CALL(adminApi,

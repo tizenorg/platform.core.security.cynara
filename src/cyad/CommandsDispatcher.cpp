@@ -57,7 +57,7 @@ void CommandsDispatcher::execute(DeleteBucketCyadCommand &result) {
                                               CYNARA_ADMIN_DELETE, nullptr);
 }
 
-void CommandsDispatcher::execute(AddBucketCyadCommand &result) {
+void CommandsDispatcher::execute(SetBucketCyadCommand &result) {
     const char *metadata = result.metadata().empty() ? nullptr : result.metadata().c_str();
     m_adminApiWrapper.cynara_admin_set_bucket(m_cynaraAdmin,
                                               result.bucketId().c_str(),

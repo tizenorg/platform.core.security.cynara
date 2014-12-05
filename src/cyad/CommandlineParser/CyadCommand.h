@@ -71,13 +71,13 @@ public:
     virtual void run(CommandsDispatcher &dispatcher);
 };
 
-class AddBucketCyadCommand : public CyadCommand {
+class SetBucketCyadCommand : public CyadCommand {
 public:
-    AddBucketCyadCommand(const PolicyBucketId &bucketId, const PolicyType &policyType,
+    SetBucketCyadCommand(const PolicyBucketId &bucketId, const PolicyType &policyType,
                          const PolicyResult::PolicyMetadata &metadata)
         : m_bucketId(bucketId), m_policyType(policyType), m_metadata(metadata) {}
 
-    virtual ~AddBucketCyadCommand() = default;
+    virtual ~SetBucketCyadCommand() = default;
 
     virtual void run(CommandsDispatcher &dispatcher);
 
