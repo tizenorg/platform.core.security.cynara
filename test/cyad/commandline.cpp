@@ -149,3 +149,21 @@ TEST_F(CyadCommandlineTest, parsePolicyTypeHuman) {
     ASSERT_EQ(CYNARA_ADMIN_BUCKET, parsePolicyType("BUCKET"));
     ASSERT_EQ(CYNARA_ADMIN_ALLOW,  parsePolicyType("ALLOW"));
 }
+
+TEST_F(CyadCommandlineTest, setPoliciesBulkFilename) {
+    prepare_argv({ "./cyad", "--set-policy", "--bulk=/tmp/input_file" });
+    Cynara::CyadCommandlineParser parser(this->argc(), this->argv());
+
+    auto result = std::dynamic_pointer_cast<Cynara::SetPolicyBulkCyadCommand>(parser.parseMain());
+    ASSERT_NE(nullptr, result);
+    ASSERT_EQ("/tmp/input_file", result->filename());
+}
+
+TEST_F(CyadCommandlineTest, setPoliciesBulkStdin) {
+    prepare_argv({ "./cyad", "--set-policy", "--bulk=-" });
+    Cynara::CyadCommandlineParser parser(this->argc(), this->argv());
+
+    auto result = std::dynamic_pointer_cast<Cynara::SetPolicyBulkCyadCommand>(parser.parseMain());
+    ASSERT_NE(nullptr, result);
+    ASSERT_EQ("-", result->filename());
+}

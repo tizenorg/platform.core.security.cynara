@@ -61,6 +61,9 @@ namespace CyadCmdlineArgs {
 
     const char PRIVILEGE = 'r';
     const char * const PRIVILEGE_LONG = "privilege";
+
+    const char BULK = 'f';
+    const char * const BULK_LONG = "bulk";
 }
 
 namespace CyadCmdlineErrors {
@@ -193,6 +196,7 @@ std::shared_ptr<CyadCommand> CyadCommandlineParser::parseSetPolicy(void) {
         { Args::BUCKET_LONG,    required_argument, nullptr, Args::BUCKET },
         { Args::POLICY_LONG,    required_argument, nullptr, Args::POLICY },
         { Args::METADATA_LONG,  required_argument, nullptr, Args::METADATA },
+        { Args::BULK_LONG,      required_argument, nullptr, Args::BULK },
         { nullptr, 0, nullptr, 0 }
     };
 
@@ -218,6 +222,8 @@ std::shared_ptr<CyadCommand> CyadCommandlineParser::parseSetPolicy(void) {
         case Args::METADATA:
             metadata = optarg;
             break;
+        case Args::BULK:
+            return std::make_shared<SetPolicyBulkCyadCommand>(optarg);
         case ':': // Missing argument
             return std::make_shared<ErrorCyadCommand>(Errors::ARGUMENT_MISSING_SET_POLICY);
         default:

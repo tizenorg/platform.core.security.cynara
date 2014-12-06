@@ -58,6 +58,9 @@ namespace CyadCmdlineArgs {
 
     extern const char PRIVILEGE;
     extern const char * const PRIVILEGE_LONG;
+
+    extern const char BULK;
+    extern const char * const BULK_LONG;
 }
 
 namespace CyadCmdlineErrors {
