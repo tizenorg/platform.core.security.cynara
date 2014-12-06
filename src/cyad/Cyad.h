@@ -26,6 +26,7 @@
 #include <cyad/AdminApiWrapper.h>
 #include <cyad/CommandlineParser/CyadCommandlineParser.h>
 #include <cyad/CommandsDispatcher.h>
+#include <cyad/DispatcherIO.h>
 
 namespace Cynara {
 
@@ -36,6 +37,7 @@ public:
 
 private:
     AdminApiWrapper m_adminApiWrapper;
+    DispatcherIO m_io;
     CommandsDispatcher m_dispatcher;
     CyadCommandlineParser m_parser;
 };

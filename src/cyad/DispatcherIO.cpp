@@ -13,26 +13,27 @@
  *    See the License for the specific language governing permissions and
  *    limitations under the License.
  */
-/*
- * @file        src/cyad/Cyad.cpp
+/**
+ * @file        src/cyad/DispatcherIO.cpp
  * @author      Aleksander Zdyb <a.zdyb@samsung.com>
  * @version     1.0
- * @brief       A commandline tool to manage Cynara's database
+ * @brief       
  */
 
-#include <iostream>
+#include <fstream>
 
-#include "Cyad.h"
+#include "DispatcherIO.h"
 
 namespace Cynara {
 
-Cyad::Cyad(int argc, char **argv)
-    : m_dispatcher(m_io, m_adminApiWrapper), m_parser(argc, argv) {
-
-    auto result = m_parser.parseMain();
-    result->run(m_dispatcher);
+BaseDispatcherIO::InputStreamPtr DispatcherIO::openFile(const BaseDispatcherIO::Filename &filename) {
+    BaseDispatcherIO::InputStreamPtr streamPtr;
+    if (filename == "-") {
+        streamPtr.reset(&std::cin, [] (BaseDispatcherIO::InputStreamPtr::element_type *) {});
+    } else {
+        streamPtr.reset(new std::ifstream(filename));
+    }
+    return streamPtr;
 }
-
-Cyad::~Cyad() {}
 
 } /* namespace Cynara */

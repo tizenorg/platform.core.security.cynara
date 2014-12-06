@@ -35,7 +35,9 @@
 #include <common/types/PolicyKey.h>
 #include <cyad/CommandlineParser/CyadCommand.h>
 #include <cyad/CommandsDispatcher.h>
+#include <cyad/DispatcherIO.h>
 
+#include "CyadCommandlineDispatcherTest.h"
 #include "FakeAdminApiWrapper.h"
 
 
@@ -75,17 +77,16 @@ MATCHER_P(AdmPolicyListEq, policies, "") {
  * - Prepare some parsing results not requiring API calls
  * - Check if no API calls were made
  */
-TEST(CommandsDispatcher, noApi) {
+TEST_F(CyadCommandlineDispatcherTest, noApi) {
     using ::testing::_;
     using ::testing::Return;
 
-    std::stringstream devNull;
     FakeAdminApiWrapper adminApi;
 
     EXPECT_CALL(adminApi, cynara_admin_initialize(_)).WillOnce(Return(CYNARA_API_SUCCESS));
     EXPECT_CALL(adminApi, cynara_admin_finish(_)).WillOnce(Return(CYNARA_API_SUCCESS));
 
-    Cynara::CommandsDispatcher dispatcher(devNull, adminApi);
+    Cynara::CommandsDispatcher dispatcher(m_io, adminApi);
 
     Cynara::CyadCommand result;
     Cynara::HelpCyadCommand helpResult;
@@ -97,19 +98,18 @@ TEST(CommandsDispatcher, noApi) {
     dispatcher.execute(errorResult);
 }
 
-TEST(CommandsDispatcher, deleteBucket) {
+TEST_F(CyadCommandlineDispatcherTest, deleteBucket) {
     using ::testing::_;
     using ::testing::Return;
     using ::testing::StrEq;
     using ::testing::IsNull;
 
-    std::stringstream devNull;
     FakeAdminApiWrapper adminApi;
 
     EXPECT_CALL(adminApi, cynara_admin_initialize(_)).WillOnce(Return(CYNARA_API_SUCCESS));
     EXPECT_CALL(adminApi, cynara_admin_finish(_)).WillOnce(Return(CYNARA_API_SUCCESS));
 
-    Cynara::CommandsDispatcher dispatcher(devNull, adminApi);
+    Cynara::CommandsDispatcher dispatcher(m_io, adminApi);
     Cynara::DeleteBucketCyadCommand result("test-bucket");
 
     EXPECT_CALL(adminApi,
@@ -119,7 +119,7 @@ TEST(CommandsDispatcher, deleteBucket) {
     dispatcher.execute(result);
 }
 
-TEST(CommandsDispatcher, setBucket) {
+TEST_F(CyadCommandlineDispatcherTest, setBucket) {
     using ::testing::_;
     using ::testing::Return;
     using ::testing::StrEq;
@@ -128,13 +128,12 @@ TEST(CommandsDispatcher, setBucket) {
     using Cynara::PolicyType;
     using Cynara::PolicyResult;
 
-    std::stringstream devNull;
     FakeAdminApiWrapper adminApi;
 
     EXPECT_CALL(adminApi, cynara_admin_initialize(_)).WillOnce(Return(CYNARA_API_SUCCESS));
     EXPECT_CALL(adminApi, cynara_admin_finish(_)).WillOnce(Return(CYNARA_API_SUCCESS));
 
-    Cynara::CommandsDispatcher dispatcher(devNull, adminApi);
+    Cynara::CommandsDispatcher dispatcher(m_io, adminApi);
 
     typedef std::tuple<PolicyBucketId, PolicyType, PolicyResult::PolicyMetadata> BucketData;
     typedef std::vector<BucketData> Buckets;
@@ -168,17 +167,16 @@ TEST(CommandsDispatcher, setBucket) {
     }
 }
 
-TEST(CommandsDispatcher, setPolicy) {
+TEST_F(CyadCommandlineDispatcherTest, setPolicy) {
     using ::testing::_;
     using ::testing::Return;
 
-    std::stringstream devNull;
     FakeAdminApiWrapper adminApi;
 
     EXPECT_CALL(adminApi, cynara_admin_initialize(_)).WillOnce(Return(CYNARA_API_SUCCESS));
     EXPECT_CALL(adminApi, cynara_admin_finish(_)).WillOnce(Return(CYNARA_API_SUCCESS));
 
-    Cynara::CommandsDispatcher dispatcher(devNull, adminApi);
+    Cynara::CommandsDispatcher dispatcher(m_io, adminApi);
     Cynara::SetPolicyCyadCommand result("test-bucket", CYNARA_ADMIN_ALLOW, "",
                                         Cynara::PolicyKey("client", "user", "privilege"));
 
@@ -194,17 +192,16 @@ TEST(CommandsDispatcher, setPolicy) {
     dispatcher.execute(result);
 }
 
-TEST(CommandsDispatcher, setPolicyWithMetadata) {
+TEST_F(CyadCommandlineDispatcherTest, setPolicyWithMetadata) {
     using ::testing::_;
     using ::testing::Return;
 
-    std::stringstream devNull;
     FakeAdminApiWrapper adminApi;
 
     EXPECT_CALL(adminApi, cynara_admin_initialize(_)).WillOnce(Return(CYNARA_API_SUCCESS));
     EXPECT_CALL(adminApi, cynara_admin_finish(_)).WillOnce(Return(CYNARA_API_SUCCESS));
 
-    Cynara::CommandsDispatcher dispatcher(devNull, adminApi);
+    Cynara::CommandsDispatcher dispatcher(m_io, adminApi);
     Cynara::SetPolicyCyadCommand result("test-bucket", CYNARA_ADMIN_ALLOW, "metadata",
                                         Cynara::PolicyKey("client", "user", "privilege"));
 

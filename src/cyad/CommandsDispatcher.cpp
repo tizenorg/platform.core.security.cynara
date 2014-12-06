@@ -29,9 +29,8 @@
 
 namespace Cynara {
 
-CommandsDispatcher::CommandsDispatcher(std::ostream &outStream,
-                                       BaseAdminApiWrapper &adminApiWrapper)
-    : m_outStream(outStream), m_adminApiWrapper(adminApiWrapper), m_cynaraAdmin(nullptr)
+CommandsDispatcher::CommandsDispatcher(BaseDispatcherIO &io, BaseAdminApiWrapper &adminApiWrapper)
+    : m_io(io), m_adminApiWrapper(adminApiWrapper), m_cynaraAdmin(nullptr)
 {
     m_adminApiWrapper.cynara_admin_initialize(&m_cynaraAdmin);
 }
@@ -41,18 +40,18 @@ CommandsDispatcher::~CommandsDispatcher() {
 }
 
 void CommandsDispatcher::execute(CyadCommand &) {
-    m_outStream << "Whatever you wanted, it's not implemented" << std::endl;
+    m_io.cout() << "Whatever you wanted, it's not implemented" << std::endl;
 }
 
 void CommandsDispatcher::execute(HelpCyadCommand &) {
-    m_outStream << helpMessage << std::endl;
+    m_io.cout() << helpMessage << std::endl;
 }
 
 void CommandsDispatcher::execute(ErrorCyadCommand &result) {
-    m_outStream << "There was an error in commandline options:" << std::endl;
-    m_outStream << result.message() << std::endl;
+    m_io.cout() << "There was an error in commandline options:" << std::endl;
+    m_io.cout() << result.message() << std::endl;
 
-    m_outStream << std::endl << helpMessage << std::endl;
+    m_io.cout() << std::endl << helpMessage << std::endl;
 }
 
 void CommandsDispatcher::execute(DeleteBucketCyadCommand &result) {

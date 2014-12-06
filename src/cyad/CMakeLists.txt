@@ -24,6 +24,7 @@ SET(CYAD_SOURCES
     ${CYAD_PATH}/CommandlineParser/CyadCommand.cpp
     ${CYAD_PATH}/CommandlineParser/CyadCommandlineParser.cpp
     ${CYAD_PATH}/CommandsDispatcher.cpp
+    ${CYAD_PATH}/DispatcherIO.cpp
     ${CYAD_PATH}/main.cpp
     )
 

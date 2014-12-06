@@ -14,25 +14,25 @@
  *    limitations under the License.
  */
 /*
- * @file        src/cyad/Cyad.cpp
+ * @file        CyadCommandlineDispatcherTest.h
  * @author      Aleksander Zdyb <a.zdyb@samsung.com>
  * @version     1.0
- * @brief       A commandline tool to manage Cynara's database
+ * @brief       
  */
 
-#include <iostream>
+#ifndef TEST_CYAD_CYADCOMMANDLINEDISPATCHERTEST_H_
+#define TEST_CYAD_CYADCOMMANDLINEDISPATCHERTEST_H_
 
-#include "Cyad.h"
+#include <sstream>
 
-namespace Cynara {
+#include <gmock/gmock.h>
+#include <gtest/gtest.h>
 
-Cyad::Cyad(int argc, char **argv)
-    : m_dispatcher(m_io, m_adminApiWrapper), m_parser(argc, argv) {
+#include "FakeDispatcherIO.h"
 
-    auto result = m_parser.parseMain();
-    result->run(m_dispatcher);
-}
+class CyadCommandlineDispatcherTest : public ::testing::Test {
+protected:
+    FakeDispatcherIO m_io;
+};
 
-Cyad::~Cyad() {}
-
-} /* namespace Cynara */
+#endif /* TEST_CYAD_CYADCOMMANDLINEDISPATCHERTEST_H_ */
