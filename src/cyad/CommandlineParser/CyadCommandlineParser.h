@@ -80,12 +80,12 @@ public:
     virtual ~CyadCommandlineParser();
 
     std::shared_ptr<CyadCommand> parseMain(void);
+    static PolicyType parsePolicyType(const char *rawPolicy);
+
+protected:
     std::shared_ptr<CyadCommand> parseSetBucket(const char *bucketId);
     std::shared_ptr<CyadCommand> parseDeleteBucket(const char *bucketId);
     std::shared_ptr<CyadCommand> parseSetPolicy(void);
-
-protected:
-    static PolicyType parsePolicyType(const char *rawPolicy);
 
 private:
     int m_argc;

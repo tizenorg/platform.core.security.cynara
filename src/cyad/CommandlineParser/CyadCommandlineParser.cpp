@@ -20,9 +20,11 @@
  * @brief       Commandline parser for Cyad
  */
 
+#include <cstring>
 #include <getopt.h>
 #include <map>
 
+#include <cynara-admin-types.h>
 #include <cyad/CommandlineParser/PolicyParsingException.h>
 
 #include "CyadCommandlineParser.h"
@@ -246,14 +248,22 @@ std::shared_ptr<CyadCommand> CyadCommandlineParser::parseSetPolicy(void) {
 }
 
 PolicyType CyadCommandlineParser::parsePolicyType(const char *rawPolicy) {
-    // TODO: Check for human-readable literals, like ALLOW, DENY, BUCKET and so on
-    try {
-        return std::stoi(rawPolicy);
-    } catch (const std::invalid_argument &) {
-    } catch (const std::out_of_range &) {
-    }
+    if (strcmp(rawPolicy, "DENY") == 0)
+        return CYNARA_ADMIN_DENY;
+    if (strcmp(rawPolicy, "NONE") == 0)
+        return CYNARA_ADMIN_NONE;
+    if (strcmp(rawPolicy, "BUCKET") == 0)
+        return CYNARA_ADMIN_BUCKET;
+    if (strcmp(rawPolicy, "ALLOW") == 0)
+        return CYNARA_ADMIN_ALLOW;
 
-    throw PolicyParsingException();
+    int base = strncmp(rawPolicy, "0x", 2) ? 10 : 16;
+
+    try {
+        return std::stoi(rawPolicy, nullptr, base);
+    } catch (const std::logic_error &) {
+        throw PolicyParsingException();
+    }
 }
 
 } /* namespace Cynara */

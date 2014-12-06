@@ -102,3 +102,50 @@ TEST_F(CyadCommandlineTest, addPolicyWithMetadata) {
     ASSERT_EQ(42, result->policyType());
     ASSERT_EQ("some-metadata", result->metadata());
 }
+
+TEST_F(CyadCommandlineTest, setPolicyInDefaultBucket) {
+    prepare_argv({ "./cyad", "--set-policy", "--bucket=",
+                   "--client=client", "--user=user", "--privilege=privilege",
+                   "--policy=ALLOW", "--metadata=some-metadata" });
+    Cynara::CyadCommandlineParser parser(this->argc(), this->argv());
+
+    auto result = std::dynamic_pointer_cast<Cynara::SetPolicyCyadCommand>(parser.parseMain());
+    ASSERT_NE(nullptr, result);
+    ASSERT_EQ("", result->bucketId());
+    ASSERT_EQ(Cynara::PolicyKey("client", "user", "privilege"), result->policyKey());
+    ASSERT_EQ(CYNARA_ADMIN_ALLOW, result->policyType());
+    ASSERT_EQ("some-metadata", result->metadata());
+}
+
+TEST_F(CyadCommandlineTest, parsePolicyTypeBase10) {
+    auto parsePolicyType = [] (const char *rawPolicy) -> Cynara::PolicyType {
+        return Cynara::CyadCommandlineParser::parsePolicyType(rawPolicy);
+    };
+
+    ASSERT_EQ(CYNARA_ADMIN_DENY,   parsePolicyType("0"));
+    ASSERT_EQ(CYNARA_ADMIN_NONE,   parsePolicyType("1"));
+    ASSERT_EQ(CYNARA_ADMIN_BUCKET, parsePolicyType("65534"));
+    ASSERT_EQ(CYNARA_ADMIN_ALLOW,  parsePolicyType("65535"));
+}
+
+TEST_F(CyadCommandlineTest, parsePolicyTypeBase16) {
+    auto parsePolicyType = [] (const char *rawPolicy) -> Cynara::PolicyType {
+        return Cynara::CyadCommandlineParser::parsePolicyType(rawPolicy);
+    };
+
+    ASSERT_EQ(CYNARA_ADMIN_DENY,   parsePolicyType("0x0"));
+    ASSERT_EQ(CYNARA_ADMIN_NONE,   parsePolicyType("0x1"));
+    ASSERT_EQ(CYNARA_ADMIN_BUCKET, parsePolicyType("0xFFFE"));
+    ASSERT_EQ(CYNARA_ADMIN_ALLOW,  parsePolicyType("0xFFFF"));
+}
+
+TEST_F(CyadCommandlineTest, parsePolicyTypeHuman) {
+    auto parsePolicyType = [] (const char *rawPolicy) -> Cynara::PolicyType {
+        return Cynara::CyadCommandlineParser::parsePolicyType(rawPolicy);
+    };
+
+    ASSERT_EQ(CYNARA_ADMIN_DENY,   parsePolicyType("DENY"));
+    ASSERT_EQ(CYNARA_ADMIN_NONE,   parsePolicyType("NONE"));
+    ASSERT_EQ(CYNARA_ADMIN_BUCKET, parsePolicyType("BUCKET"));
+    ASSERT_EQ(CYNARA_ADMIN_ALLOW,  parsePolicyType("ALLOW"));
+}
