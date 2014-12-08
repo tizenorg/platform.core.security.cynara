@@ -31,6 +31,7 @@ SET(CYNARA_SOURCES_FOR_TESTS
     ${CYNARA_SRC}/cyad/CommandlineParser/CyadCommand.cpp
     ${CYNARA_SRC}/cyad/CommandlineParser/CyadCommandlineParser.cpp
     ${CYNARA_SRC}/cyad/CommandsDispatcher.cpp
+    ${CYNARA_SRC}/cyad/CynaraAdminPolicies.cpp
     ${CYNARA_SRC}/helpers/creds-commons/CredsCommonsInner.cpp
     ${CYNARA_SRC}/helpers/creds-commons/creds-commons.cpp
     ${CYNARA_SRC}/storage/BucketDeserializer.cpp
@@ -50,6 +51,7 @@ SET(CYNARA_TESTS_SOURCES
     cyad/commandline_errors.cpp
     cyad/commands_dispatcher.cpp
     cyad/helpers.cpp
+    cyad/policy_collection.cpp
     helpers.cpp
     storage/performance/bucket.cpp
     storage/storage/policies.cpp

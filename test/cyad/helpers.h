@@ -31,6 +31,7 @@ struct cynara_admin_policy;
 bool operator==(const cynara_admin_policy &lhs, const cynara_admin_policy &rhs);
 bool operator!=(const cynara_admin_policy &lhs, const cynara_admin_policy &rhs);
 
+
 MATCHER_P(AdmPolicyListEq, policies, "") {
     unsigned i = 0;
     while(policies[i] != nullptr && arg[i] != nullptr) {
@@ -40,5 +41,15 @@ MATCHER_P(AdmPolicyListEq, policies, "") {
     }
     return policies[i] == nullptr && arg[i] == nullptr;
 }
+
+namespace Cynara {
+
+namespace Helpers {
+
+void freeAdminPolicyMembers(cynara_admin_policy *admin_policy);
+
+}  /* namespace Helpers */
+
+}  /* namespace Cynara */
 
 #endif /* TEST_CYAD_HELPERS_H_ */

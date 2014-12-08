@@ -45,3 +45,20 @@ bool operator==(const cynara_admin_policy &lhs, const cynara_admin_policy &rhs) 
 bool operator!=(const cynara_admin_policy &lhs, const cynara_admin_policy &rhs) {
     return !(lhs == rhs);
 }
+
+
+namespace Cynara {
+
+namespace Helpers {
+
+void freeAdminPolicyMembers(cynara_admin_policy *admin_policy) {
+    free(admin_policy->bucket);
+    free(admin_policy->client);
+    free(admin_policy->user);
+    free(admin_policy->privilege);
+    free(admin_policy->result_extra);
+}
+
+}  /* namespace Helpers */
+
+}  /* namespace Cynara */
