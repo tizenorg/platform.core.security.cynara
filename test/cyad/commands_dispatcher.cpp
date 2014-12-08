@@ -39,37 +39,7 @@
 
 #include "CyadCommandlineDispatcherTest.h"
 #include "FakeAdminApiWrapper.h"
-
-
-bool operator==(const cynara_admin_policy &lhs, const cynara_admin_policy &rhs) {
-    auto strEq = [] (const char *lhs, const char *rhs) -> bool {
-        if (lhs != nullptr && rhs != nullptr)
-            return strcmp(lhs, rhs) == 0;
-        else
-            return lhs == rhs;
-    };
-
-    return lhs.result == rhs.result
-            && strEq(lhs.bucket, rhs.bucket)
-            && strEq(lhs.client, rhs.client)
-            && strEq(lhs.user, rhs.user)
-            && strEq(lhs.privilege, rhs.privilege)
-            && strEq(lhs.result_extra, rhs.result_extra);
-}
-
-bool operator!=(const cynara_admin_policy &lhs, const cynara_admin_policy &rhs) {
-    return !(lhs == rhs);
-}
-
-MATCHER_P(AdmPolicyListEq, policies, "") {
-    unsigned i = 0;
-    while(policies[i] != nullptr && arg[i] != nullptr) {
-        if (*policies[i] != *arg[i])
-            return false;
-        ++i;
-    }
-    return policies[i] == nullptr && arg[i] == nullptr;
-}
+#include "helpers.h"
 
 /**
  * @brief   Dispatcher should not touch admin API on help or error
