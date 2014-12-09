@@ -28,6 +28,7 @@ SET(CYNARA_SOURCES_FOR_TESTS
     ${CYNARA_SRC}/common/types/PolicyKeyHelpers.cpp
     ${CYNARA_SRC}/common/types/PolicyResult.cpp
     ${CYNARA_SRC}/common/types/PolicyType.cpp
+    ${CYNARA_SRC}/cyad/AdminPolicyParser.cpp
     ${CYNARA_SRC}/cyad/CommandlineParser/CyadCommand.cpp
     ${CYNARA_SRC}/cyad/CommandlineParser/CyadCommandlineParser.cpp
     ${CYNARA_SRC}/cyad/CommandsDispatcher.cpp
@@ -52,6 +53,7 @@ SET(CYNARA_TESTS_SOURCES
     cyad/commands_dispatcher.cpp
     cyad/helpers.cpp
     cyad/policy_collection.cpp
+    cyad/policy_parser.cpp
     helpers.cpp
     storage/performance/bucket.cpp
     storage/storage/policies.cpp
