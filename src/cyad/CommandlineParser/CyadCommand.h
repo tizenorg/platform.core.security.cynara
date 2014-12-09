@@ -154,6 +154,8 @@ public:
     SetPolicyBulkCyadCommand(const std::string &filename) : m_filename(filename) {}
     virtual ~SetPolicyBulkCyadCommand() = default;
 
+    virtual void run(CommandsDispatcher &dispatcher);
+
     const std::string &filename(void) const {
         return m_filename;
     }

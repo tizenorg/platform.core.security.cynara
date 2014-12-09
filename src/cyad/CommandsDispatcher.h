@@ -30,6 +30,7 @@
 #include <cyad/DispatcherIO.h>
 
 struct cynara_admin;
+struct cynara_admin_policy;
 
 namespace Cynara {
 
@@ -44,6 +45,7 @@ public:
     virtual void execute(DeleteBucketCyadCommand &);
     virtual void execute(SetBucketCyadCommand &);
     virtual void execute(SetPolicyCyadCommand &);
+    virtual void execute(SetPolicyBulkCyadCommand &);
 
 private:
     const std::string helpMessage = "Cyad's future help message";

@@ -21,9 +21,15 @@
  */
 
 #include <cstring>
+#include <vector>
 
 #include <cynara-admin-types.h>
 #include <cynara-policy-types.h>
+
+#include <common/exceptions/BucketRecordCorruptedException.h>
+
+#include <cyad/CynaraAdminPolicies.h>
+#include <cyad/AdminPolicyParser.h>
 
 #include "CommandsDispatcher.h"
 
@@ -66,24 +72,29 @@ void CommandsDispatcher::execute(SetBucketCyadCommand &result) {
                                               result.policyType(), metadata);
 }
 
-// TODO: Implement a bulk version, so user doesn't have to insert policies one by one
 void CommandsDispatcher::execute(SetPolicyCyadCommand &result) {
-    cynara_admin_policy policy;
-    policy.bucket = strdup(result.bucketId().c_str());
-    policy.client = strdup(result.policyKey().client().toString().c_str());
-    policy.user = strdup(result.policyKey().user().toString().c_str());
-    policy.privilege = strdup(result.policyKey().privilege().toString().c_str());
-    policy.result = result.policyType();
-    policy.result_extra = result.metadata().empty() ? nullptr : strdup(result.metadata().c_str());
+    CynaraAdminPolicies policies;
 
-    const cynara_admin_policy *policies[2] = { &policy, nullptr };
-    m_adminApiWrapper.cynara_admin_set_policies(m_cynaraAdmin, policies);
+    policies.add(result.bucketId(), result.policyType(), result.metadata(), result.policyKey());
+    policies.seal();
 
-    free(policy.bucket);
-    free(policy.client);
-    free(policy.user);
-    free(policy.privilege);
-    free(policy.result_extra);
+    m_adminApiWrapper.cynara_admin_set_policies(m_cynaraAdmin, policies.data());
+
+}
+
+void CommandsDispatcher::execute(SetPolicyBulkCyadCommand &result) {
+    auto input = m_io.openFile(result.filename());
+
+    AdminPolicyParser policiesParser(input);
+
+    try {
+        auto policies = policiesParser.parse();
+        m_adminApiWrapper.cynara_admin_set_policies(m_cynaraAdmin, policies.data());
+    } catch (const BucketRecordCorruptedException &ex) {
+        // TODO: Format better message
+        // TODO: return proper error code
+        m_io.cerr() << ex.message();
+    }
 }
 
 } /* namespace Cynara */

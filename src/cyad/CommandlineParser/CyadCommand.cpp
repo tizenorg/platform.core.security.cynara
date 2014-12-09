@@ -50,4 +50,8 @@ void SetPolicyCyadCommand::run(CommandsDispatcher &dispatcher) {
     dispatcher.execute(*this);
 }
 
+void SetPolicyBulkCyadCommand::run(CommandsDispatcher &dispatcher) {
+    dispatcher.execute(*this);
+}
+
 } /* namespace Cynara */
