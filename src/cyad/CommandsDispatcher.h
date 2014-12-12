@@ -43,6 +43,7 @@ public:
     virtual CyadExitCode execute(DeleteBucketCyadCommand &);
     virtual CyadExitCode execute(SetBucketCyadCommand &);
     virtual CyadExitCode execute(SetPolicyCyadCommand &);
+    virtual CyadExitCode execute(SetPolicyBulkCyadCommand &);
 
 private:
     const std::string helpMessage = "Usage:\n"
