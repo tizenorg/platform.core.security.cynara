@@ -28,7 +28,8 @@ namespace Cynara {
 enum CyadExitCode {
     Success = 0,
     UnknownError = 128, // Previous exit codes are reserved for cynara-admin
-    InvalidCommandline
+    InvalidCommandline,
+    InvalidInput
 };
 
 }  // namespace Cynara

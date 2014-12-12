@@ -23,8 +23,11 @@
 #include <cynara-error.h>
 #include <cynara-policy-types.h>
 
+#include <common/exceptions/BucketRecordCorruptedException.h>
+
 #include <cyad/AdminLibraryInitializationFailedException.h>
 #include <cyad/CynaraAdminPolicies.h>
+#include <cyad/AdminPolicyParser.h>
 #include <cyad/CyadExitCode.h>
 
 #include "CommandsDispatcher.h"
@@ -86,6 +89,19 @@ CyadExitCode CommandsDispatcher::execute(SetPolicyCyadCommand &result) {
 
     auto ret = m_adminApiWrapper.cynara_admin_set_policies(m_cynaraAdmin, policies.data());
     return static_cast<CyadExitCode>(ret);
+}
+
+CyadExitCode CommandsDispatcher::execute(SetPolicyBulkCyadCommand &result) {
+    auto input = m_io.openFile(result.filename());
+
+    try {
+        auto policies = Cynara::AdminPolicyParser::parse(input);
+        auto ret = m_adminApiWrapper.cynara_admin_set_policies(m_cynaraAdmin, policies.data());
+        return static_cast<CyadExitCode>(ret);
+    } catch (const BucketRecordCorruptedException &ex) {
+        m_io.cerr() << ex.message();
+        return CyadExitCode::InvalidInput;
+    }
 }
 
 } /* namespace Cynara */
