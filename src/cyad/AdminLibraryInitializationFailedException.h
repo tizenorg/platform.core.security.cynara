@@ -14,36 +14,32 @@
  *    limitations under the License.
  */
 /**
- * @file        src/cyad/CommandlineParser/CyadCommand.cpp
+ * @file        AdminLibraryInitializationFailedException.h
  * @author      Aleksander Zdyb <a.zdyb@samsung.com>
  * @version     1.0
- * @brief       A representation of Cyad command
+ * @brief       Exception thrown when cynara_admin_initialize() fails
  */
 
-#include <cyad/CommandsDispatcher.h>
+#ifndef SRC_CYAD_ADMINLIBRARYINITIALIZATIONFAILEDEXCEPTION_H_
+#define SRC_CYAD_ADMINLIBRARYINITIALIZATIONFAILEDEXCEPTION_H_
 
-#include "CyadCommand.h"
+#include <exception>
 
 namespace Cynara {
 
-CyadExitCode CyadCommand::run(CommandsDispatcher &dispatcher) {
-    return dispatcher.execute(*this);
-}
+class AdminLibraryInitializationFailedException: public std::exception {
+public:
+    AdminLibraryInitializationFailedException(int errorCode) : m_errorCode(errorCode) {}
+    virtual ~AdminLibraryInitializationFailedException() {};
 
-CyadExitCode ErrorCyadCommand::run(CommandsDispatcher &dispatcher) {
-    return dispatcher.execute(*this);
-}
+    int errorCode() const {
+        return m_errorCode;
+    }
 
-CyadExitCode HelpCyadCommand::run(CommandsDispatcher &dispatcher) {
-    return dispatcher.execute(*this);
-}
-
-CyadExitCode SetBucketCyadCommand::run(CommandsDispatcher &dispatcher) {
-    return dispatcher.execute(*this);
-}
-
-CyadExitCode DeleteBucketCyadCommand::run(CommandsDispatcher &dispatcher) {
-    return dispatcher.execute(*this);
-}
+private:
+    int m_errorCode;
+};
 
 } /* namespace Cynara */
+
+#endif /* SRC_CYAD_ADMINLIBRARYINITIALIZATIONFAILEDEXCEPTION_H_ */

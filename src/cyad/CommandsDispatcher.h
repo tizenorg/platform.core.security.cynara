@@ -40,12 +40,17 @@ public:
     virtual CyadExitCode execute(CyadCommand &);
     virtual CyadExitCode execute(HelpCyadCommand &);
     virtual CyadExitCode execute(ErrorCyadCommand &);
+    virtual CyadExitCode execute(DeleteBucketCyadCommand &);
+    virtual CyadExitCode execute(SetBucketCyadCommand &);
 
 private:
     const std::string helpMessage = "Usage:\n"
-                                    "--help    print help message";
+                                    "--help             print help message\n"
+                                    "--set-bucket       add bucket or set policy of existing one\n"
+                                    "--delete-bucket    delete existing bucket";
     BaseDispatcherIO &m_io;
     BaseAdminApiWrapper &m_adminApiWrapper;
+    struct cynara_admin *m_cynaraAdmin;
 };
 
 } /* namespace Cynara */
