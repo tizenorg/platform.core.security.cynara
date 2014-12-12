@@ -20,6 +20,10 @@
  * @brief       CommandsDispatcher class (implementation)
  */
 
+#include <cynara-error.h>
+#include <cynara-policy-types.h>
+
+#include <cyad/AdminLibraryInitializationFailedException.h>
 #include <cyad/CyadExitCode.h>
 
 #include "CommandsDispatcher.h"
@@ -27,9 +31,16 @@
 namespace Cynara {
 
 CommandsDispatcher::CommandsDispatcher(BaseDispatcherIO &io, BaseAdminApiWrapper &adminApiWrapper)
-    : m_io(io), m_adminApiWrapper(adminApiWrapper) {}
+    : m_io(io), m_adminApiWrapper(adminApiWrapper), m_cynaraAdmin(nullptr)
+{
+    auto ret = m_adminApiWrapper.cynara_admin_initialize(&m_cynaraAdmin);
+    if (ret != CYNARA_API_SUCCESS)
+        throw AdminLibraryInitializationFailedException(ret);
+}
 
-CommandsDispatcher::~CommandsDispatcher() {}
+CommandsDispatcher::~CommandsDispatcher() {
+    m_adminApiWrapper.cynara_admin_finish(m_cynaraAdmin);
+}
 
 CyadExitCode CommandsDispatcher::execute(CyadCommand &) {
     m_io.cout() << "Whatever you wanted, it's not implemented" << std::endl;
@@ -47,6 +58,23 @@ CyadExitCode CommandsDispatcher::execute(ErrorCyadCommand &result) {
 
     m_io.cout() << std::endl << helpMessage << std::endl;
     return CyadExitCode::InvalidCommandline;
+}
+
+CyadExitCode CommandsDispatcher::execute(DeleteBucketCyadCommand &result) {
+    auto ret = m_adminApiWrapper.cynara_admin_set_bucket(m_cynaraAdmin, result.bucketId().c_str(),
+                                                         CYNARA_ADMIN_DELETE, nullptr);
+    return static_cast<CyadExitCode>(ret);
+}
+
+CyadExitCode CommandsDispatcher::execute(SetBucketCyadCommand &result) {
+    const auto &policyResult = result.policyResult();
+    const char *metadata = policyResult.metadata().empty() ? nullptr
+                                                           : policyResult.metadata().c_str();
+    auto ret = m_adminApiWrapper.cynara_admin_set_bucket(m_cynaraAdmin,
+                                                         result.bucketId().c_str(),
+                                                         policyResult.policyType(), metadata);
+
+    return static_cast<CyadExitCode>(ret);
 }
 
 } /* namespace Cynara */
