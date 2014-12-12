@@ -24,6 +24,7 @@
 #include <cynara-policy-types.h>
 
 #include <cyad/AdminLibraryInitializationFailedException.h>
+#include <cyad/CynaraAdminPolicies.h>
 #include <cyad/CyadExitCode.h>
 
 #include "CommandsDispatcher.h"
@@ -74,6 +75,16 @@ CyadExitCode CommandsDispatcher::execute(SetBucketCyadCommand &result) {
                                                          result.bucketId().c_str(),
                                                          policyResult.policyType(), metadata);
 
+    return static_cast<CyadExitCode>(ret);
+}
+
+CyadExitCode CommandsDispatcher::execute(SetPolicyCyadCommand &result) {
+    CynaraAdminPolicies policies;
+
+    policies.add(result.bucketId(), result.policyResult(), result.policyKey());
+    policies.seal();
+
+    auto ret = m_adminApiWrapper.cynara_admin_set_policies(m_cynaraAdmin, policies.data());
     return static_cast<CyadExitCode>(ret);
 }
 

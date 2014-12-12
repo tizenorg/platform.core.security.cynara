@@ -46,4 +46,8 @@ CyadExitCode DeleteBucketCyadCommand::run(CommandsDispatcher &dispatcher) {
     return dispatcher.execute(*this);
 }
 
+CyadExitCode SetPolicyCyadCommand::run(CommandsDispatcher &dispatcher) {
+    return dispatcher.execute(*this);
+}
+
 } /* namespace Cynara */
