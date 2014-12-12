@@ -43,6 +43,7 @@ public:
     virtual CyadExitCode execute(DeleteBucketCyadCommand &);
     virtual CyadExitCode execute(SetBucketCyadCommand &);
     virtual CyadExitCode execute(SetPolicyCyadCommand &);
+    virtual CyadExitCode execute(SetPolicyBulkCyadCommand &);
 
 private:
     // TODO: Get argv[0] instead of hardcoded name
