@@ -42,6 +42,7 @@ public:
     virtual CyadExitCode execute(ErrorCyadCommand &);
     virtual CyadExitCode execute(DeleteBucketCyadCommand &);
     virtual CyadExitCode execute(SetBucketCyadCommand &);
+    virtual CyadExitCode execute(SetPolicyCyadCommand &);
 
 private:
     // TODO: Get argv[0] instead of hardcoded name
@@ -50,6 +51,8 @@ private:
                                     "  --set-bucket       add bucket or set policy"
                                                          " of existing one\n"
                                     "  --delete-bucket    delete existing bucket\n"
+                                    "\n"
+                                    "  --set-policy       add policy or update existing one\n"
                                     "\n"
                                     "  --help             print help message";
     BaseDispatcherIO &m_io;
