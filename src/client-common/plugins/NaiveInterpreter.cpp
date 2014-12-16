@@ -24,7 +24,9 @@
 
 namespace Cynara {
 
-    const std::vector<PolicyType> NaiveInterpreter::s_supportedTypes =
-    {PredefinedPolicyType::ALLOW, PredefinedPolicyType::DENY};
+    const std::vector<PolicyDescription> NaiveInterpreter::s_supportedPolicies = {
+            PolicyDescription(PredefinedPolicyType::ALLOW, "ALLOW"),
+            PolicyDescription(PredefinedPolicyType::DENY, "DENY")
+};
 
 }
