@@ -14,22 +14,23 @@
  *    limitations under the License.
  */
 /**
- * @file        src/common/request/ListRequest.cpp
+ * @file        src/common/request/EraseRequest.cpp
  * @author      Lukasz Wojciechowski <l.wojciechow@partner.samsung.com>
  * @version     1.0
- * @brief       This file implements policies list request class
+ * @brief       This file implements policies erase request class
  */
 
 #include <memory>
 
 #include <request/RequestTaker.h>
 
-#include "ListRequest.h"
+#include "EraseRequest.h"
 
 namespace Cynara {
 
-void ListRequest::execute(RequestPtr self, RequestTakerPtr taker, RequestContextPtr context) const {
-    taker->execute(context, std::dynamic_pointer_cast<ListRequest>(self));
+void EraseRequest::execute(RequestPtr self, RequestTakerPtr taker,
+                           RequestContextPtr context) const {
+    taker->execute(context, std::dynamic_pointer_cast<EraseRequest>(self));
 }
 
 } // namespace Cynara

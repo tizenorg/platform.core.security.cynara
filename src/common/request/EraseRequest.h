@@ -14,14 +14,14 @@
  *    limitations under the License.
  */
 /**
- * @file        src/common/request/ListRequest.h
+ * @file        src/common/request/EraseRequest.h
  * @author      Lukasz Wojciechowski <l.wojciechow@partner.samsung.com>
  * @version     1.0
- * @brief       This file defines policies list request class
+ * @brief       This file defines policies erase request class
  */
 
-#ifndef SRC_COMMON_REQUEST_LISTREQUEST_H_
-#define SRC_COMMON_REQUEST_LISTREQUEST_H_
+#ifndef SRC_COMMON_REQUEST_ERASEREQUEST_H_
+#define SRC_COMMON_REQUEST_ERASEREQUEST_H_
 
 #include <types/PolicyBucketId.h>
 #include <types/PolicyKey.h>
@@ -31,21 +31,22 @@
 
 namespace Cynara {
 
-class ListRequest : public Request {
-private:
-    PolicyBucketId m_bucket;
-    PolicyKey m_filter;
-
+class EraseRequest : public Request {
 public:
-    ListRequest(const PolicyBucketId &bucket, const PolicyKey &filter,
-                ProtocolFrameSequenceNumber sequenceNumber) :
-        Request(sequenceNumber), m_bucket(bucket), m_filter(filter) {
+    EraseRequest(const PolicyBucketId &startBucket, bool recursive, const PolicyKey &filter,
+                 ProtocolFrameSequenceNumber sequenceNumber) :
+        Request(sequenceNumber), m_startBucket(startBucket), m_recursive(recursive),
+        m_filter(filter) {
     }
 
-    virtual ~ListRequest() {};
+    virtual ~EraseRequest() {};
 
-    const PolicyBucketId &bucket(void) const {
-        return m_bucket;
+    const PolicyBucketId &startBucket(void) const {
+        return m_startBucket;
+    }
+
+    bool recursive(void) const {
+        return m_recursive;
     }
 
     const PolicyKey &filter(void) const {
@@ -53,8 +54,13 @@ public:
     }
 
     virtual void execute(RequestPtr self, RequestTakerPtr taker, RequestContextPtr context) const;
+
+private:
+    PolicyBucketId m_startBucket;
+    bool m_recursive;
+    PolicyKey m_filter;
 };
 
 } // namespace Cynara
 
-#endif /* SRC_COMMON_REQUEST_LISTREQUEST_H_ */
+#endif /* SRC_COMMON_REQUEST_ERASEREQUEST_H_ */
