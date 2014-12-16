@@ -20,6 +20,9 @@
  * @brief       A commandline tool for managing Cynara's database
  */
 
-int main(int, char **) {
-    return 0;
+#include <cyad/Cyad.h>
+
+int main(int argc, char **argv) {
+    Cynara::Cyad cyad(argc, argv);
+    return cyad.run();
 }
