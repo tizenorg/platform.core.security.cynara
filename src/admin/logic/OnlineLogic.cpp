@@ -14,10 +14,10 @@
  *  limitations under the License
  */
 /**
- * @file        src/admin/logic/Logic.cpp
+ * @file        src/admin/logic/OnlineLogic.cpp
  * @author      Lukasz Wojciechowski <l.wojciechow@partner.samsung.com>
  * @version     1.0
- * @brief       This file contains implementation of Logic class - main libcynara-admin class
+ * @brief       This file contains implementation of online version of Logic class
  */
 
 #include <cinttypes>
@@ -44,11 +44,11 @@
 #include <sockets/SocketClient.h>
 #include <types/ProtocolFields.h>
 
-#include "Logic.h"
+#include "OnlineLogic.h"
 
 namespace Cynara {
 
-Logic::Logic() {
+OnlineLogic::OnlineLogic() {
     m_socketClient = std::make_shared<SocketClient>(PathConfig::SocketPath::admin,
                                                     std::make_shared<ProtocolAdmin>());
 }
@@ -58,12 +58,12 @@ ProtocolFrameSequenceNumber generateSequenceNumber(void) {
     return ++sequenceNumber;
 }
 
-bool Logic::ensureConnection(void) {
+bool OnlineLogic::ensureConnection(void) {
     return m_socketClient->isConnected() || m_socketClient->connect();
 }
 
 template<typename T, typename... Args>
-int Logic::askCynaraAndInterpreteCodeResponse(Args... args) {
+int OnlineLogic::askCynaraAndInterpreteCodeResponse(Args... args) {
     if (!ensureConnection()) {
         LOGE("Cannot connect to cynara. Service not available.");
         return CYNARA_API_SERVICE_NOT_AVAILABLE;
@@ -108,22 +108,22 @@ int Logic::askCynaraAndInterpreteCodeResponse(Args... args) {
     }
 }
 
-int Logic::setPolicies(const ApiInterface::PoliciesByBucket &insertOrUpdate,
-                       const ApiInterface::KeysByBucket &remove) {
+int OnlineLogic::setPolicies(const ApiInterface::PoliciesByBucket &insertOrUpdate,
+                             const ApiInterface::KeysByBucket &remove) {
     return askCynaraAndInterpreteCodeResponse<SetPoliciesRequest>(insertOrUpdate, remove);
 }
 
-int Logic::insertOrUpdateBucket(const PolicyBucketId &bucket,
-                                const PolicyResult &policyResult) {
+int OnlineLogic::insertOrUpdateBucket(const PolicyBucketId &bucket,
+                                      const PolicyResult &policyResult) {
     return askCynaraAndInterpreteCodeResponse<InsertOrUpdateBucketRequest>(bucket, policyResult);
 }
 
-int Logic::removeBucket(const PolicyBucketId &bucket) {
+int OnlineLogic::removeBucket(const PolicyBucketId &bucket) {
     return askCynaraAndInterpreteCodeResponse<RemoveBucketRequest>(bucket);
 }
 
-int Logic::adminCheck(const PolicyBucketId &startBucket, bool recursive, const PolicyKey &key,
-                      PolicyResult &result) {
+int OnlineLogic::adminCheck(const PolicyBucketId &startBucket, bool recursive, const PolicyKey &key,
+                            PolicyResult &result) {
     if (!ensureConnection()) {
         LOGE("Cannot connect to cynara. Service not available.");
         return CYNARA_API_SERVICE_NOT_AVAILABLE;
@@ -162,7 +162,7 @@ int Logic::adminCheck(const PolicyBucketId &startBucket, bool recursive, const P
     return CYNARA_API_SUCCESS;
 }
 
-int Logic::listPolicies(const PolicyBucketId &bucket, const PolicyKey &filter,
+int OnlineLogic::listPolicies(const PolicyBucketId &bucket, const PolicyKey &filter,
                         std::vector<Policy> &policies) {
     if (!ensureConnection()) {
         LOGE("Cannot connect to cynara. Service not available.");

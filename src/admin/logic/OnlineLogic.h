@@ -14,14 +14,14 @@
  *  limitations under the License
  */
 /**
- * @file        src/admin/logic/Logic.h
+ * @file        src/admin/logic/OnlineLogic.h
  * @author      Lukasz Wojciechowski <l.wojciechow@partner.samsung.com>
  * @version     1.0
- * @brief       This file contains definition of Logic class - main libcynara-admin class
+ * @brief       This file contains definition of online version of Logic class
  */
 
-#ifndef SRC_ADMIN_LOGIC_LOGIC_H_
-#define SRC_ADMIN_LOGIC_LOGIC_H_
+#ifndef SRC_ADMIN_LOGIC_ONLINELOGIC_H_
+#define SRC_ADMIN_LOGIC_ONLINELOGIC_H_
 
 #include <string>
 
@@ -31,7 +31,7 @@
 
 namespace Cynara {
 
-class Logic : public ApiInterface {
+class OnlineLogic : public ApiInterface {
 private:
     SocketClientPtr m_socketClient;
 
@@ -40,8 +40,8 @@ private:
     int askCynaraAndInterpreteCodeResponse(Args... args);
 
 public:
-    Logic();
-    virtual ~Logic() {};
+    OnlineLogic();
+    virtual ~OnlineLogic() {};
 
     virtual int setPolicies(const ApiInterface::PoliciesByBucket &insertOrUpdate,
                             const ApiInterface::KeysByBucket &remove);
@@ -56,4 +56,4 @@ public:
 
 } // namespace Cynara
 
-#endif /* SRC_ADMIN_LOGIC_LOGIC_H_ */
+#endif /* SRC_ADMIN_LOGIC_ONLINELOGIC_H_ */
