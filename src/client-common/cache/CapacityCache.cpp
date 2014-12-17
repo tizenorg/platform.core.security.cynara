@@ -47,18 +47,9 @@ int CapacityCache::get(const ClientSession &session, const PolicyKey &key) {
         auto &cachedValue = resultIt->second;
         auto &policyResult = std::get<0>(cachedValue);
 
-        ClientPluginInterfacePtr plugin;
-        auto pluginIt = m_plugins.find(policyResult.policyType());
-        if (pluginIt != m_plugins.end()) {
-            plugin = pluginIt->second;
-        } else {
-            plugin = std::dynamic_pointer_cast<ClientPluginInterface>(
-                              m_pluginManager.getPlugin(policyResult.policyType()));
-            if (!plugin) {
-                LOGE("No plugin registered for given PolicyType : %" PRIu16,
-                        policyResult.policyType());
-                return CYNARA_API_ACCESS_DENIED;
-            }
+        ClientPluginInterfacePtr plugin = findPlugin(policyResult.policyType());
+        if (!plugin) {
+            return CYNARA_API_ACCESS_DENIED;
         }
 
         //Is it still usable?
@@ -117,15 +108,10 @@ int CapacityCache::update(const ClientSession &session,
                           const PolicyKey &key,
                           const PolicyResult &result) {
 
-    auto pluginIt = m_plugins.find(result.policyType());
-
-    //No registered plugin for returned type of policy
-    if (pluginIt == m_plugins.end()) {
-        LOGE("No registered plugin for given PolicyType: %" PRIu16,
-                result.policyType());
+    ClientPluginInterfacePtr plugin = findPlugin(result.policyType());
+    if (!plugin) {
         return CYNARA_API_ACCESS_DENIED;
     }
-    auto plugin = pluginIt->second;
 
     PolicyResult storedResult = result;
 
@@ -158,6 +144,23 @@ int CapacityCache::update(const ClientSession &session,
         }
     }
     return plugin->toResult(session, storedResult);
+}
+
+ClientPluginInterfacePtr CapacityCache::findPlugin(PolicyType policyType) {
+    ClientPluginInterfacePtr plugin;
+
+    auto pluginIt = m_plugins.find(policyType);
+    if (pluginIt != m_plugins.end()) {
+        plugin = pluginIt->second;
+    } else {
+        plugin = std::dynamic_pointer_cast<ClientPluginInterface>(
+                                                m_pluginManager.getPlugin(policyType));
+        if (!plugin) {
+            LOGE("No plugin registered for given PolicyType: [%" PRIu16 "]", policyType);
+        }
+    }
+
+    return plugin;
 }
 
 } // namespace Cynara
