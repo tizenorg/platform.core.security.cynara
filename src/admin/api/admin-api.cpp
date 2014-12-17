@@ -60,10 +60,10 @@ int cynara_admin_initialize(struct cynara_admin **pp_cynara_admin) {
     if (!pp_cynara_admin)
         return CYNARA_API_INVALID_PARAM;
 
+    init_log();
+
     return Cynara::tryCatch([&]() {
         *pp_cynara_admin = new cynara_admin(new Cynara::Logic);
-
-        init_log();
 
         LOGD("Cynara admin initialized");
 
