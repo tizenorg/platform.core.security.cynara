@@ -49,6 +49,18 @@ struct cynara_admin_policy {
 };
 
 /**
+ * \name cynara_admin_policy_descr
+ * describes policy of type given with result
+ * result - result of policy to describe
+ * name - name of given policy result
+ */
+
+struct cynara_admin_policy_descr {
+    int result;
+    char *name;
+};
+
+/**
  * \name Wildcard
  * definition of WILDCARD, that can replace client, user or privilege name.
  * WILDCARD matches any string during check procedure from libcynara-client.
