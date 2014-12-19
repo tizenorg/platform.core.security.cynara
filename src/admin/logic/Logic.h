@@ -52,6 +52,7 @@ public:
                            const PolicyKey &key, PolicyResult &result);
     virtual int listPolicies(const PolicyBucketId &bucket, const PolicyKey &filter,
                              std::vector<Policy> &policies);
+    virtual int listDescriptions(std::vector<PolicyDescription> &descriptions);
 };
 
 } // namespace Cynara

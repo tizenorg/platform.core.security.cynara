@@ -302,6 +302,53 @@ int cynara_admin_check(struct cynara_admin *p_cynara_admin,
 int cynara_admin_list_policies(struct cynara_admin *p_cynara_admin, const char *bucket,
                                const char *client, const char *user, const char *privilege,
                                struct cynara_admin_policy ***policies);
+
+/**
+ * \par Description:
+ * Lists available cynara policy results with name description.
+ *
+ * \par Purpose:
+ * This API should be used to list all available policy results
+ * (also from cynara extension plugins).
+ *
+ * \par Typical use case:
+ * Gathering information about possible policy results and presenting them to user (using name
+ * attribute of description). Result can be passed to cynara_admin_set_policies().
+ *
+ * \par Method of function operation:
+ * Policies are based on policy result number. Policies can be built in (like primitives: ALLOW,
+ * DENY...) or can be loaded from cynara plugin extensions. This API gives possibility of checking,
+ * which of these result exist in current cynara server and can be presented to user in a readable
+ * way (of course additional translation may be needed).
+ *
+ * Descriptions of existing policy results are returned as NULL terminated array of pointers of
+ * cynara_admin_policy_descr structures.
+ *
+ * Example output could be {{0, "Deny"}, {11, "AskUser"}, {65535, "Allow"}}
+ *
+ * In case of successful call CYNARA_API_SUCCESS is returned and *descriptions points
+ * to newly created array of pointers to struct cynara_admin_policy_descr. It is responsibility 
+ * of caller to release:
+ * * all non-NULL char* pointers in all cynara_admin_policy_descr structures;
+ * * all pointers to cynara_admin_policy_descr structures kept in *descriptions array;
+ * * *descriptions array itself.
+ * All allocation made by cynara admin library are done with malloc(3) function and must be released
+ * with free(3) function.
+ *
+ * \par Sync (or) Async:
+ * This is a synchronous API.
+ *
+ * \param[in] p_cynara_admin cynara admin structure.
+ * \param[out] descriptions placeholder for NUL terminater array of pointers of
+ *             description structures.
+
+ * \return CYNARA_API_SUCCESS on success, or error code otherwise.
+ *
+ * \brief Lists available policies with their name description.
+ */
+int cynara_admin_list_policies_descriptions(struct cynara_admin *p_cynara_admin,
+                                            struct cynara_admin_policy_descr ***descriptions);
+
 #ifdef __cplusplus
 }
 #endif

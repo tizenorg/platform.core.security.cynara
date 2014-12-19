@@ -198,4 +198,9 @@ int Logic::listPolicies(const PolicyBucketId &bucket, const PolicyKey &filter,
     return CYNARA_API_SUCCESS;
 }
 
+int Logic::listDescriptions(std::vector<PolicyDescription> &descriptions) {
+    (void) descriptions;
+    return CYNARA_API_SUCCESS;
+}
+
 } // namespace Cynara
