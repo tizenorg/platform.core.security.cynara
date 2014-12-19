@@ -29,6 +29,7 @@
 
 #include <types/Policy.h>
 #include <types/PolicyBucketId.h>
+#include <types/PolicyDescription.h>
 #include <types/PolicyKey.h>
 #include <types/PolicyResult.h>
 
@@ -54,6 +55,7 @@ public:
                            const PolicyKey &key, PolicyResult &result) = 0;
     virtual int listPolicies(const PolicyBucketId &bucket, const PolicyKey &filter,
                              std::vector<Policy> &policies) = 0;
+    virtual int listDescriptions(std::vector<PolicyDescription> &descriptions) = 0;
 
 };
 
