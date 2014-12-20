@@ -17,9 +17,12 @@
  * @file        src/cyad/main.cpp
  * @author      Aleksander Zdyb <a.zdyb@samsung.com>
  * @version     1.0
- * @brief       A commandline tool for managing Cynara's database
+ * @brief       A command-line tool for managing Cynara's database
  */
 
-int main(int, char **) {
-    return 0;
+#include <cyad/Cyad.h>
+
+int main(int argc, char **argv) {
+    Cynara::Cyad cyad(argc, argv);
+    return cyad.run();
 }
