@@ -16,6 +16,7 @@
 /**
  * @file        src/admin/logic/OnlineLogic.cpp
  * @author      Lukasz Wojciechowski <l.wojciechow@partner.samsung.com>
+ * @author      Aleksander Zdyb <a.zdyb@samsung.com>
  * @version     1.0
  * @brief       This file contains implementation of online version of Logic class
  */
