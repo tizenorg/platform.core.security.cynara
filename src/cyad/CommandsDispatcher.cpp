@@ -21,6 +21,7 @@
  */
 
 #include <cynara-error.h>
+#include <cynara-policy-types.h>
 
 #include <cyad/AdminLibraryInitializationFailedException.h>
 #include <cyad/CyadExitCode.h>
@@ -57,6 +58,23 @@ CyadExitCode CommandsDispatcher::execute(ErrorCyadCommand &result) {
 
     m_io.cout() << std::endl << helpMessage << std::endl;
     return CyadExitCode::InvalidCommandline;
+}
+
+CyadExitCode CommandsDispatcher::execute(DeleteBucketCyadCommand &result) {
+    auto ret = m_adminApiWrapper.cynara_admin_set_bucket(m_cynaraAdmin, result.bucketId().c_str(),
+                                                         CYNARA_ADMIN_DELETE, nullptr);
+    return static_cast<CyadExitCode>(ret);
+}
+
+CyadExitCode CommandsDispatcher::execute(SetBucketCyadCommand &result) {
+    const auto &policyResult = result.policyResult();
+    const char *metadata = policyResult.metadata().empty() ? nullptr
+                                                           : policyResult.metadata().c_str();
+    auto ret = m_adminApiWrapper.cynara_admin_set_bucket(m_cynaraAdmin,
+                                                         result.bucketId().c_str(),
+                                                         policyResult.policyType(), metadata);
+
+    return static_cast<CyadExitCode>(ret);
 }
 
 } /* namespace Cynara */

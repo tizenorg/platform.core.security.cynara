@@ -40,12 +40,18 @@ public:
     virtual CyadExitCode execute(CyadCommand &);
     virtual CyadExitCode execute(HelpCyadCommand &);
     virtual CyadExitCode execute(ErrorCyadCommand &);
+    virtual CyadExitCode execute(DeleteBucketCyadCommand &);
+    virtual CyadExitCode execute(SetBucketCyadCommand &);
 
 private:
     // TODO: Get argv[0] instead of hardcoded name
     const std::string helpMessage = "Usage: cyad [OPTIONS]\n\n"
                                     "Options:\n"
-                                    "  --help    print help message";
+                                    "  --set-bucket       add bucket or set policy"
+                                                         " of existing one\n"
+                                    "  --delete-bucket    delete existing bucket\n"
+                                    "\n"
+                                    "  --help             print help message";
     BaseDispatcherIO &m_io;
     BaseAdminApiWrapper &m_adminApiWrapper;
     struct cynara_admin *m_cynaraAdmin;

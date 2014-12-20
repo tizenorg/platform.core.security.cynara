@@ -38,4 +38,12 @@ CyadExitCode HelpCyadCommand::run(CommandsDispatcher &dispatcher) {
     return dispatcher.execute(*this);
 }
 
+CyadExitCode SetBucketCyadCommand::run(CommandsDispatcher &dispatcher) {
+    return dispatcher.execute(*this);
+}
+
+CyadExitCode DeleteBucketCyadCommand::run(CommandsDispatcher &dispatcher) {
+    return dispatcher.execute(*this);
+}
+
 } /* namespace Cynara */
