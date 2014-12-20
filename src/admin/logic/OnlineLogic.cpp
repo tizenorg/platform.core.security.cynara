@@ -14,10 +14,11 @@
  *  limitations under the License
  */
 /**
- * @file        src/admin/logic/Logic.cpp
+ * @file        src/admin/logic/OnlineLogic.cpp
  * @author      Lukasz Wojciechowski <l.wojciechow@partner.samsung.com>
+ * @author      Aleksander Zdyb <a.zdyb@samsung.com>
  * @version     1.0
- * @brief       This file contains implementation of Logic class - main libcynara-admin class
+ * @brief       This file contains implementation of online version of Logic class
  */
 
 #include <cinttypes>
@@ -109,12 +110,12 @@ int OnlineLogic::askCynaraAndInterpreteCodeResponse(Args... args) {
 }
 
 int OnlineLogic::setPolicies(const ApiInterface::PoliciesByBucket &insertOrUpdate,
-                       const ApiInterface::KeysByBucket &remove) {
+                             const ApiInterface::KeysByBucket &remove) {
     return askCynaraAndInterpreteCodeResponse<SetPoliciesRequest>(insertOrUpdate, remove);
 }
 
 int OnlineLogic::insertOrUpdateBucket(const PolicyBucketId &bucket,
-                                const PolicyResult &policyResult) {
+                                      const PolicyResult &policyResult) {
     return askCynaraAndInterpreteCodeResponse<InsertOrUpdateBucketRequest>(bucket, policyResult);
 }
 
@@ -123,7 +124,7 @@ int OnlineLogic::removeBucket(const PolicyBucketId &bucket) {
 }
 
 int OnlineLogic::adminCheck(const PolicyBucketId &startBucket, bool recursive, const PolicyKey &key,
-                      PolicyResult &result) {
+                            PolicyResult &result) {
     if (!ensureConnection()) {
         LOGE("Cannot connect to cynara. Service not available.");
         return CYNARA_API_SERVICE_NOT_AVAILABLE;

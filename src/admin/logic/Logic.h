@@ -16,30 +16,28 @@
 /**
  * @file        src/admin/logic/Logic.h
  * @author      Lukasz Wojciechowski <l.wojciechow@partner.samsung.com>
+ * @author      Aleksander Zdyb <a.zdyb@samsung.com>
  * @version     1.0
  * @brief       This file contains definition of Logic class - main libcynara-admin class
  */
 
-#ifndef SRC_ADMIN_LOGIC_ONLINELOGIC_H_
-#define SRC_ADMIN_LOGIC_ONLINELOGIC_H_
+#ifndef SRC_ADMIN_LOGIC_LOGIC_H_
+#define SRC_ADMIN_LOGIC_LOGIC_H_
 
-#include <sockets/SocketClient.h>
+#include <memory>
 
 #include <api/ApiInterface.h>
 
 namespace Cynara {
 
-class OnlineLogic : public ApiInterface {
-private:
-    SocketClientPtr m_socketClient;
+class OnlineLogic;
 
-    bool ensureConnection(void);
-    template<typename T, typename... Args>
-    int askCynaraAndInterpreteCodeResponse(Args... args);
+class Logic : public ApiInterface {
+
 
 public:
-    OnlineLogic();
-    virtual ~OnlineLogic() {};
+    Logic();
+    virtual ~Logic() {}
 
     virtual int setPolicies(const ApiInterface::PoliciesByBucket &insertOrUpdate,
                             const ApiInterface::KeysByBucket &remove);
@@ -50,8 +48,14 @@ public:
                            const PolicyKey &key, PolicyResult &result);
     virtual int listPolicies(const PolicyBucketId &bucket, const PolicyKey &filter,
                              std::vector<Policy> &policies);
+
+protected:
+    std::shared_ptr<ApiInterface> api(void);
+
+private:
+    std::shared_ptr<OnlineLogic> m_onlineLogic;
 };
 
 } // namespace Cynara
 
-#endif /* SRC_ADMIN_LOGIC_ONLINELOGIC_H_ */
+#endif /* SRC_ADMIN_LOGIC_LOGIC_H_ */
