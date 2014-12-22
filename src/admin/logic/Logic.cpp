@@ -63,8 +63,8 @@ bool Logic::ensureConnection(void) {
     return m_socketClient->isConnected() || m_socketClient->connect();
 }
 
-template<typename T, typename... Args>
-int Logic::askCynaraAndInterpreteCodeResponse(Args... args) {
+template<typename Req, typename Res, typename... ReqArgs>
+int Logic::getResponse(std::shared_ptr<Res> &retResponse, ReqArgs... args) {
     if (!ensureConnection()) {
         LOGE("Cannot connect to cynara. Service not available.");
         return CYNARA_API_SERVICE_NOT_AVAILABLE;
@@ -72,24 +72,25 @@ int Logic::askCynaraAndInterpreteCodeResponse(Args... args) {
 
     ProtocolFrameSequenceNumber sequenceNumber = generateSequenceNumber();
 
-    //Ask cynara service
-    CodeResponsePtr codeResponse;
-
-    RequestPtr request = std::make_shared<T>(args..., sequenceNumber);
+    RequestPtr request = std::make_shared<Req>(args..., sequenceNumber);
     ResponsePtr response;
     while (!(response = m_socketClient->askCynaraServer(request))) {
         if (!m_socketClient->connect())
             return CYNARA_API_SERVICE_NOT_AVAILABLE;
     }
 
-    codeResponse = std::dynamic_pointer_cast<CodeResponse>(response);
-    if (!codeResponse) {
-        LOGC("Critical error. Casting Response to CodeResponse failed.");
+    retResponse = std::dynamic_pointer_cast<Res>(response);
+    if (!retResponse) {
+        LOGC("Critical error. Casting Response failed.");
         return CYNARA_API_UNKNOWN_ERROR;
     }
 
-    LOGD("codeResponse: code [%" PRIu16 "]", codeResponse->m_code);
-    switch (codeResponse->m_code) {
+    return CYNARA_API_SUCCESS;
+}
+
+int interpretCodeResponse(const CodeResponse::Code &code) {
+    LOGD("codeResponse: code [%" PRIu16 "]", code);
+    switch (code) {
         case CodeResponse::Code::OK:
             LOGI("Cynara command finished successfully.");
             return CYNARA_API_SUCCESS;
@@ -104,49 +105,49 @@ int Logic::askCynaraAndInterpreteCodeResponse(Args... args) {
             return CYNARA_API_OPERATION_FAILED;
         default:
             LOGE("Unexpected response code from server: [%d]",
-                 static_cast<int>(codeResponse->m_code));
+                 static_cast<int>(code));
             return CYNARA_API_UNKNOWN_ERROR;
     }
 }
 
 int Logic::setPolicies(const ApiInterface::PoliciesByBucket &insertOrUpdate,
                        const ApiInterface::KeysByBucket &remove) {
-    return askCynaraAndInterpreteCodeResponse<SetPoliciesRequest>(insertOrUpdate, remove);
+    CodeResponsePtr codeResponse;
+    int ret = getResponse<SetPoliciesRequest>(codeResponse, insertOrUpdate, remove);
+    if (ret != CYNARA_API_SUCCESS) {
+        return ret;
+    }
+
+    return interpretCodeResponse(codeResponse->m_code);
 }
 
 int Logic::insertOrUpdateBucket(const PolicyBucketId &bucket,
                                 const PolicyResult &policyResult) {
-    return askCynaraAndInterpreteCodeResponse<InsertOrUpdateBucketRequest>(bucket, policyResult);
+    CodeResponsePtr codeResponse;
+    int ret = getResponse<InsertOrUpdateBucketRequest>(codeResponse, bucket, policyResult);
+    if (ret != CYNARA_API_SUCCESS) {
+        return ret;
+    }
+
+    return interpretCodeResponse(codeResponse->m_code);
 }
 
 int Logic::removeBucket(const PolicyBucketId &bucket) {
-    return askCynaraAndInterpreteCodeResponse<RemoveBucketRequest>(bucket);
+    CodeResponsePtr codeResponse;
+    int ret = getResponse<RemoveBucketRequest>(codeResponse, bucket);
+    if (ret != CYNARA_API_SUCCESS) {
+        return ret;
+    }
+
+    return interpretCodeResponse(codeResponse->m_code);
 }
 
 int Logic::adminCheck(const PolicyBucketId &startBucket, bool recursive, const PolicyKey &key,
                       PolicyResult &result) {
-    if (!ensureConnection()) {
-        LOGE("Cannot connect to cynara. Service not available.");
-        return CYNARA_API_SERVICE_NOT_AVAILABLE;
-    }
-
-    ProtocolFrameSequenceNumber sequenceNumber = generateSequenceNumber();
-
-    //Ask cynara service
     AdminCheckResponsePtr adminCheckResponse;
-
-    RequestPtr request = std::make_shared<AdminCheckRequest>(key, startBucket, recursive,
-                                                             sequenceNumber);
-    ResponsePtr response;
-    while (!(response = m_socketClient->askCynaraServer(request))) {
-        if (!m_socketClient->connect())
-            return CYNARA_API_SERVICE_NOT_AVAILABLE;
-    }
-
-    adminCheckResponse = std::dynamic_pointer_cast<AdminCheckResponse>(response);
-    if (!adminCheckResponse) {
-        LOGC("Casting Response to AdminCheckResponse failed.");
-        return CYNARA_API_UNKNOWN_ERROR;
+    int ret = getResponse<AdminCheckRequest>(adminCheckResponse, key, startBucket, recursive);
+    if (ret != CYNARA_API_SUCCESS) {
+        return ret;
     }
 
     LOGD("AdminCheckResponse: policyType [%" PRIu16 "], metadata <%s>, bucketValid [%d]",
@@ -165,27 +166,10 @@ int Logic::adminCheck(const PolicyBucketId &startBucket, bool recursive, const P
 
 int Logic::listPolicies(const PolicyBucketId &bucket, const PolicyKey &filter,
                         std::vector<Policy> &policies) {
-    if (!ensureConnection()) {
-        LOGE("Cannot connect to cynara. Service not available.");
-        return CYNARA_API_SERVICE_NOT_AVAILABLE;
-    }
-
-    ProtocolFrameSequenceNumber sequenceNumber = generateSequenceNumber();
-
-    //Ask cynara service
     ListResponsePtr listResponse;
-
-    RequestPtr request = std::make_shared<ListRequest>(bucket, filter, sequenceNumber);
-    ResponsePtr response;
-    while (!(response = m_socketClient->askCynaraServer(request))) {
-        if (!m_socketClient->connect())
-            return CYNARA_API_SERVICE_NOT_AVAILABLE;
-    }
-
-    listResponse = std::dynamic_pointer_cast<ListResponse>(response);
-    if (!listResponse) {
-        LOGC("Casting Response to ListResponse failed.");
-        return CYNARA_API_UNKNOWN_ERROR;
+    int ret = getResponse<ListRequest>(listResponse, bucket, filter);
+    if (ret != CYNARA_API_SUCCESS) {
+        return ret;
     }
 
     LOGD("listResponse: number of policies [%zu], bucketValid [%d]",
@@ -201,7 +185,19 @@ int Logic::listPolicies(const PolicyBucketId &bucket, const PolicyKey &filter,
 
 int Logic::erasePolicies(const PolicyBucketId &startBucket, bool recursive,
                          const PolicyKey &filter) {
-    return askCynaraAndInterpreteCodeResponse<EraseRequest>(startBucket, recursive, filter);
+    ResponsePtr response;
+    int ret = getResponse<EraseRequest>(response, startBucket, recursive, filter);
+    if (ret != CYNARA_API_SUCCESS) {
+        return ret;
+    }
+
+    auto codeResponse = std::dynamic_pointer_cast<CodeResponse>(response);
+    if (!codeResponse) {
+        LOGC("Critical error. Casting Response to CodeResponse failed.");
+        return CYNARA_API_UNKNOWN_ERROR;
+    }
+
+    return interpretCodeResponse(codeResponse->m_code);
 }
 
 int Logic::listDescriptions(std::vector<PolicyDescription> &descriptions) {
