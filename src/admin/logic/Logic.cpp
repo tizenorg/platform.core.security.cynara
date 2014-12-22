@@ -32,6 +32,7 @@
 #include <protocol/Protocol.h>
 #include <protocol/ProtocolAdmin.h>
 #include <request/AdminCheckRequest.h>
+#include <request/DescriptionListRequest.h>
 #include <request/EraseRequest.h>
 #include <request/InsertOrUpdateBucketRequest.h>
 #include <request/ListRequest.h>
@@ -40,6 +41,7 @@
 #include <request/SetPoliciesRequest.h>
 #include <response/AdminCheckResponse.h>
 #include <response/CodeResponse.h>
+#include <response/DescriptionListResponse.h>
 #include <response/ListResponse.h>
 #include <response/pointers.h>
 #include <sockets/SocketClient.h>
@@ -201,7 +203,16 @@ int Logic::erasePolicies(const PolicyBucketId &startBucket, bool recursive,
 }
 
 int Logic::listDescriptions(std::vector<PolicyDescription> &descriptions) {
-    (void) descriptions;
+    DescriptionListResponsePtr descrResponse;
+    int ret = getResponse<DescriptionListRequest>(descrResponse);
+    if (ret != CYNARA_API_SUCCESS) {
+        return ret;
+    }
+
+    LOGD("descriptionListResponse: number of plugin descriptions [%zu]",
+         descrResponse->descriptions().size());
+
+    descriptions = descrResponse->descriptions();
     return CYNARA_API_SUCCESS;
 }
 
