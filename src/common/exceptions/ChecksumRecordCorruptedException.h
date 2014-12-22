@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014-2015 Samsung Electronics Co., Ltd All Rights Reserved
+ * Copyright (c) 2015 Samsung Electronics Co., Ltd All Rights Reserved
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -14,13 +14,13 @@
  *    limitations under the License.
  */
 /**
- * @file        src/common/exceptions/BucketRecordCorruptedException.h
- * @author      Aleksander Zdyb <a.zdyb@samsung.com>
+ * @file        src/common/exceptions/ChecksumRecordCorruptedException.h
+ * @author      Pawel Wieczorek <p.wieczorek2@samsung.com>
  * @version     1.0
- * @brief       Implementation of BucketRecordCorruptedException
+ * @brief       Implementation of ChecksumRecordCorruptedException
  */
-#ifndef SRC_COMMON_EXCEPTIONS_BUCKETRECORDCORRUPTEDEXCEPTION_H_
-#define SRC_COMMON_EXCEPTIONS_BUCKETRECORDCORRUPTEDEXCEPTION_H_
+#ifndef SRC_COMMON_EXCEPTIONS_CHECKSUMRECORDCORRUPTEDEXCEPTION_H_
+#define SRC_COMMON_EXCEPTIONS_CHECKSUMRECORDCORRUPTEDEXCEPTION_H_
 
 #include <string>
 
@@ -28,31 +28,24 @@
 
 namespace Cynara {
 
-class BucketRecordCorruptedException : public RecordCorruptedException {
+class ChecksumRecordCorruptedException : public RecordCorruptedException {
 public:
-    BucketRecordCorruptedException() = delete;
-    virtual ~BucketRecordCorruptedException() {};
+    ChecksumRecordCorruptedException() = delete;
+    virtual ~ChecksumRecordCorruptedException() {};
 
-    BucketRecordCorruptedException(const std::string &line)
+    ChecksumRecordCorruptedException(const std::string &line)
         : RecordCorruptedException(line) {}
 
-    BucketRecordCorruptedException withLineNumber(const size_t &lineNumber) const {
-        BucketRecordCorruptedException copy(*this);
+    ChecksumRecordCorruptedException withLineNumber(const size_t &lineNumber) const {
+        ChecksumRecordCorruptedException copy(*this);
         copy.m_lineNumber = lineNumber;
-        copy.m_message.clear();
-        return copy;
-    }
-
-    BucketRecordCorruptedException withFilename(const std::string &filename) const {
-        BucketRecordCorruptedException copy(*this);
-        copy.m_filename = filename;
         copy.m_message.clear();
         return copy;
     }
 
     virtual const std::string &message(void) const {
         if (m_message.empty()) {
-            m_message = "Bucket record corrupted at"
+            m_message = "Checksum record corrupted at"
                 + formatedFilename()
                 + formatedLineNumber()
                 + ": <" + slicedLine() + ">";
@@ -63,4 +56,4 @@ public:
 
 } /* namespace Cynara */
 
-#endif /* SRC_COMMON_EXCEPTIONS_BUCKETRECORDCORRUPTEDEXCEPTION_H_ */
+#endif /* SRC_COMMON_EXCEPTIONS_CHECKSUMRECORDCORRUPTEDEXCEPTION_H_ */
