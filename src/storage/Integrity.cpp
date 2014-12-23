@@ -78,6 +78,7 @@ void Integrity::syncDatabase(const Buckets &buckets, bool syncBackup) {
     }
 
     syncElement(m_dbPath + m_indexFilename + suffix);
+    syncElement(m_dbPath + PathConfig::StoragePath::checksumFilename + suffix);
     syncDirectory(m_dbPath);
 }
 
@@ -147,7 +148,7 @@ void Integrity::syncElement(const std::string &filename, int flags, mode_t mode)
     if (fileFd < 0) {
         int err = errno;
         if (err != EEXIST) {
-            LOGE("'open' function error [%d] : <%s>", err, strerror(err));
+            LOGE("'open' function error [%d] : <%s>, {%s}", err, strerror(err), filename.c_str());
             throw UnexpectedErrorException(err, strerror(err));
         } else {
             throw CannotCreateFileException(filename);
@@ -189,9 +190,12 @@ void Integrity::createPrimaryHardLinks(const Buckets &buckets) {
     }
 
     const auto &indexFilename = m_dbPath + m_indexFilename;
+    const auto &checksumFilename = m_dbPath + PathConfig::StoragePath::checksumFilename;
 
     deleteHardLink(indexFilename);
     createHardLink(indexFilename + m_backupFilenameSuffix, indexFilename);
+    deleteHardLink(checksumFilename);
+    createHardLink(checksumFilename + m_backupFilenameSuffix, checksumFilename);
 }
 
 void Integrity::deleteBackupHardLinks(const Buckets &buckets) {
@@ -204,6 +208,7 @@ void Integrity::deleteBackupHardLinks(const Buckets &buckets) {
     }
 
     deleteHardLink(m_dbPath + m_indexFilename + m_backupFilenameSuffix);
+    deleteHardLink(m_dbPath + PathConfig::StoragePath::checksumFilename + m_backupFilenameSuffix);
 }
 
 void Integrity::createHardLink(const std::string &oldName, const std::string &newName) {
