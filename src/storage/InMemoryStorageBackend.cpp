@@ -51,30 +51,41 @@
 
 namespace Cynara {
 
+const std::string InMemoryStorageBackend::m_chsFilename(PathConfig::StoragePath::checksumFilename);
 const std::string InMemoryStorageBackend::m_indexFilename(PathConfig::StoragePath::indexFilename);
 const std::string InMemoryStorageBackend::m_backupFilenameSuffix(
         PathConfig::StoragePath::backupFilenameSuffix);
 const std::string InMemoryStorageBackend::m_bucketFilenamePrefix(
         PathConfig::StoragePath::bucketFilenamePrefix);
 
+InMemoryStorageBackend::InMemoryStorageBackend(const std::string &path) : m_dbPath(path) {
+    m_checksum.reset(new ChecksumValidator(path));
+}
+
 void InMemoryStorageBackend::load(void) {
     Integrity integrity(m_dbPath, m_indexFilename, m_backupFilenameSuffix, m_bucketFilenamePrefix);
     bool isBackupValid = integrity.backupGuardExists();
     std::string bucketSuffix = "";
     std::string indexFilename = m_dbPath + m_indexFilename;
+    std::string chsFilename = m_dbPath + m_chsFilename;
 
     if (isBackupValid) {
         bucketSuffix += m_backupFilenameSuffix;
         indexFilename += m_backupFilenameSuffix;
+        chsFilename += m_backupFilenameSuffix;
     }
 
     try {
+        auto chsStream = std::make_shared<std::ifstream>();
+        openFileStream(chsStream, chsFilename, isBackupValid);
+        m_checksum->load(chsStream);
+
         auto indexStream = std::make_shared<std::ifstream>();
-        openFileStream(indexStream, indexFilename);
+        openFileStream(indexStream, indexFilename, isBackupValid);
 
         StorageDeserializer storageDeserializer(indexStream,
             std::bind(&InMemoryStorageBackend::bucketStreamOpener, this,
-                      std::placeholders::_1, bucketSuffix));
+                      std::placeholders::_1, bucketSuffix, isBackupValid));
 
         storageDeserializer.initBuckets(buckets());
         storageDeserializer.loadBuckets(buckets());
@@ -83,6 +94,7 @@ void InMemoryStorageBackend::load(void) {
         buckets().clear();
         // TODO: Implement emergency mode toggle
     }
+    m_checksum->clear();
 
     if (!hasBucket(defaultPolicyBucketId)) {
         LOGN("Creating defaultBucket.");
@@ -226,7 +238,7 @@ void InMemoryStorageBackend::erasePolicies(const PolicyBucketId &bucketId, bool 
 }
 
 void InMemoryStorageBackend::openFileStream(std::shared_ptr<std::ifstream> stream,
-                                            const std::string &filename) {
+                                            const std::string &filename, bool isBackupValid) {
     // TODO: Consider adding exceptions to streams and handling them:
     // stream.exceptions(std::ifstream::failbit | std::ifstream::badbit);
     stream->open(filename);
@@ -234,6 +246,8 @@ void InMemoryStorageBackend::openFileStream(std::shared_ptr<std::ifstream> strea
     if (!stream->is_open()) {
         throw FileNotFoundException(filename);
     }
+
+    m_checksum->compare(stream, filename, isBackupValid);
 }
 
 void InMemoryStorageBackend::openDumpFileStream(std::shared_ptr<std::ofstream> stream,
@@ -246,11 +260,11 @@ void InMemoryStorageBackend::openDumpFileStream(std::shared_ptr<std::ofstream> s
 }
 
 std::shared_ptr<BucketDeserializer> InMemoryStorageBackend::bucketStreamOpener(
-        const PolicyBucketId &bucketId, const std::string &filenameSuffix) {
+        const PolicyBucketId &bucketId, const std::string &filenameSuffix, bool isBackupValid) {
     std::string bucketFilename = m_dbPath + m_bucketFilenamePrefix + bucketId + filenameSuffix;
     auto bucketStream = std::make_shared<std::ifstream>();
     try {
-        openFileStream(bucketStream, bucketFilename);
+        openFileStream(bucketStream, bucketFilename, isBackupValid);
         return std::make_shared<BucketDeserializer>(bucketStream);
     } catch (const FileNotFoundException &) {
         return nullptr;
