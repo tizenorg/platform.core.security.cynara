@@ -33,6 +33,7 @@ public:
     ~FileLock();
     bool tryLock(void);
     void lock(void);
+    void unlock(void);
 
 private:
     std::string m_lockFilename;
