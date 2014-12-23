@@ -30,8 +30,10 @@
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <unordered_map>
+#include <utility>
 
 #include <log/log.h>
+#include <config/PathConfig.h>
 #include <exceptions/BucketNotExistsException.h>
 #include <exceptions/CannotCreateFileException.h>
 #include <exceptions/DatabaseException.h>
@@ -68,6 +70,8 @@ void InMemoryStorageBackend::load(void) {
     }
 
     try {
+        m_checksum->load(isBackupValid);
+
         auto indexStream = std::make_shared<std::ifstream>();
         openFileStream(indexStream, indexFilename);
 
@@ -82,6 +86,7 @@ void InMemoryStorageBackend::load(void) {
         buckets().clear();
         // TODO: Implement emergency mode toggle
     }
+    m_checksum->clear();
 
     if (!hasBucket(defaultPolicyBucketId)) {
         LOGN("Creating defaultBucket.");
@@ -102,8 +107,10 @@ void InMemoryStorageBackend::save(void) {
     openDumpFileStream(indexStream, indexFilename + m_backupFilenameSuffix);
 
     StorageSerializer storageSerializer(indexStream);
-    storageSerializer.dump(buckets(), std::bind(&InMemoryStorageBackend::bucketDumpStreamOpener,
+    auto serialized = storageSerializer.dump(buckets(), std::bind(&InMemoryStorageBackend::bucketDumpStreamOpener,
                            this, std::placeholders::_1));
+
+    m_checksum->save(std::move(serialized));
 
     Integrity integrity(m_dbPath, m_indexFilename, m_backupFilenameSuffix, m_bucketFilenamePrefix);
 
@@ -233,6 +240,8 @@ void InMemoryStorageBackend::openFileStream(std::shared_ptr<std::ifstream> strea
     if (!stream->is_open()) {
         throw FileNotFoundException(filename);
     }
+
+    m_checksum->compare(stream, filename);
 }
 
 void InMemoryStorageBackend::openDumpFileStream(std::shared_ptr<std::ofstream> stream,

@@ -78,6 +78,7 @@ void Integrity::syncDatabase(const Buckets &buckets, bool syncBackup) {
     }
 
     syncElement(m_dbPath + m_indexFilename + suffix);
+    syncElement(m_dbPath + StorageConfig::ChecksumConfig::checksumFilename + suffix);
     syncDirectory(m_dbPath);
 }
 
@@ -191,9 +192,12 @@ void Integrity::createPrimaryHardLinks(const Buckets &buckets) {
     }
 
     const auto &indexFilename = m_dbPath + m_indexFilename;
+    const auto &checksumFilename = m_dbPath + StorageConfig::ChecksumConfig::checksumFilename;
 
     deleteHardLink(indexFilename);
     createHardLink(indexFilename + m_backupFilenameSuffix, indexFilename);
+    deleteHardLink(checksumFilename);
+    createHardLink(checksumFilename + m_backupFilenameSuffix, checksumFilename);
 }
 
 void Integrity::deleteBackupHardLinks(const Buckets &buckets) {
@@ -206,6 +210,8 @@ void Integrity::deleteBackupHardLinks(const Buckets &buckets) {
     }
 
     deleteHardLink(m_dbPath + m_indexFilename + m_backupFilenameSuffix);
+    deleteHardLink(m_dbPath + StorageConfig::ChecksumConfig::checksumFilename
+                            + m_backupFilenameSuffix);
 }
 
 void Integrity::createHardLink(const std::string &oldName, const std::string &newName) {

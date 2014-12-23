@@ -35,6 +35,7 @@
 
 #include <storage/BucketDeserializer.h>
 #include <storage/Buckets.h>
+#include <storage/MD5Checksum.h>
 #include <storage/StorageBackend.h>
 #include <storage/StorageSerializer.h>
 
@@ -42,7 +43,8 @@ namespace Cynara {
 
 class InMemoryStorageBackend : public StorageBackend {
 public:
-    InMemoryStorageBackend(const std::string &path) : m_dbPath(path) {
+    InMemoryStorageBackend(const std::string &path)
+    : m_dbPath(path), m_checksum(std::unique_ptr<MD5Checksum>(new MD5Checksum(path))) {
     }
     virtual ~InMemoryStorageBackend() {};
 
@@ -76,6 +78,7 @@ protected:
 private:
     std::string m_dbPath;
     Buckets m_buckets;
+    ChecksumUniquePtr m_checksum;
     static const std::string m_indexFilename;
     static const std::string m_backupFilenameSuffix;
     static const std::string m_bucketFilenamePrefix;
