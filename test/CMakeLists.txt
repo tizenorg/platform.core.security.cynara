@@ -60,6 +60,7 @@ SET(CYNARA_SOURCES_FOR_TESTS
     ${CYNARA_SRC}/helpers/creds-commons/CredsCommonsInner.cpp
     ${CYNARA_SRC}/helpers/creds-commons/creds-commons.cpp
     ${CYNARA_SRC}/storage/BucketDeserializer.cpp
+    ${CYNARA_SRC}/storage/ChecksumValidator.cpp
     ${CYNARA_SRC}/storage/InMemoryStorageBackend.cpp
     ${CYNARA_SRC}/storage/Integrity.cpp
     ${CYNARA_SRC}/storage/Storage.cpp
@@ -117,6 +118,8 @@ ADD_EXECUTABLE(${TARGET_CYNARA_TESTS}
 )
 
 TARGET_LINK_LIBRARIES(${TARGET_CYNARA_TESTS}
-    ${PKGS_LDFLAGS} ${PKGS_LIBRARIES}
+    ${PKGS_LDFLAGS}
+    ${PKGS_LIBRARIES}
+    crypt
 )
 INSTALL(TARGETS ${TARGET_CYNARA_TESTS} DESTINATION ${BIN_INSTALL_DIR})
