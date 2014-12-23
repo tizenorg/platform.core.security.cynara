@@ -45,12 +45,14 @@ enum ProtocolOpCode : uint8_t {
     OpSetPolicies,
     OpCodeResponse,
     OpAdminCheckRequest,
+    OpDescriptionListRequest,
+    OpDescriptionListResponse,
     OpListRequest,
     OpListResponse,
     OpAdminCheckPolicyResponse,
     OpEraseRequest,
 
-    /** Opcodes 29 - 39 are reserved for future use */
+    /** Opcodes 31 - 39 are reserved for future use */
 
     /** Agent operations */
     OpAgentRegisterRequest = 40,
