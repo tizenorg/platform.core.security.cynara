@@ -23,6 +23,7 @@ ADD_DEFINITIONS("-DCYNARA_NO_LOGS")
 SET(CYNARA_SRC ${PROJECT_SOURCE_DIR}/src)
 
 SET(CYNARA_SOURCES_FOR_TESTS
+    ${CYNARA_SRC}/common/config/PathConfig.cpp
     ${CYNARA_SRC}/common/containers/BinaryQueue.cpp
     ${CYNARA_SRC}/common/protocol/ProtocolAdmin.cpp
     ${CYNARA_SRC}/common/protocol/ProtocolFrame.cpp
@@ -51,6 +52,7 @@ SET(CYNARA_SOURCES_FOR_TESTS
     ${CYNARA_SRC}/storage/BucketDeserializer.cpp
     ${CYNARA_SRC}/storage/InMemoryStorageBackend.cpp
     ${CYNARA_SRC}/storage/Integrity.cpp
+    ${CYNARA_SRC}/storage/MD5Checksum.cpp
     ${CYNARA_SRC}/storage/Storage.cpp
     ${CYNARA_SRC}/storage/StorageDeserializer.cpp
     ${CYNARA_SRC}/storage/StorageSerializer.cpp
@@ -98,6 +100,8 @@ ADD_EXECUTABLE(${TARGET_CYNARA_TESTS}
 )
 
 TARGET_LINK_LIBRARIES(${TARGET_CYNARA_TESTS}
-    ${PKGS_LDFLAGS} ${PKGS_LIBRARIES}
+    ${PKGS_LDFLAGS}
+    ${PKGS_LIBRARIES}
+    -lcrypt
 )
 INSTALL(TARGETS ${TARGET_CYNARA_TESTS} DESTINATION ${BIN_INSTALL_DIR})
