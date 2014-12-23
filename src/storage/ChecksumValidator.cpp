@@ -36,6 +36,10 @@
 
 namespace Cynara {
 
+const std::string ChecksumValidator::m_checksumFilename(PathConfig::StoragePath::checksumFilename);
+const std::string ChecksumValidator::m_backupFilenameSuffix(
+        PathConfig::StoragePath::backupFilenameSuffix);
+
 void ChecksumValidator::load(const std::shared_ptr<std::ifstream> &stream) {
     m_sums.clear();
 
@@ -64,9 +68,17 @@ const std::string ChecksumValidator::generate(const std::string &data) {
 };
 
 void ChecksumValidator::compare(std::shared_ptr<std::ifstream> stream,
-                                const std::string &filename) {
+                                const std::string &filename, bool isBackupValid) {
+    if (isChecksumIndex(filename)) {
+        return;
+    }
+
     std::stringstream copyStream;
     std::string index(basename(filename.c_str()));
+
+    if(isBackupValid) {
+        index.pop_back();
+    }
 
     std::copy(std::istreambuf_iterator<char>(*stream),
               std::istreambuf_iterator<char>(),
@@ -99,6 +111,11 @@ const std::string ChecksumValidator::parseChecksum(const std::string &line,
     } else {
         throw ChecksumRecordCorruptedException(line);
     }
+}
+
+bool ChecksumValidator::isChecksumIndex(const std::string &filename) const {
+    auto checksum = m_dbPath + m_checksumFilename;
+    return filename == checksum || filename == checksum + m_backupFilenameSuffix;
 }
 
 } // namespace Cynara

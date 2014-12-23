@@ -40,7 +40,8 @@ public:
     ChecksumValidator(const std::string &path) : m_dbPath(path) {}
 
     void load(const std::shared_ptr<std::ifstream> &stream);
-    void compare(std::shared_ptr<std::ifstream> stream, const std::string &data);
+    void compare(std::shared_ptr<std::ifstream> stream, const std::string &data,
+                 bool isBackupValid);
 
     void clear(void) {
         m_sums.clear();
@@ -49,11 +50,15 @@ public:
     static const std::string generate(const std::string &data);
 
 private:
+    bool isChecksumIndex(const std::string &filename) const;
+
     static const std::string parseFilename(const std::string &line, std::size_t &beginToken);
     static const std::string parseChecksum(const std::string &line, std::size_t &beginToken);
 
     Checksums m_sums;
     const std::string m_dbPath;
+    static const std::string m_checksumFilename;
+    static const std::string m_backupFilenameSuffix;
 };
 
 } // namespace Cynara
