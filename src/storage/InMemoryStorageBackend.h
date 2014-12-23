@@ -35,6 +35,7 @@
 
 #include <storage/BucketDeserializer.h>
 #include <storage/Buckets.h>
+#include <storage/ChecksumValidator.h>
 #include <storage/StorageBackend.h>
 #include <storage/StorageSerializer.h>
 
@@ -42,8 +43,7 @@ namespace Cynara {
 
 class InMemoryStorageBackend : public StorageBackend {
 public:
-    InMemoryStorageBackend(const std::string &path) : m_dbPath(path) {
-    }
+    InMemoryStorageBackend(const std::string &path);
     virtual ~InMemoryStorageBackend() {};
 
     virtual void load(void);
@@ -65,9 +65,11 @@ public:
 
 protected:
     InMemoryStorageBackend() {}
-    void openFileStream(std::shared_ptr<std::ifstream> stream, const std::string &filename);
+    void openFileStream(std::shared_ptr<std::ifstream> stream, const std::string &filename,
+                        bool isBackupValid);
     std::shared_ptr<BucketDeserializer> bucketStreamOpener(const PolicyBucketId &bucketId,
-                                                           const std::string &fileNameSuffix);
+                                                           const std::string &fileNameSuffix,
+                                                           bool isBackupValid);
 
     virtual void openDumpFileStream(std::shared_ptr<std::ofstream> stream,
                                     const std::string &filename);
@@ -77,6 +79,8 @@ protected:
 private:
     std::string m_dbPath;
     Buckets m_buckets;
+    ChecksumValidatorUniquePtr m_checksum;
+    static const std::string m_chsFilename;
     static const std::string m_indexFilename;
     static const std::string m_backupFilenameSuffix;
     static const std::string m_bucketFilenamePrefix;
