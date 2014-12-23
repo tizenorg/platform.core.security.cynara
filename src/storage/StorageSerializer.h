@@ -26,6 +26,7 @@
 #include <functional>
 #include <fstream>
 #include <memory>
+#include <sstream>
 
 #include <types/PolicyBucket.h>
 #include <types/PolicyBucketId.h>
@@ -35,6 +36,7 @@
 #include <types/PolicyType.h>
 
 #include <storage/Buckets.h>
+#include <storage/ChecksumInterface.h>
 
 namespace Cynara {
 
@@ -47,9 +49,9 @@ public:
     StorageSerializer(std::shared_ptr<std::ostream> os);
     virtual ~StorageSerializer() {};
 
-    virtual void dump(const Buckets &buckets,
+    virtual std::unique_ptr<ChecksumInterface::Checksums> dump(const Buckets &buckets,
                       BucketStreamOpener streamOpener);
-    virtual void dump(const PolicyBucket &bucket);
+    virtual std::string dump(const PolicyBucket &bucket);
 
 protected:
     template<typename Arg1, typename... Args>
@@ -57,12 +59,14 @@ protected:
         dump(arg1);
         if (sizeof...(Args) > 0) {
             *m_outStream << fieldSeparator();
+            m_chsStream << fieldSeparator();
         }
         dumpFields(args...);
     }
 
     inline void dumpFields(void) {
         *m_outStream << recordSeparator();
+        m_chsStream << recordSeparator();
     }
 
     void dump(const PolicyKeyFeature &keyFeature);
@@ -72,6 +76,7 @@ protected:
 
 private:
     std::shared_ptr<std::ostream> m_outStream;
+    std::stringstream m_chsStream;
 
     static char m_fieldSeparator;
     static char m_recordSeparator;

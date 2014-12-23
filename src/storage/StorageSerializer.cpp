@@ -25,6 +25,7 @@
 #include <ios>
 
 #include <exceptions/BucketSerializationException.h>
+#include <storage/config/StorageConfig.h>
 #include <types/Policy.h>
 #include <types/PolicyBucket.h>
 #include <types/PolicyBucketId.h>
@@ -38,11 +39,14 @@ namespace Cynara {
 char StorageSerializer::m_fieldSeparator = ';';
 char StorageSerializer::m_recordSeparator = '\n';
 
-StorageSerializer::StorageSerializer(std::shared_ptr<std::ostream> os) : m_outStream(os) {
+StorageSerializer::StorageSerializer(std::shared_ptr<std::ostream> os)
+    : m_outStream(os), m_chsStream(std::string()) {
 }
 
-void StorageSerializer::dump(const Buckets &buckets,
+std::unique_ptr<ChecksumInterface::Checksums> StorageSerializer::dump(const Buckets &buckets,
                              BucketStreamOpener streamOpener) {
+    // TODO: Break line below (according to Cynara's code style).
+    auto sumsUniquePtr = std::unique_ptr<ChecksumInterface::Checksums>(new ChecksumInterface::Checksums());
 
     for (const auto bucketIter : buckets) {
         const auto &bucket = bucketIter.second;
@@ -50,6 +54,7 @@ void StorageSerializer::dump(const Buckets &buckets,
         dumpFields(bucket.id(), bucket.defaultPolicy().policyType(),
                    bucket.defaultPolicy().metadata());
     }
+    sumsUniquePtr->insert({ StorageConfig::DatabaseConfig::indexFilename, m_chsStream.str() });
 
     for (const auto bucketIter : buckets) {
         const auto &bucketId = bucketIter.first;
@@ -57,32 +62,41 @@ void StorageSerializer::dump(const Buckets &buckets,
         auto bucketSerializer = streamOpener(bucketId);
 
         if (bucketSerializer != nullptr) {
-            bucketSerializer->dump(bucket);
+            const auto &chs = bucketSerializer->dump(bucket);
+            // TODO: Break line below (according to Cynara's code style).
+            sumsUniquePtr->insert({ StorageConfig::DatabaseConfig::bucketFilenamePrefix + bucketId, chs });
         } else {
             throw BucketSerializationException(bucketId);
         }
     }
+
+    return sumsUniquePtr;
 }
 
-void StorageSerializer::dump(const PolicyBucket& bucket) {
+std::string StorageSerializer::dump(const PolicyBucket& bucket) {
     for (auto it = std::begin(bucket); it != std::end(bucket); ++it) {
         const auto &policy = *it;
         dump(policy);
     }
+    return m_chsStream.str();
 }
 
 void StorageSerializer::dump(const PolicyKeyFeature &keyFeature) {
     *m_outStream << keyFeature.toString();
+    m_chsStream << keyFeature.toString();
 }
 
 void StorageSerializer::dump(const PolicyType &policyType) {
     auto oldFormat = m_outStream->flags();
     *m_outStream << "0x" << std::uppercase <<  std::hex << policyType;
+    m_chsStream << "0x" << std::uppercase <<  std::hex << policyType;
     m_outStream->flags(oldFormat);
+    m_chsStream.flags(oldFormat);
 }
 
 void StorageSerializer::dump(const PolicyResult::PolicyMetadata &metadata) {
     *m_outStream << metadata;
+    m_chsStream << metadata;
 }
 
 void StorageSerializer::dump(const PolicyCollection::value_type &policy) {

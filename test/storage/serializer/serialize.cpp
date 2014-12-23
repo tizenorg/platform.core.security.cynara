@@ -50,7 +50,7 @@ class FakeStorageSerializer : public Cynara::StorageSerializer {
 public:
     FakeStorageSerializer(std::shared_ptr<std::ostringstream> o) : Cynara::StorageSerializer(o),
                               outStream(o) {}
-    MOCK_METHOD1(dump, void(const Cynara::PolicyBucket &bucket));
+    MOCK_METHOD1(dump, std::string(const Cynara::PolicyBucket &bucket));
     std::shared_ptr<std::ostringstream> outStream;
 };
 
