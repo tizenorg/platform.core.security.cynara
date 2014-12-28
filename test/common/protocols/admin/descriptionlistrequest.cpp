@@ -14,16 +14,16 @@
  *    limitations under the License.
  */
 /**
- * @file        test/common/protocols/admin/listrequest.cpp
+ * @file        test/common/protocols/admin/descriptionlistrequest.cpp
  * @author      Lukasz Wojciechowski <l.wojciechow@partner.samsung.com>
  * @version     1.0
- * @brief       Tests for Cynara::ListRequest usage in Cynara::ProtocolAdmin
+ * @brief       Tests for Cynara::DescriptionListRequest usage in Cynara::ProtocolAdmin
  */
 
 #include <gtest/gtest.h>
 
 #include <protocol/ProtocolAdmin.h>
-#include <request/ListRequest.h>
+#include <request/DescriptionListRequest.h>
 
 #include <RequestTestHelper.h>
 #include <TestDataCollection.h>
@@ -31,9 +31,9 @@
 namespace {
 
 template<>
-void compare(const Cynara::ListRequest &req1, const Cynara::ListRequest &req2) {
-    EXPECT_EQ(req1.bucket(), req2.bucket());
-    EXPECT_EQ(req1.filter(), req2.filter());
+void compare(const Cynara::DescriptionListRequest &req1, const Cynara::DescriptionListRequest &req2)
+{
+    EXPECT_EQ(req1.sequenceNumber(), req2.sequenceNumber());
 }
 
 } /* namespace anonymous */
@@ -44,88 +44,16 @@ using namespace TestDataCollection;
 
 /* *** compare by objects test cases *** */
 
-TEST(ProtocolAdmin, ListRequest01) {
-    auto request = std::make_shared<ListRequest>(Buckets::empty, Keys::k_nun, SN::min);
-    auto protocol = std::make_shared<ProtocolAdmin>();
-    testRequest(request, protocol);
-}
-
-TEST(ProtocolAdmin, ListRequest02) {
-    auto request = std::make_shared<ListRequest>(Buckets::not_empty, Keys::k_cup, SN::min_1);
-    auto protocol = std::make_shared<ProtocolAdmin>();
-    testRequest(request, protocol);
-}
-
-TEST(ProtocolAdmin, ListRequest03) {
-    auto request = std::make_shared<ListRequest>(Buckets::empty, Keys::k_www, SN::min_2);
-    auto protocol = std::make_shared<ProtocolAdmin>();
-    testRequest(request, protocol);
-}
-
-TEST(ProtocolAdmin, ListRequest04) {
-    auto request = std::make_shared<ListRequest>(Buckets::not_empty, Keys::k_wuw, SN::max);
-    auto protocol = std::make_shared<ProtocolAdmin>();
-    testRequest(request, protocol);
-}
-
-TEST(ProtocolAdmin, ListRequest05) {
-    auto request = std::make_shared<ListRequest>(Buckets::empty, Keys::k_aaa, SN::max_1);
-    auto protocol = std::make_shared<ProtocolAdmin>();
-    testRequest(request, protocol);
-}
-
-TEST(ProtocolAdmin, ListRequest06) {
-    auto request = std::make_shared<ListRequest>(Buckets::not_empty, Keys::k_wua, SN::max_2);
-    auto protocol = std::make_shared<ProtocolAdmin>();
-    testRequest(request, protocol);
-}
-
-TEST(ProtocolAdmin, ListRequest07) {
-    auto request = std::make_shared<ListRequest>(Buckets::empty, Keys::k_nua, SN::mid);
+TEST(ProtocolAdmin, DescriptionListRequest01) {
+    auto request = std::make_shared<DescriptionListRequest>(SN::min);
     auto protocol = std::make_shared<ProtocolAdmin>();
     testRequest(request, protocol);
 }
 
 /* *** compare by serialized data test cases *** */
 
-TEST(ProtocolAdmin, ListRequestBinary01) {
-    auto request = std::make_shared<ListRequest>(Buckets::empty, Keys::k_nun, SN::min);
-    auto protocol = std::make_shared<ProtocolAdmin>();
-    binaryTestRequest(request, protocol);
-}
-
-TEST(ProtocolAdmin, ListRequestBinary02) {
-    auto request = std::make_shared<ListRequest>(Buckets::not_empty, Keys::k_cup, SN::min_1);
-    auto protocol = std::make_shared<ProtocolAdmin>();
-    binaryTestRequest(request, protocol);
-}
-
-TEST(ProtocolAdmin, ListRequestBinary03) {
-    auto request = std::make_shared<ListRequest>(Buckets::empty, Keys::k_www, SN::min_2);
-    auto protocol = std::make_shared<ProtocolAdmin>();
-    binaryTestRequest(request, protocol);
-}
-
-TEST(ProtocolAdmin, ListRequestBinary04) {
-    auto request = std::make_shared<ListRequest>(Buckets::not_empty, Keys::k_wuw, SN::max);
-    auto protocol = std::make_shared<ProtocolAdmin>();
-    binaryTestRequest(request, protocol);
-}
-
-TEST(ProtocolAdmin, ListRequestBinary05) {
-    auto request = std::make_shared<ListRequest>(Buckets::empty, Keys::k_aaa, SN::max_1);
-    auto protocol = std::make_shared<ProtocolAdmin>();
-    binaryTestRequest(request, protocol);
-}
-
-TEST(ProtocolAdmin, ListRequestBinary06) {
-    auto request = std::make_shared<ListRequest>(Buckets::not_empty, Keys::k_wua, SN::max_2);
-    auto protocol = std::make_shared<ProtocolAdmin>();
-    binaryTestRequest(request, protocol);
-}
-
-TEST(ProtocolAdmin, ListRequestBinary07) {
-    auto request = std::make_shared<ListRequest>(Buckets::empty, Keys::k_nua, SN::mid);
+TEST(ProtocolAdmin, DescriptionListRequestBinary01) {
+    auto request = std::make_shared<DescriptionListRequest>(SN::min);
     auto protocol = std::make_shared<ProtocolAdmin>();
     binaryTestRequest(request, protocol);
 }

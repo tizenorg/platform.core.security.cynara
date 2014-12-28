@@ -14,10 +14,10 @@
  *    limitations under the License.
  */
 /**
- * @file        test/common/protocols/admin/listresponse.cpp
+ * @file        test/common/protocols/admin/descriptionlistresponse.cpp
  * @author      Lukasz Wojciechowski <l.wojciechow@partner.samsung.com>
  * @version     1.0
- * @brief       Tests for Cynara::ListResponse usage in Cynara::ProtocolAdmin
+ * @brief       Tests for Cynara::DescriptionListResponse usage in Cynara::ProtocolAdmin
  */
 
 #include <vector>
@@ -25,8 +25,8 @@
 #include <gtest/gtest.h>
 
 #include <protocol/ProtocolAdmin.h>
-#include <response/ListResponse.h>
-#include <types/Policy.h>
+#include <response/DescriptionListResponse.h>
+#include <types/PolicyDescription.h>
 
 #include <ResponseTestHelper.h>
 #include <TestDataCollection.h>
@@ -34,13 +34,15 @@
 namespace {
 
 template<>
-void compare(const Cynara::ListResponse &resp1, const Cynara::ListResponse &resp2) {
-    EXPECT_EQ(resp1.policies(), resp2.policies());
-    EXPECT_EQ(resp1.isBucketValid(), resp2.isBucketValid());
+void compare(const Cynara::DescriptionListResponse &resp1,
+             const Cynara::DescriptionListResponse &resp2) {
+    ASSERT_EQ(resp1.descriptions().size(), resp2.descriptions().size());
+    for (size_t i = 0U; i < resp1.descriptions().size(); ++i) {
+        SCOPED_TRACE(std::to_string(i));
+        EXPECT_EQ(resp1.descriptions()[i].name, resp2.descriptions()[i].name);
+        EXPECT_EQ(resp1.descriptions()[i].type, resp2.descriptions()[i].type);
+    }
 }
-
-static const bool VALID_BUCKET = true;
-static const bool NO_BUCKET = false;
 
 } /* namespace anonymous */
 
@@ -50,208 +52,152 @@ using namespace TestDataCollection;
 
 /* *** compare by objects test cases *** */
 
-TEST(ProtocolAdmin, ListResponse01) {
-    std::vector<Policy> policies = {
-        Policy(Keys::k_nun, Results::allow),
+TEST(ProtocolAdmin, DescriptionListResponse01) {
+    std::vector<PolicyDescription> descriptions = {
+        PolicyDescription(Types::allow, "allow"),
     };
 
-    auto response = std::make_shared<ListResponse>(policies, VALID_BUCKET, SN::min);
+    auto response = std::make_shared<DescriptionListResponse>(descriptions, SN::min);
     auto protocol = std::make_shared<ProtocolAdmin>();
     testResponse(response, protocol);
 }
 
-TEST(ProtocolAdmin, ListResponse02) {
-    std::vector<Policy> policies = {
-        Policy(Keys::k_cup, Results::deny),
+TEST(ProtocolAdmin, DescriptionListResponse02) {
+    std::vector<PolicyDescription> descriptions = {
+        PolicyDescription(Types::bucket, "bucket"),
     };
 
-    auto response = std::make_shared<ListResponse>(policies, VALID_BUCKET, SN::min_1);
+    auto response = std::make_shared<DescriptionListResponse>(descriptions, SN::min_1);
     auto protocol = std::make_shared<ProtocolAdmin>();
     testResponse(response, protocol);
 }
 
-TEST(ProtocolAdmin, ListResponse03) {
-    std::vector<Policy> policies = {
-        Policy(Keys::k_www, Results::bucket_empty),
+TEST(ProtocolAdmin, DescriptionListResponse03) {
+    std::vector<PolicyDescription> descriptions = {
+        PolicyDescription(Types::deny, "deny"),
     };
 
-    auto response = std::make_shared<ListResponse>(policies, VALID_BUCKET, SN::min_2);
+    auto response = std::make_shared<DescriptionListResponse>(descriptions, SN::max);
     auto protocol = std::make_shared<ProtocolAdmin>();
     testResponse(response, protocol);
 }
 
-TEST(ProtocolAdmin, ListResponse04) {
-    std::vector<Policy> policies = {
-        Policy(Keys::k_wuw, Results::bucket_not_empty),
+TEST(ProtocolAdmin, DescriptionListResponse04) {
+    std::vector<PolicyDescription> descriptions = {
+        PolicyDescription(Types::none, "none"),
     };
 
-    auto response = std::make_shared<ListResponse>(policies, VALID_BUCKET, SN::max);
+    auto response = std::make_shared<DescriptionListResponse>(descriptions, SN::max_1);
     auto protocol = std::make_shared<ProtocolAdmin>();
     testResponse(response, protocol);
 }
 
-TEST(ProtocolAdmin, ListResponse05) {
-    std::vector<Policy> policies = {
-        Policy(Keys::k_aaa, Results::none),
+TEST(ProtocolAdmin, DescriptionListResponse05) {
+    std::vector<PolicyDescription> descriptions = {
+        PolicyDescription(Types::plugin_type, "plugin"),
     };
 
-    auto response = std::make_shared<ListResponse>(policies, VALID_BUCKET, SN::max_1);
+    auto response = std::make_shared<DescriptionListResponse>(descriptions, SN::mid);
     auto protocol = std::make_shared<ProtocolAdmin>();
     testResponse(response, protocol);
 }
 
-TEST(ProtocolAdmin, ListResponse06) {
-    std::vector<Policy> policies = {
-        Policy(Keys::k_wua, Results::plugin_1),
+TEST(ProtocolAdmin, DescriptionListResponseMultipleDescriptions) {
+    std::vector<PolicyDescription> descriptions = {
+        PolicyDescription(Types::allow, "allow"),
+        PolicyDescription(Types::bucket, "bucket"),
+        PolicyDescription(Types::deny, "deny"),
+        PolicyDescription(Types::none, "none"),
+        PolicyDescription(Types::plugin_type, ""),
+        PolicyDescription(Types::plugin_type, "plugin"),
+        PolicyDescription(Types::plugin_type, "plugin"),
     };
 
-    auto response = std::make_shared<ListResponse>(policies, VALID_BUCKET, SN::max_2);
+    auto response = std::make_shared<DescriptionListResponse>(descriptions, SN::max_2);
     auto protocol = std::make_shared<ProtocolAdmin>();
     testResponse(response, protocol);
 }
 
-TEST(ProtocolAdmin, ListResponse07) {
-    std::vector<Policy> policies = {
-        Policy(Keys::k_nua, Results::plugin_2),
-    };
+TEST(ProtocolAdmin, DescriptionListResponseEmptyDescriptions) {
+    std::vector<PolicyDescription> descriptions;
 
-    auto response = std::make_shared<ListResponse>(policies, VALID_BUCKET, SN::mid);
-    auto protocol = std::make_shared<ProtocolAdmin>();
-    testResponse(response, protocol);
-}
-
-TEST(ProtocolAdmin, ListResponseMultiplePolicies) {
-    std::vector<Policy> policies = {
-        Policy(Keys::k_nun, Results::allow),
-        Policy(Keys::k_cup, Results::deny),
-        Policy(Keys::k_www, Results::bucket_empty),
-        Policy(Keys::k_wuw, Results::bucket_not_empty),
-        Policy(Keys::k_aaa, Results::none),
-        Policy(Keys::k_wua, Results::plugin_1),
-        Policy(Keys::k_nua, Results::plugin_2),
-    };
-
-    auto response = std::make_shared<ListResponse>(policies, VALID_BUCKET, SN::min);
-    auto protocol = std::make_shared<ProtocolAdmin>();
-    testResponse(response, protocol);
-}
-
-TEST(ProtocolAdmin, ListResponseEmptyPolicies) {
-    std::vector<Policy> policies;
-
-    auto response = std::make_shared<ListResponse>(policies, VALID_BUCKET, SN::min_1);
-    auto protocol = std::make_shared<ProtocolAdmin>();
-    testResponse(response, protocol);
-}
-
-TEST(ProtocolAdmin, ListResponseNoBucket) {
-    std::vector<Policy> policies;
-
-    auto response = std::make_shared<ListResponse>(policies, NO_BUCKET, SN::min_2);
+    auto response = std::make_shared<DescriptionListResponse>(descriptions, SN::min_2);
     auto protocol = std::make_shared<ProtocolAdmin>();
     testResponse(response, protocol);
 }
 
 /* *** compare by serialized data test cases *** */
 
-TEST(ProtocolAdmin, ListResponseBinary01) {
-    std::vector<Policy> policies = {
-        Policy(Keys::k_nun, Results::allow),
+TEST(ProtocolAdmin, DescriptionListResponseBinary01) {
+    std::vector<PolicyDescription> descriptions = {
+        PolicyDescription(Types::allow, "allow"),
     };
 
-    auto response = std::make_shared<ListResponse>(policies, VALID_BUCKET, SN::min);
+    auto response = std::make_shared<DescriptionListResponse>(descriptions, SN::min);
     auto protocol = std::make_shared<ProtocolAdmin>();
     binaryTestResponse(response, protocol);
 }
 
-TEST(ProtocolAdmin, ListResponseBinary02) {
-    std::vector<Policy> policies = {
-        Policy(Keys::k_cup, Results::deny),
+TEST(ProtocolAdmin, DescriptionListResponseBinary02) {
+    std::vector<PolicyDescription> descriptions = {
+        PolicyDescription(Types::bucket, "bucket"),
     };
 
-    auto response = std::make_shared<ListResponse>(policies, VALID_BUCKET, SN::min_1);
+    auto response = std::make_shared<DescriptionListResponse>(descriptions, SN::min_1);
     auto protocol = std::make_shared<ProtocolAdmin>();
     binaryTestResponse(response, protocol);
 }
 
-TEST(ProtocolAdmin, ListResponseBinary03) {
-    std::vector<Policy> policies = {
-        Policy(Keys::k_www, Results::bucket_empty),
+TEST(ProtocolAdmin, DescriptionListResponseBinary03) {
+    std::vector<PolicyDescription> descriptions = {
+        PolicyDescription(Types::deny, "deny"),
     };
 
-    auto response = std::make_shared<ListResponse>(policies, VALID_BUCKET, SN::min_2);
+    auto response = std::make_shared<DescriptionListResponse>(descriptions, SN::max);
     auto protocol = std::make_shared<ProtocolAdmin>();
     binaryTestResponse(response, protocol);
 }
 
-TEST(ProtocolAdmin, ListResponseBinary04) {
-    std::vector<Policy> policies = {
-        Policy(Keys::k_wuw, Results::bucket_not_empty),
+TEST(ProtocolAdmin, DescriptionListResponseBinary04) {
+    std::vector<PolicyDescription> descriptions = {
+        PolicyDescription(Types::none, "none"),
     };
 
-    auto response = std::make_shared<ListResponse>(policies, VALID_BUCKET, SN::max);
+    auto response = std::make_shared<DescriptionListResponse>(descriptions, SN::max_1);
     auto protocol = std::make_shared<ProtocolAdmin>();
     binaryTestResponse(response, protocol);
 }
 
-TEST(ProtocolAdmin, ListResponseBinary05) {
-    std::vector<Policy> policies = {
-        Policy(Keys::k_aaa, Results::none),
+TEST(ProtocolAdmin, DescriptionListResponseBinary05) {
+    std::vector<PolicyDescription> descriptions = {
+        PolicyDescription(Types::plugin_type, "plugin"),
     };
 
-    auto response = std::make_shared<ListResponse>(policies, VALID_BUCKET, SN::max_1);
+    auto response = std::make_shared<DescriptionListResponse>(descriptions, SN::mid);
     auto protocol = std::make_shared<ProtocolAdmin>();
     binaryTestResponse(response, protocol);
 }
 
-TEST(ProtocolAdmin, ListResponseBinary06) {
-    std::vector<Policy> policies = {
-        Policy(Keys::k_wua, Results::plugin_1),
+TEST(ProtocolAdmin, DescriptionListResponseBinaryMultipleDescriptions) {
+    std::vector<PolicyDescription> descriptions = {
+        PolicyDescription(Types::allow, "allow"),
+        PolicyDescription(Types::bucket, "bucket"),
+        PolicyDescription(Types::deny, "deny"),
+        PolicyDescription(Types::none, "none"),
+        PolicyDescription(Types::plugin_type, ""),
+        PolicyDescription(Types::plugin_type, "plugin"),
+        PolicyDescription(Types::plugin_type, "plugin"),
     };
 
-    auto response = std::make_shared<ListResponse>(policies, VALID_BUCKET, SN::max_2);
+    auto response = std::make_shared<DescriptionListResponse>(descriptions, SN::max_2);
     auto protocol = std::make_shared<ProtocolAdmin>();
     binaryTestResponse(response, protocol);
 }
 
-TEST(ProtocolAdmin, ListResponseBinary07) {
-    std::vector<Policy> policies = {
-        Policy(Keys::k_nua, Results::plugin_2),
-    };
+TEST(ProtocolAdmin, DescriptionListResponseBinaryEmptyDescriptions) {
+    std::vector<PolicyDescription> descriptions;
 
-    auto response = std::make_shared<ListResponse>(policies, VALID_BUCKET, SN::mid);
-    auto protocol = std::make_shared<ProtocolAdmin>();
-    binaryTestResponse(response, protocol);
-}
-
-TEST(ProtocolAdmin, ListResponseBinaryMultiplePolicies) {
-    std::vector<Policy> policies = {
-        Policy(Keys::k_nun, Results::allow),
-        Policy(Keys::k_cup, Results::deny),
-        Policy(Keys::k_www, Results::bucket_empty),
-        Policy(Keys::k_wuw, Results::bucket_not_empty),
-        Policy(Keys::k_aaa, Results::none),
-        Policy(Keys::k_wua, Results::plugin_1),
-        Policy(Keys::k_nua, Results::plugin_2),
-    };
-
-    auto response = std::make_shared<ListResponse>(policies, VALID_BUCKET, SN::min);
-    auto protocol = std::make_shared<ProtocolAdmin>();
-    binaryTestResponse(response, protocol);
-}
-
-TEST(ProtocolAdmin, ListResponseBinaryEmptyPolicies) {
-    std::vector<Policy> policies;
-
-    auto response = std::make_shared<ListResponse>(policies, VALID_BUCKET, SN::min_1);
-    auto protocol = std::make_shared<ProtocolAdmin>();
-    binaryTestResponse(response, protocol);
-}
-
-TEST(ProtocolAdmin, ListResponseBinaryNoBucket) {
-    std::vector<Policy> policies;
-
-    auto response = std::make_shared<ListResponse>(policies, NO_BUCKET, SN::min_2);
+    auto response = std::make_shared<DescriptionListResponse>(descriptions, SN::min_2);
     auto protocol = std::make_shared<ProtocolAdmin>();
     binaryTestResponse(response, protocol);
 }
