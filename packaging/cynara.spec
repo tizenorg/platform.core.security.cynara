@@ -307,6 +307,7 @@ fi
 
 %files -n cynara-devel
 %{_includedir}/cynara/*.h
+%{_includedir}/cynara/log/*.h
 %{_includedir}/cynara/plugin/*.h
 %{_includedir}/cynara/types/*.h
 %{_libdir}/pkgconfig/*.pc
