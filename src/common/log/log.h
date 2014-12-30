@@ -26,16 +26,20 @@
 #define CYNARA_COMMON_LOG_H
 
 #ifndef CYNARA_NO_LOGS
+#include <sstream>
 #include <systemd/sd-journal.h>
 #endif
 
 extern int __log_level;
 
 #ifndef CYNARA_NO_LOGS
-    #define __LOG(LEVEL, ...) \
+    #define __LOG(LEVEL, FORMAT, ...) \
         do { \
-            if(LEVEL <= __log_level) \
-                sd_journal_print(LEVEL, __VA_ARGS__); \
+            if(LEVEL <= __log_level) { \
+                std::stringstream __LOG_MACRO_format; \
+                __LOG_MACRO_format << FORMAT; \
+                sd_journal_print(LEVEL, __LOG_MACRO_format.str().c_str(), ##__VA_ARGS__); \
+            } \
         } while (0)
 #else
     #define __LOG(LEVEL, ...)
