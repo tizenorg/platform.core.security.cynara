@@ -56,4 +56,10 @@ int AdminApiWrapper::cynara_admin_check(struct cynara_admin *p_cynara_admin,
                                 result, result_extra);
 }
 
+int AdminApiWrapper::cynara_admin_erase(struct cynara_admin *p_cynara_admin,
+                                        const char *start_bucket, int recursive, const char *client,
+                                        const char *user, const char *privilege) {
+    return ::cynara_admin_erase(p_cynara_admin, start_bucket, recursive, client, user, privilege);
+}
+
 } /* namespace Cynara */

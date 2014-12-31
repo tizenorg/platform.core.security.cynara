@@ -20,6 +20,8 @@
  * @brief       CommandsDispatcher class (implementation)
  */
 
+#include <tuple>
+
 #include <cynara-error.h>
 #include <cynara-policy-types.h>
 
@@ -96,6 +98,13 @@ int CommandsDispatcher::execute(SetPolicyBulkCyadCommand &result) {
         m_io.cerr() << ex.message();
         return CYNARA_API_INVALID_COMMANDLINE_PARAM;
     }
+}
+
+int CommandsDispatcher::execute(EraseCyadCommand &result) {
+    const char *client, *user, *privilege;
+    std::tie(client, user, privilege) = result.policyKey().toCStrings();
+    return m_adminApiWrapper.cynara_admin_erase(m_cynaraAdmin, result.bucketId().c_str(),
+                                                result.recurisve(), client, user, privilege);
 }
 
 } /* namespace Cynara */
