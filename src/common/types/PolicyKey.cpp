@@ -44,6 +44,11 @@ std::string PolicyKey::toString(void) const {
     return ss.str();
 }
 
+std::tuple<const char *, const char *, const char *> PolicyKey::toCStrings(void) const {
+    return std::make_tuple(client().toString().c_str(), user().toString().c_str(),
+                           privilege().toString().c_str());
+}
+
 bool operator ==(const PolicyKeyFeature::ValueType &pkf1, const PolicyKeyFeature &pkf2) {
     return pkf2 == pkf1;
 }

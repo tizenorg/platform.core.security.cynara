@@ -136,6 +136,8 @@ public:
 
     std::string toString(void) const;
 
+    std::tuple<const char *, const char *, const char *> toCStrings(void) const;
+
     const PolicyKeyFeature &client(void) const {
         return m_client;
     }

@@ -20,6 +20,8 @@
  * @brief       Tests for Cynara::PolicyKey
  */
 
+#include <tuple>
+
 #include <gtest/gtest.h>
 #include <gmock/gmock.h>
 
@@ -48,4 +50,11 @@ TEST(PolicyKey, to_string) {
 
     PolicyKey pk5(PKF::createWildcard(), PKF::create("u"), PKF::createAny());
     ASSERT_EQ(CYNARA_ADMIN_WILDCARD "\tu\t" CYNARA_ADMIN_ANY, pk5.toString());
+}
+
+TEST(PolicyKey, to_cstrings) {
+    auto features = PolicyKey("client", "user", "privilege").toCStrings();
+    ASSERT_STREQ("client", std::get<0>(features));
+    ASSERT_STREQ("user", std::get<1>(features));
+    ASSERT_STREQ("privilege", std::get<2>(features));
 }
