@@ -51,6 +51,7 @@ SET(CYNARA_SOURCES_FOR_TESTS
     ${CYNARA_SRC}/cyad/AdminPolicyParser.cpp
     ${CYNARA_SRC}/cyad/CommandlineParser/CyadCommand.cpp
     ${CYNARA_SRC}/cyad/CommandlineParser/CyadCommandlineParser.cpp
+    ${CYNARA_SRC}/cyad/CommandlineParser/HumanReadableParser.cpp
     ${CYNARA_SRC}/cyad/CommandsDispatcher.cpp
     ${CYNARA_SRC}/cyad/CynaraAdminPolicies.cpp
     ${CYNARA_SRC}/helpers/creds-commons/CredsCommonsInner.cpp
