@@ -153,6 +153,33 @@ private:
     std::string m_filename;
 };
 
+class EraseCyadCommand : public CyadCommand {
+public:
+    EraseCyadCommand(const PolicyBucketId &bucketId, bool recursive, const PolicyKey &policyKey)
+        : m_bucketId(bucketId), m_recursive(recursive), m_policyKey(policyKey) {}
+
+    virtual ~EraseCyadCommand() {}
+
+    virtual int run(CommandsDispatcher &dispatcher);
+
+    const PolicyBucketId &bucketId(void) const {
+        return m_bucketId;
+    }
+
+    bool recursive(void) const {
+        return m_recursive;
+    }
+
+    const PolicyKey &policyKey(void) const {
+        return m_policyKey;
+    }
+
+private:
+    PolicyBucketId m_bucketId;
+    bool m_recursive;
+    PolicyKey m_policyKey;
+};
+
 } /* namespace Cynara */
 
 #endif /* SRC_CYAD_COMMANDLINEPARSER_CYADCOMMAND_H_ */

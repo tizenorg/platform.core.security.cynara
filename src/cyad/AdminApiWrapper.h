@@ -45,6 +45,9 @@ public:
                                    const char *start_bucket, const int recursive,
                                    const char *client, const char *user, const char *privilege,
                                    int *result, char **result_extra);
+    virtual int cynara_admin_erase(struct cynara_admin *p_cynara_admin, const char *start_bucket,
+                                   int recursive, const char *client, const char *user,
+                                   const char *privilege);
 };
 
 } /* namespace Cynara */

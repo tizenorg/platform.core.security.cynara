@@ -54,4 +54,8 @@ int SetPolicyBulkCyadCommand::run(CommandsDispatcher &dispatcher) {
     return dispatcher.execute(*this);
 }
 
+int EraseCyadCommand::run(CommandsDispatcher &dispatcher) {
+    return dispatcher.execute(*this);
+}
+
 } /* namespace Cynara */
