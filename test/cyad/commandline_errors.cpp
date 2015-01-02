@@ -74,13 +74,13 @@ TEST_F(CyadCommandlineTest, setBucketNoPolicy) {
 }
 
 TEST_F(CyadCommandlineTest, setBucketInvalidPolicy) {
-    prepare_argv({ "./cyad", "--set-bucket=bucket", "--policy=NaN" });
+    prepare_argv({ "./cyad", "--set-bucket=bucket", "--type=NaN" });
     Cynara::CyadCommandlineParser parser(this->argc(), this->argv());
     ASSERT_ERROR_MSG(Cynara::CyadCmdlineErrors::INVALID_POLICY, parser.parseMain());
 }
 
 TEST_F(CyadCommandlineTest, setBucketUnknownOption) {
-    prepare_argv({ "./cyad", "--set-bucket=bucket", "--unknown", "--policy=42" });
+    prepare_argv({ "./cyad", "--set-bucket=bucket", "--unknown", "--type=42" });
     Cynara::CyadCommandlineParser parser(this->argc(), this->argv());
     ASSERT_ERROR_MSG(Cynara::CyadCmdlineErrors::UNKNOWN_OPTION_SET_BUCKET, parser.parseMain());
 }

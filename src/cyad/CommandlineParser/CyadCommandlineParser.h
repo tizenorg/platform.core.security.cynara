@@ -39,8 +39,8 @@ namespace CyadCmdlineArgs {
     extern const char DELETE_BUCKET;
     extern const char * const DELETE_BUCKET_LONG;
 
-    extern const char POLICY;
-    extern const char * const POLICY_LONG;
+    extern const char TYPE;
+    extern const char * const TYPE_LONG;
 
     extern const char METADATA;
     extern const char * const METADATA_LONG;
