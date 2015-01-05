@@ -206,3 +206,15 @@ TEST_F(CyadCommandlineTest, eraseNonrecursive) {
     ASSERT_FALSE(result->recursive());
     ASSERT_EQ(Cynara::PolicyKey("client", "user", "privilege"), result->policyKey());
 }
+
+TEST_F(CyadCommandlineTest, checkDefaultRecursive) {
+    prepare_argv({ "./cyad", "--check", "--recursive=no",
+                   "--client=client", "--user=user", "--privilege=privilege" });
+    Cynara::CyadCommandlineParser parser(this->argc(), this->argv());
+
+    auto result = std::dynamic_pointer_cast<Cynara::CheckCyadCommand>(parser.parseMain());
+    ASSERT_NE(nullptr, result);
+    ASSERT_EQ("", result->bucketId());
+    ASSERT_FALSE(result->recursive());
+    ASSERT_EQ(Cynara::PolicyKey("client", "user", "privilege"), result->policyKey());
+}
