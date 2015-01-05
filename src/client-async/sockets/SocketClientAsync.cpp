@@ -35,11 +35,17 @@ SocketClientAsync::SocketClientAsync(const std::string &socketPath, ProtocolPtr 
 }
 
 Socket::ConnectionStatus SocketClientAsync::connect(void) {
-    return m_socket.connect();
+    Socket::ConnectionStatus status = m_socket.connect();
+    if (status != Socket::ConnectionStatus::ALREADY_CONNECTED)
+        clear();
+    return status;
 }
 
 Socket::ConnectionStatus SocketClientAsync::completeConnection(void) {
-    return m_socket.completeConnection();
+    Socket::ConnectionStatus status = m_socket.completeConnection();
+    if (status == Socket::ConnectionStatus::CONNECTION_FAILED)
+        clear();
+    return status;
 }
 
 int SocketClientAsync::getSockFd(void) {
@@ -47,7 +53,10 @@ int SocketClientAsync::getSockFd(void) {
 }
 
 bool SocketClientAsync::isConnected(void) {
-    return m_socket.isConnected();
+    if (m_socket.isConnected())
+        return true;
+    clear();
+    return false;
 }
 
 void SocketClientAsync::appendRequest(RequestPtr request) {
@@ -60,15 +69,27 @@ bool SocketClientAsync::isDataToSend(void) {
 }
 
 Socket::SendStatus SocketClientAsync::sendToCynara(void) {
-    return m_socket.sendToServer(*m_writeQueue);
+    Socket::SendStatus status = m_socket.sendToServer(*m_writeQueue);
+    if (status == Socket::SendStatus::CONNECTION_LOST)
+        clear();
+    return status;
 }
 
 bool SocketClientAsync::receiveFromCynara(void) {
-    return m_socket.receiveFromServer(*m_readQueue);
+    if (m_socket.receiveFromServer(*m_readQueue))
+        return true;
+    clear();
+    return false;
 }
 
 ResponsePtr SocketClientAsync::getResponse(void) {
     return m_protocol->extractResponseFromBuffer(m_readQueue);
+}
+
+void SocketClientAsync::clear()
+{
+    m_readQueue->clear();
+    m_writeQueue->clear();
 }
 
 } // namespace Cynara

@@ -58,6 +58,8 @@ private:
     ProtocolPtr m_protocol;
     BinaryQueuePtr m_readQueue;
     BinaryQueuePtr m_writeQueue;
+
+    void clear();
 };
 
 } // namespace Cynara
