@@ -24,6 +24,7 @@
 #include <memory>
 #include <string>
 
+#include <config/PathConfig.h>
 #include <exceptions/BucketDeserializationException.h>
 #include <exceptions/BucketRecordCorruptedException.h>
 #include <types/PolicyType.h>
@@ -46,7 +47,7 @@ void StorageDeserializer::initBuckets(Buckets &buckets) {
 
     for (std::size_t lineNum = 1; !m_inStream->eof(); ++lineNum) {
         std::string line;
-        std::getline(*m_inStream, line, StorageSerializer::recordSeparator());
+        std::getline(*m_inStream, line, PathConfig::StoragePath::bucketRecordSeparator);
 
         if (line.empty())
             break;
@@ -80,7 +81,7 @@ void StorageDeserializer::loadBuckets(Buckets &buckets) {
 
 PolicyBucketId StorageDeserializer::parseBucketId(const std::string &line,
                                                     std::size_t &beginToken) {
-    auto bucketNameEndToken = line.find(StorageSerializer::fieldSeparator(), beginToken);
+    auto bucketNameEndToken = line.find(PathConfig::StoragePath::bucketFieldSeparator, beginToken);
     if (bucketNameEndToken != std::string::npos) {
         auto bucketName = line.substr(beginToken, bucketNameEndToken - beginToken);
         beginToken = bucketNameEndToken + 1;

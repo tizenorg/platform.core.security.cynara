@@ -27,6 +27,7 @@
 #include <fstream>
 #include <memory>
 
+#include <config/PathConfig.h>
 #include <types/PolicyBucket.h>
 #include <types/PolicyBucketId.h>
 #include <types/PolicyCollection.h>
@@ -56,13 +57,13 @@ protected:
     inline void dumpFields(const Arg1 &arg1, const Args&... args) {
         dump(arg1);
         if (sizeof...(Args) > 0) {
-            *m_outStream << fieldSeparator();
+            *m_outStream << PathConfig::StoragePath::bucketFieldSeparator;
         }
         dumpFields(args...);
     }
 
     inline void dumpFields(void) {
-        *m_outStream << recordSeparator();
+        *m_outStream << PathConfig::StoragePath::bucketRecordSeparator;
     }
 
     void dump(const PolicyKeyFeature &keyFeature);
@@ -72,18 +73,6 @@ protected:
 
 private:
     std::shared_ptr<std::ostream> m_outStream;
-
-    static char m_fieldSeparator;
-    static char m_recordSeparator;
-
-public:
-    static const char &fieldSeparator(void) {
-        return m_fieldSeparator;
-    }
-
-    static const char &recordSeparator(void) {
-        return m_recordSeparator;
-    }
 };
 
 } /* namespace Cynara */

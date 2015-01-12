@@ -25,6 +25,7 @@
 #include <string>
 #include <vector>
 
+#include <config/PathConfig.h>
 #include <exceptions/BucketRecordCorruptedException.h>
 #include <types/PolicyCollection.h>
 #include <types/PolicyResult.h>
@@ -43,7 +44,7 @@ PolicyCollection BucketDeserializer::loadPolicies(void) {
     // TODO: Get someone smart to do error checking on stream
     for (std::size_t lineNum = 1; !m_inStream->eof(); ++lineNum) {
         std::string line;
-        std::getline(*m_inStream, line, StorageSerializer::recordSeparator());
+        std::getline(*m_inStream, line, PathConfig::StoragePath::bucketRecordSeparator);
 
         if (line.empty())
             break;
@@ -67,7 +68,7 @@ PolicyKey BucketDeserializer::parseKey(const std::string &line, std::size_t &beg
     std::array<std::string, 3> keyFeatures;
 
     for (std::size_t tokenNum = 0; tokenNum < keyFeatures.size(); ++tokenNum) {
-        auto endToken = line.find(StorageSerializer::fieldSeparator(), beginToken);
+        auto endToken = line.find(PathConfig::StoragePath::bucketFieldSeparator, beginToken);
         if (endToken != std::string::npos) {
             keyFeatures[tokenNum] = line.substr(beginToken, endToken - beginToken);
             beginToken = endToken + 1;
