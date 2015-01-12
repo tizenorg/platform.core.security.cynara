@@ -21,8 +21,9 @@
  */
 
 #include <fstream>
-#include <memory>
 #include <ios>
+#include <memory>
+#include <sstream>
 
 #include <exceptions/BucketSerializationException.h>
 #include <types/Policy.h>
@@ -35,12 +36,12 @@
 
 namespace Cynara {
 
-StorageSerializer::StorageSerializer(std::shared_ptr<std::ostream> os) : m_outStream(os) {
+template<typename T>
+StorageSerializer<T>::StorageSerializer(std::shared_ptr<T> os) : m_outStream(os) {
 }
 
-void StorageSerializer::dump(const Buckets &buckets,
-                             BucketStreamOpener streamOpener) {
-
+template<typename T>
+void StorageSerializer<T>::dump(const Buckets &buckets, BucketStreamOpener streamOpener) {
     for (const auto bucketIter : buckets) {
         const auto &bucket = bucketIter.second;
 
@@ -61,32 +62,41 @@ void StorageSerializer::dump(const Buckets &buckets,
     }
 }
 
-void StorageSerializer::dump(const PolicyBucket& bucket) {
+template<typename T>
+void StorageSerializer<T>::dump(const PolicyBucket& bucket) {
     for (auto it = std::begin(bucket); it != std::end(bucket); ++it) {
         const auto &policy = *it;
         dump(policy);
     }
 }
 
-void StorageSerializer::dump(const PolicyKeyFeature &keyFeature) {
+template<typename T>
+void StorageSerializer<T>::dump(const PolicyKeyFeature &keyFeature) {
     *m_outStream << keyFeature.toString();
 }
 
-void StorageSerializer::dump(const PolicyType &policyType) {
+template<typename T>
+void StorageSerializer<T>::dump(const PolicyType &policyType) {
     auto oldFormat = m_outStream->flags();
     *m_outStream << "0x" << std::uppercase <<  std::hex << policyType;
     m_outStream->flags(oldFormat);
 }
 
-void StorageSerializer::dump(const PolicyResult::PolicyMetadata &metadata) {
+template<typename T>
+void StorageSerializer<T>::dump(const PolicyResult::PolicyMetadata &metadata) {
     *m_outStream << metadata;
 }
 
-void StorageSerializer::dump(const PolicyCollection::value_type &policy) {
+template<typename T>
+void StorageSerializer<T>::dump(const PolicyCollection::value_type &policy) {
     const auto &key = policy->key();
     const auto &result = policy->result();
 
     dumpFields(key.client(), key.user(), key.privilege(), result.policyType(), result.metadata());
 }
+
+template class StorageSerializer<std::ofstream>;
+template class StorageSerializer<std::ostringstream>;
+template class StorageSerializer<std::stringstream>;
 
 } /* namespace Cynara */

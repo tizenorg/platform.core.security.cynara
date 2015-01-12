@@ -39,13 +39,14 @@
 
 namespace Cynara {
 
+template<typename T>
 class StorageSerializer {
 
 public:
     typedef std::function<std::shared_ptr<StorageSerializer>(const PolicyBucketId &)>
             BucketStreamOpener;
 
-    StorageSerializer(std::shared_ptr<std::ostream> os);
+    StorageSerializer(std::shared_ptr<T> os);
     virtual ~StorageSerializer() {};
 
     virtual void dump(const Buckets &buckets,
@@ -72,7 +73,7 @@ protected:
     void dump(const PolicyCollection::value_type &policy);
 
 private:
-    std::shared_ptr<std::ostream> m_outStream;
+    std::shared_ptr<T> m_outStream;
 };
 
 } /* namespace Cynara */
