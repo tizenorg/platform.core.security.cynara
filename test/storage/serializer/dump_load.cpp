@@ -54,7 +54,7 @@ TEST(dump_load, bucket) {
 
     auto ioStream = std::make_shared<std::stringstream>();
 
-    StorageSerializer serializer(ioStream);
+    StorageSerializer<std::stringstream> serializer(ioStream);
     serializer.dump(bucket);
 
     BucketDeserializer deserializer(ioStream);

@@ -51,7 +51,7 @@ TEST(serializer_dump, dump_empty_bucket) {
     auto oss = std::make_shared<std::ostringstream>();
     PolicyBucket bucket("empty");
 
-    StorageSerializer serializer(oss);
+    StorageSerializer<std::ostringstream> serializer(oss);
     serializer.dump(bucket);
 
     ASSERT_EQ("", oss->str());
@@ -69,7 +69,7 @@ TEST(serializer_dump, dump_bucket) {
                                                           Policy::simpleWithKey(pk2, DENY) }));
 
     auto outStream = std::make_shared<std::stringstream>();
-    StorageSerializer serializer(outStream);
+    StorageSerializer<std::stringstream> serializer(outStream);
     serializer.dump(bucket);
 
     // Split stream into records
@@ -99,7 +99,7 @@ TEST(serializer_dump, dump_bucket_bucket) {
                                                    Policy::bucketWithKey(pk3, bucketId) }};
 
     auto outStream = std::make_shared<std::stringstream>();
-    StorageSerializer serializer(outStream);
+    StorageSerializer<std::stringstream> serializer(outStream);
     serializer.dump(bucket);
 
     // Split stream into records

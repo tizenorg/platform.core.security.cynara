@@ -37,21 +37,21 @@
 
 class FakeStreamForBucketId {
 public:
-    MOCK_METHOD1(streamForBucketId,
-                 std::shared_ptr<Cynara::StorageSerializer>(const Cynara::PolicyBucketId &));
+    MOCK_METHOD1(streamForBucketId, std::shared_ptr<Cynara::StorageSerializer<std::stringstream> >(
+            const Cynara::PolicyBucketId &));
 
-    Cynara::StorageSerializer::BucketStreamOpener streamOpener() {
+    Cynara::StorageSerializer<std::stringstream>::BucketStreamOpener streamOpener() {
         return std::bind(&FakeStreamForBucketId::streamForBucketId, this, std::placeholders::_1);
     }
 };
 
 // Fake StorageSerializer for Cynara::PolicyBucket
-class FakeStorageSerializer : public Cynara::StorageSerializer {
+class FakeStorageSerializer : public Cynara::StorageSerializer<std::stringstream> {
 public:
-    FakeStorageSerializer(std::shared_ptr<std::ostringstream> o) : Cynara::StorageSerializer(o),
-                              outStream(o) {}
+    FakeStorageSerializer(std::shared_ptr<std::stringstream> o)
+    : Cynara::StorageSerializer<std::stringstream>(o), outStream(o) {}
     MOCK_METHOD1(dump, void(const Cynara::PolicyBucket &bucket));
-    std::shared_ptr<std::ostringstream> outStream;
+    std::shared_ptr<std::stringstream> outStream;
 };
 
 class StorageSerializerFixture : public ::testing::Test {
@@ -67,8 +67,8 @@ using namespace Cynara;
 // Be sure no calls to streamForBucketId() are made
 // and output stream is not touched
 TEST_F(StorageSerializerFixture, dump_buckets_empty) {
-    auto outStream = std::make_shared<std::ostringstream>();
-    StorageSerializer serializer(outStream);
+    auto outStream = std::make_shared<std::stringstream>();
+    StorageSerializer<std::stringstream> serializer(outStream);
     serializer.dump(Buckets(), fakeStreamOpener.streamOpener());
 
     // Stream should be empty
@@ -83,7 +83,7 @@ TEST_F(StorageSerializerFixture, dump_buckets) {
 
     // Will be returned as serializer for buckets
     auto fakeBucketSerializer = std::make_shared<FakeStorageSerializer>(
-            std::make_shared<std::ostringstream>());
+            std::make_shared<std::stringstream>());
 
     buckets = {
         { "bucket1", PolicyBucket("bucket1", PredefinedPolicyType::DENY) },
@@ -93,7 +93,7 @@ TEST_F(StorageSerializerFixture, dump_buckets) {
     };
 
     auto outStream = std::make_shared<std::stringstream>();
-    StorageSerializer dbSerializer(outStream);
+    StorageSerializer<std::stringstream> dbSerializer(outStream);
 
     // Make sure stream was opened for each bucket
     EXPECT_CALL(fakeStreamOpener, streamForBucketId(_))
@@ -128,7 +128,7 @@ TEST_F(StorageSerializerFixture, dump_buckets_io_error) {
     };
 
     auto outStream = std::make_shared<std::stringstream>();
-    StorageSerializer dbSerializer(outStream);
+    StorageSerializer<std::stringstream> dbSerializer(outStream);
 
     // Make sure stream was opened for each bucket
     EXPECT_CALL(fakeStreamOpener, streamForBucketId(_))
