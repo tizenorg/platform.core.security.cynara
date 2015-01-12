@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014 Samsung Electronics Co., Ltd All Rights Reserved
+ * Copyright (c) 2014-2015 Samsung Electronics Co., Ltd All Rights Reserved
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -20,9 +20,9 @@
  * @brief       Parses policies from input stream
  */
 
+#include <config/PathConfig.h>
 #include <exceptions/BucketRecordCorruptedException.h>
 #include <storage/StorageDeserializer.h>
-#include <storage/StorageSerializer.h>
 
 #include "AdminPolicyParser.h"
 
@@ -35,7 +35,7 @@ CynaraAdminPolicies parse(const std::shared_ptr<std::istream> &input) {
 
     for (std::size_t lineNum = 1; !input->eof(); ++lineNum) {
         std::string line;
-        std::getline(*input, line, StorageSerializer::recordSeparator());
+        std::getline(*input, line, PathConfig::StoragePath::bucketRecordSeparator);
 
         if (line.empty())
             break;
