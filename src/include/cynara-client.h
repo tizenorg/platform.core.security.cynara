@@ -32,6 +32,104 @@ extern "C" {
 typedef struct cynara cynara;
 typedef struct cynara_configuration cynara_configuration;
 
+/**
+ * \par Description:
+ * Initialize cynara_configuration. Create structure used in following configuration
+ * API calls.
+ *
+ * \par Purpose:
+ * If using configuration parameter in cynara  initialization function, this API must be called
+ * before any other cynara  configuration API function.
+ * It will create cynara_configuration structure, an optional parameter of cynara
+ * initialization.
+ *
+ * \par Typical use case:
+ * Once before setting parameters of cynara  configuration and passed to
+ * cynara_initialize(). If no custom configuration is needed, NULL can be used instead.
+ *
+ * \par Method of function operation:
+ * This API initializes inner library structures and in case of success returns pointer
+ * to created cynara_configuration structure.
+ *
+ * \par Sync (or) Async:
+ * This as a synchronous API.
+ *
+ * \par Thread-safety:
+ * This function is NOT thread-safe. If functions from described API are called by multithreaded
+ * application from different threads, they must be put into protected critical section.
+ *
+ *\par Important notes:
+ * Structure cynara_configuration created by cynara_configuration_create() call
+ * should be released with cynara_configuration_destroy().
+ * After passing cynara_configuration to cynara_initialize(), configuration structure
+ * can be destroyed before cynara_finish().
+ *
+ *\return pointer to cynara_configuration structure
+ *        or NULL in case of error.
+ *
+ */
+cynara_configuration *cynara_configuration_create(void);
+
+
+/**
+ * \par Description:
+ * Release cynara_configuration structure created with cynara_configuration_create().
+ *
+ * \par Purpose:
+ * This API should be used to clean up after usage of cynara_configuration.
+ * \par Typical use case:
+ * Once cynara_configuration is not needed.
+ *
+ * \par Method of function operation:
+ * This API releases inner library structure and destroys cynara_configuration structure.
+ *
+ * \par Sync (or) Async:
+ * This is a synchronous API.
+ *
+ * \par Thread-safety:
+ * This function is NOT thread-safe. If functions from described API are called by multithreaded
+ * application from different threads, they must be put into protected critical section.
+ *
+ *
+ * \param[in] p_conf cynara_configuration structure. If NULL, then the call has no effect.
+ */
+void cynara_configuration_destroy(cynara_configuration *p_conf);
+
+/**
+ * \par Description:
+ * Set client cache size.
+ *
+ * \par Purpose:
+ * Every response returned from cynara is cached as long as it's valid. Through this API user can
+ * set desirable amount of this way stored cynara responses.
+ *
+ * \par Typical use case:
+ * Once before setting parameters of cynara  configuration and passed to
+ * cynara_initialize().
+ *
+ * \par Method of function operation:
+ * This API initializes cache with given capacity.
+ *
+ * \par Sync (or) Async:
+ * This as a synchronous API.
+ *
+ * \par Thread-safety:
+ * This function is NOT thread-safe. If functions from described API are called by multithreaded
+ * application from different threads, they must be put into protected critical section.
+ *
+ *\par Important notes:
+ * After passing cynara_configuration to cynara_initialize() calling this API will have
+ * no effect.
+ *
+ *\param[in] p_conf cynara_configuration structure pointer
+ *\param[in] cache_size Cache size to be set
+ *
+ *\return CYNARA_API_SUCCESS on success
+ *        or negative error code on error.
+ *
+ */
+int cynara_configuration_set_cache_size(cynara_configuration *p_conf,
+                                              size_t cache_size);
 
 /**
  * \par Description:
