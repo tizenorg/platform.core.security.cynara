@@ -25,6 +25,7 @@
 #ifndef CYNARA_CLIENT_ASYNC_H
 #define CYNARA_CLIENT_ASYNC_H
 
+#include <stddef.h>
 #include <stdint.h>
 
 #include <cynara-error.h>
@@ -135,6 +136,102 @@ typedef void (*cynara_response_callback) (cynara_check_id check_id, cynara_async
 typedef void (*cynara_status_callback) (int old_fd, int new_fd, cynara_async_status status,
                                         void *user_status_data);
 
+/**
+ * \par Description:
+ * Initialize cynara_async_configuration. Create structure used in following configuration
+ * API calls.
+ *
+ * \par Purpose:
+ * If using configuration parameter in cynara async initialization function, this API must be called
+ * before any other cynara async configuration API function.
+ * It will create cynara_async_configuration structure, an optional parameter of cynara async
+ * initialization.
+ *
+ * \par Typical use case:
+ * Once before setting parameters of cynara async configuration and passed to
+ * cynara_async_initialize(). If no custom configuration is needed, NULL can be used instead.
+ *
+ * \par Method of function operation:
+ * This API initializes inner library structures and in case of success returns pointer
+ * to created cynara_async_configuration structure.
+ *
+ * \par Sync (or) Async:
+ * This as a synchronous API.
+ *
+ * \par Thread-safety:
+ * This function is NOT thread-safe. If functions from described API are called by multithreaded
+ * application from different threads, they must be put into protected critical section.
+ *
+ * \par Important notes:
+ * Structure cynara_async_configuration created by cynara_async_configuration_create() call
+ * should be released with cynara_async_configuration_destroy().
+ * After passing cynara_async_configuration to cynara_async_initialize(), configuration structure
+ * can be destroyed before cynara_async_finish().
+ *
+ * \return pointer to cynara_async_configuration structure
+ *        or NULL in case of error.
+ */
+cynara_async_configuration *cynara_async_configuration_create(void);
+
+
+/**
+ * \par Description:
+ * Release cynara_async_configuration structure created with cynara_async_configuration_create().
+ *
+ * \par Purpose:
+ * This API should be used to clean up after usage of cynara_async_configuration.
+ * 
+ * \par Typical use case:
+ * Once cynara_async_configuration is not needed.
+ *
+ * \par Method of function operation:
+ * This API releases inner library structure and destroys cynara_async_configuration structure.
+ *
+ * \par Sync (or) Async:
+ * This is a synchronous API.
+ *
+ * \par Thread-safety:
+ * This function is NOT thread-safe. If functions from described API are called by multithreaded
+ * application from different threads, they must be put into protected critical section.
+ *
+ * \param[in] p_conf cynara_async_configuration structure. If NULL, then the call has no effect.
+ */
+void cynara_async_configuration_destroy(cynara_async_configuration *p_conf);
+
+/**
+ * \par Description:
+ * Set client cache size.
+ *
+ * \par Purpose:
+ * Every response returned from cynara is cached as long as it's valid. Through this API user can
+ * set desirable amount of cynara responses stored this way.
+ *
+ * \par Typical use case:
+ * Once before setting parameters of cynara async configuration and passed to
+ * cynara_async_initialize().
+ *
+ * \par Method of function operation:
+ * This API initializes cache with given capacity.
+ *
+ * \par Sync (or) Async:
+ * This as a synchronous API.
+ *
+ * \par Thread-safety:
+ * This function is NOT thread-safe. If functions from described API are called by multithreaded
+ * application from different threads, they must be put into protected critical section.
+ *
+ * \par Important notes:
+ * After passing cynara_async_configuration to cynara_async_initialize() calling this API will have
+ * no effect.
+ *
+ * \param[in] p_conf cynara_async_configuration structure pointer.
+ * \param[in] cache_size Cache size to be set.
+ *
+ * \return CYNARA_API_SUCCESS on success
+ *        or negative error code on error.
+ */
+int cynara_async_configuration_set_cache_size(cynara_async_configuration *p_conf,
+                                              size_t cache_size);
 /**
  * \par Description:
  * Initialize cynara-async-client library with given configuration. Create structure used in
