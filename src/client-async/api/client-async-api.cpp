@@ -27,6 +27,7 @@
 #include <log/log.h>
 
 #include <api/ApiInterface.h>
+#include <configuration/Configuration.h>
 #include <cynara-client-async.h>
 #include <logic/Logic.h>
 
@@ -40,6 +41,47 @@ struct cynara_async {
         delete impl;
     }
 };
+
+struct cynara_async_configuration {
+    Cynara::Configuration *impl;
+
+    cynara_async_configuration(Cynara::Configuration *_impl) : impl(_impl) {
+    }
+
+    ~cynara_async_configuration() {
+        delete impl;
+    }
+};
+
+CYNARA_API
+cynara_async_configuration *cynara_async_configuration_create(void) {
+    cynara_async_configuration *p_conf;
+    int ret = Cynara::tryCatch([&]() {
+        p_conf = new cynara_async_configuration(new Cynara::Configuration);
+        LOGD("Cynara configuration initialized");
+        return CYNARA_API_SUCCESS;
+    });
+    if (ret != CYNARA_API_SUCCESS)
+        return nullptr;
+    return p_conf;
+}
+
+CYNARA_API
+void cynara_async_configuration_destroy(cynara_async_configuration *p_conf) {
+    delete p_conf;
+}
+
+CYNARA_API
+int cynara_async_configuration_set_cache_size(cynara_async_configuration *p_conf,
+                                               size_t cache_size) {
+    if (!p_conf || !p_conf->impl)
+        return CYNARA_API_INVALID_PARAM;
+
+    return Cynara::tryCatch([&]() {
+        p_conf->impl->setCacheSize(cache_size);
+        return CYNARA_API_SUCCESS;
+    });
+}
 
 CYNARA_API
 int cynara_async_initialize(cynara_async **pp_cynara,
