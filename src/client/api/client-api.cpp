@@ -27,6 +27,7 @@
 #include <exceptions/TryCatch.h>
 #include <log/log.h>
 
+#include <configuration/Configuration.h>
 #include <cynara-client.h>
 #include <cynara-error.h>
 #include <api/ApiInterface.h>
@@ -42,6 +43,47 @@ struct cynara {
     }
 };
 
+struct cynara_configuration {
+    Cynara::Configuration *impl;
+
+    cynara_configuration(Cynara::Configuration *_impl) : impl(_impl) {
+    }
+
+    ~cynara_configuration() {
+        delete impl;
+    }
+};
+
+CYNARA_API
+cynara_configuration *cynara_configuration_create(void) {
+    cynara_configuration *p_conf;
+    int ret = Cynara::tryCatch([&]() {
+        p_conf = new cynara_configuration(new Cynara::Configuration);
+        LOGD("Cynara configuration initialized");
+        return CYNARA_API_SUCCESS;
+    });
+    if (ret != CYNARA_API_SUCCESS)
+        return nullptr;
+    return p_conf;
+}
+
+CYNARA_API
+void cynara_configuration_destroy(cynara_configuration *p_conf) {
+    delete p_conf;
+}
+
+CYNARA_API
+int cynara_configuration_set_cache_size(cynara_configuration *p_conf,
+                                               size_t cache_size) {
+    if (!p_conf || !p_conf->impl)
+        return CYNARA_API_INVALID_PARAM;
+
+    return Cynara::tryCatch([&]() {
+        p_conf->impl->setCacheSize(cache_size);
+        return CYNARA_API_SUCCESS;
+    });
+}
+
 CYNARA_API
 int cynara_initialize(cynara **pp_cynara, const cynara_configuration *p_conf UNUSED)
 {
@@ -51,7 +93,7 @@ int cynara_initialize(cynara **pp_cynara, const cynara_configuration *p_conf UNU
     init_log();
 
     return Cynara::tryCatch([&]() {
-        *pp_cynara = new cynara(new Cynara::Logic);
+        *pp_cynara = new cynara(new Cynara::Logic());
 
         LOGD("Cynara client initialized");
 
