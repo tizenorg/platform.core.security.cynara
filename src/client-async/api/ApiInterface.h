@@ -23,6 +23,7 @@
 #ifndef SRC_CLIENT_ASYNC_API_APIINTERFACE_H_
 #define SRC_CLIENT_ASYNC_API_APIINTERFACE_H_
 
+#include <memory>
 #include <string>
 
 #include <cynara-client-async.h>
