@@ -29,25 +29,30 @@
 #include <types/PolicyKey.h>
 #include <types/PolicyResult.h>
 
+#include <configuration/Configuration.h>
+
 #include <api/ApiInterface.h>
 #include <cache/CacheInterface.h>
 
 namespace Cynara {
 
 class Logic : public ApiInterface {
-private:
-    SocketClientPtr m_socket;
-    PluginCachePtr m_cache;
-
-    void onDisconnected(void);
-    bool ensureConnection(void);
-    int requestResult(const PolicyKey &key, PolicyResult &result);
 public:
     Logic();
+    explicit Logic(const Configuration &conf);
     virtual ~Logic() {};
 
     virtual int check(const std::string &client, const ClientSession &session,
                       const std::string &user, const std::string &privilege);
+private:
+    Configuration m_conf;
+    SocketClientPtr m_socket;
+    PluginCachePtr m_cache;
+
+    void init(void);
+    void onDisconnected(void);
+    bool ensureConnection(void);
+    int requestResult(const PolicyKey &key, PolicyResult &result);
 };
 
 } // namespace Cynara

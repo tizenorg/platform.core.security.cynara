@@ -93,7 +93,10 @@ int cynara_initialize(cynara **pp_cynara, const cynara_configuration *p_conf UNU
     init_log();
 
     return Cynara::tryCatch([&]() {
-        *pp_cynara = new cynara(new Cynara::Logic());
+        if (p_conf && p_conf->impl)
+            *pp_cynara = new cynara(new Cynara::Logic(*(p_conf->impl)));
+        else
+            *pp_cynara = new cynara(new Cynara::Logic());
 
         LOGD("Cynara client initialized");
 
