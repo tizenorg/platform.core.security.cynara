@@ -25,6 +25,7 @@
 #define SRC_CLIENT_ASYNC_LOGIC_LOGIC_H_
 
 #include <cache/CacheInterface.h>
+#include <configuration/Configuration.h>
 #include <types/ProtocolFields.h>
 
 #include <api/ApiInterface.h>
@@ -39,6 +40,7 @@ namespace Cynara {
 class Logic : public ApiInterface {
 public:
     Logic(cynara_status_callback callback, void *userStatusData);
+    Logic(cynara_status_callback callback, void *userStatusData, const Configuration &conf);
     virtual ~Logic();
 
     virtual int checkCache(const std::string &client, const std::string &session,
@@ -55,6 +57,7 @@ private:
     typedef std::map<ProtocolFrameSequenceNumber, CheckData> CheckMap;
     typedef std::pair<ProtocolFrameSequenceNumber, CheckData> CheckPair;
 
+    Configuration m_conf;
     StatusCallback m_statusCallback;
     PluginCachePtr m_cache;
     SocketClientAsyncPtr m_socketClient;
@@ -63,6 +66,7 @@ private:
     bool m_operationPermitted;
     bool m_inAnswerCancelResponseCallback;
 
+    void init(void);
     bool checkCacheValid(void);
     void prepareRequestsToSend(void);
     cynara_async_status socketDataStatus(void);

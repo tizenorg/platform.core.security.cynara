@@ -45,10 +45,20 @@ namespace Cynara {
 Logic::Logic(cynara_status_callback callback, void *userStatusData)
     : m_statusCallback(callback, userStatusData), m_operationPermitted(true),
       m_inAnswerCancelResponseCallback(false) {
+    init();
+}
+
+Logic::Logic(cynara_status_callback callback, void *userStatusData, const Configuration &conf)
+    : m_conf(conf), m_statusCallback(callback, userStatusData),
+      m_operationPermitted(true), m_inAnswerCancelResponseCallback(false) {
+    init();
+}
+
+void Logic::init(void) {
     m_socketClient = std::make_shared<SocketClientAsync>(
         PathConfig::SocketPath::client, std::make_shared<ProtocolClient>());
 
-    m_cache = std::make_shared<CapacityCache>();
+    m_cache = std::make_shared<CapacityCache>(m_conf.getCacheSize());
     auto naiveInterpreter = std::make_shared<NaiveInterpreter>();
     for (auto &descr : naiveInterpreter->getSupportedPolicyDescr()) {
         m_cache->registerPlugin(descr, naiveInterpreter);

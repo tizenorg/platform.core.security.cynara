@@ -48,9 +48,17 @@ static ProtocolFrameSequenceNumber generateSequenceNumber(void) {
 }
 
 Logic::Logic() {
+    init();
+}
+
+Logic::Logic(const Configuration &conf) : m_conf(conf) {
+    init();
+}
+
+void Logic::init(void) {
     m_socket = std::make_shared<SocketClient>(PathConfig::SocketPath::client,
                                               std::make_shared<ProtocolClient>());
-    m_cache = std::make_shared<CapacityCache>();
+    m_cache = std::make_shared<CapacityCache>(m_conf.getCacheSize());
     auto naiveInterpreter = std::make_shared<NaiveInterpreter>();
     for (auto &descr : naiveInterpreter->getSupportedPolicyDescr()) {
         m_cache->registerPlugin(descr, naiveInterpreter);
