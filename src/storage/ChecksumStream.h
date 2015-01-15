@@ -34,7 +34,7 @@ namespace Cynara {
 class ChecksumStream {
 public:
     ChecksumStream(const std::string &filename, const std::shared_ptr<std::ofstream> &stream)
-    : m_chsStream(stream), m_bufStream(std::string()), m_filename(filename) {
+    : m_chsStream(stream), m_filename(filename) {
     }
     ~ChecksumStream();
 
