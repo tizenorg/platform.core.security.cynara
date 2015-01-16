@@ -24,8 +24,12 @@
 STATE_PATH='/var/cynara'
 DB_DIR='db'
 INDEX_NAME='buckets'
-DEFAULT_NAME='_'
+DEFAULT_BUCKET_NAME='_'
+CHECKSUM_NAME='checksum'
 DENY_POLICY=';0x0;'
+FIELD_SEPARATOR=';'
+EMPTY_FILE_CHS='$1$$qRPK7m23GJusamGpoGLby/'
+DEFAULT_INDEX_CHS='$1$$Z6OUrCl62KbAaZ16Cexgm0'
 
 ##### Variables, with default values (optional)
 
@@ -77,9 +81,15 @@ create_db() {
     # Create Cynara's database directory:
     mkdir -p ${STATE_PATH}/${DB_DIR}
 
-    # Create contents of minimal database: first index file, then default bucket
+    # Create contents of minimal database: first index file, then default bucket and finally
+    # checksums
     echo ${DENY_POLICY} > ${STATE_PATH}/${DB_DIR}/${INDEX_NAME}
-    touch ${STATE_PATH}/${DB_DIR}/${DEFAULT_NAME}
+    touch ${STATE_PATH}/${DB_DIR}/${DEFAULT_BUCKET_NAME}
+
+    INDEX_CHS_RECORD="${INDEX_NAME}${FIELD_SEPARATOR}${DEFAULT_INDEX_CHS}"
+    DEFAULT_BUCKET_CHS_RECORD="${DEFAULT_BUCKET_NAME}${FIELD_SEPARATOR}${EMPTY_FILE_CHS}"
+    echo ${INDEX_CHS_RECORD} > ${STATE_PATH}/${DB_DIR}/${CHECKSUM_NAME}
+    echo ${DEFAULT_BUCKET_CHS_RECORD} >> ${STATE_PATH}/${DB_DIR}/${CHECKSUM_NAME}
 
     # Set proper permissions for newly created database
     chown -R ${CYNARA_USER}:${CYNARA_GROUP} ${STATE_PATH}/${DB_DIR}
