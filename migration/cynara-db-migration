@@ -24,13 +24,18 @@
 STATE_PATH='/var/cynara'
 DB_DIR='db'
 INDEX_NAME='buckets'
-DEFAULT_NAME='_'
+DEFAULT_BUCKET_NAME='_'
+CHECKSUM_NAME='checksum'
+GUARD_NAME='guard'
 DENY_POLICY=';0x0;'
 
 # Return values for comparison
 LESS=-1
 EQUAL=0
 GREATER=1
+
+# Cynara version which introduced checksums
+CHS_INTRO_VERSION='0.6.0'
 
 ##### Variables, with default values (optional)
 
@@ -115,6 +120,39 @@ parse_opts() {
     done
 }
 
+update_checksum_file() {
+    CHECKSUMS="${STATE_PATH}/${DB_DIR}/${CHECKSUM_NAME}"
+    GUARD="${STATE_PATH}/${DB_DIR}/${GUARD_NAME}"
+    WILDCARD="*"
+
+    # Check if checksums should be generated from backup
+    if [ -e $GUARD ] ; then
+        WILDCARD="${WILDCARD}~"
+
+        # Database will be read from backup at next load
+        CHECKSUMS="${CHECKSUMS}~"
+    fi
+
+    # Mimic opening in truncate mode
+    echo -n "" > "${CHECKSUMS}"
+
+    for FILE in $(find ${STATE_PATH}/${DB_DIR}/${WILDCARD} -type f ! -name "${CHECKSUM_NAME}*" \
+                                                                   ! -name "${GUARD_NAME}"); do
+        CHECKSUM="$(/usr/sbin/cynara-db-chsgen ${FILE})"
+        if [ 0 -eq $? ] ; then
+            echo "${CHECKSUM}" >> ${CHECKSUMS}
+        else
+            exit_failure
+        fi
+    done
+
+    # Set proper permissions for newly created checksum file
+    chown -R ${CYNARA_USER}:${CYNARA_GROUP} ${CHECKSUMS}
+
+    # Set proper SMACK label for newly created checksum file
+    chsmack -a ${SMACK_LABEL} ${CHECKSUMS}
+}
+
 create_db() {
     if [ -z ${NEW_VERSION} ]; then
         failure
@@ -125,7 +163,7 @@ create_db() {
 
     # Create contents of minimal database: first index file, then default bucket
     echo ${DENY_POLICY} > ${STATE_PATH}/${DB_DIR}/${INDEX_NAME}
-    touch ${STATE_PATH}/${DB_DIR}/${DEFAULT_NAME}
+    touch ${STATE_PATH}/${DB_DIR}/${DEFAULT_BUCKET_NAME}
 
     # Set proper permissions for newly created database
     chown -R ${CYNARA_USER}:${CYNARA_GROUP} ${STATE_PATH}/${DB_DIR}
@@ -135,15 +173,50 @@ create_db() {
     chsmack -a ${SMACK_LABEL} ${STATE_PATH}/${DB_DIR}/*
 }
 
+upgrade_db() {
+    # Create minimal database if there was none:
+    if [ ! -d "${STATE_PATH}/${DB_DIR}" ]; then
+        create_db
+    fi
+
+    # Add or update checksum file if needed:
+    version_compare ${CHS_INTRO_VERSION} ${NEW_VERSION}
+    local RET=$?
+    if [ 0 -ge $RET ]; then
+        update_checksum_file
+    fi
+}
+
+downgrade_db() {
+    # Remove checksum file if needed:
+    version_compare ${CHS_INTRO_VERSION} ${NEW_VERSION}
+    local RET=$?
+    if [ 0 -lt $RET ]; then
+        rm "${STATE_PATH}/${DB_DIR}/${CHECKSUM_NAME}"
+    fi
+}
+
 migrate_db() {
     if [ -z ${OLD_VERSION} -o -z ${NEW_VERSION} ]; then
         failure
     fi
 
-    # Create minimal database if there was none:
-    if [ ! -d "${STATE_PATH}/${DB_DIR}" ]; then
-        create_db
-    fi
+    version_compare ${OLD_VERSION} ${NEW_VERSION}
+    local RET=$?
+    case $RET in
+    -1 )
+        upgrade_db
+        ;;
+    0 )
+        :
+        # Same version given twice; take no action
+        ;;
+    1 )
+        downgrade_db
+        ;;
+    * )
+        failure
+esac
 }
 
 remove_db() {
@@ -161,7 +234,7 @@ Usage: $0 COMMAND OPTIONS
 This script installs, migrates to another version or removes Cynara's policies database
 
 Commands:
-  upgrade (up)    migrate old data to new version of database structure
+  upgrade (up)    migrate data to different version of database
   install (in)    create minimal database
   uninstall (rm)  remove database entirely
 
@@ -177,6 +250,10 @@ EOF
 
 failure() {
     usage
+    exit_failure
+}
+
+exit_failure() {
     exit 1
 }
 
@@ -196,6 +273,7 @@ case $1 in
         shift $OPTIND
         parse_opts "$@"
         create_db
+        update_checksum_file
         ;;
     "rm" | "uninstall" )
         shift $OPTIND
