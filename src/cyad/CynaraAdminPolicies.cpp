@@ -94,4 +94,39 @@ cynara_admin_policy* const *CynaraAdminPolicies::data(void) const {
     return m_policies.data();
 }
 
+cynara_admin_policy **CynaraAdminPolicies::duplicate(void) const {
+    if (sealed() == false) {
+        throw std::logic_error("Collection is not sealed");
+    }
+
+    auto dup = static_cast<cynara_admin_policy **>(calloc(m_policies.size(),
+                                                   sizeof(cynara_admin_policy *)));
+
+    if (dup == nullptr)
+        throw std::bad_alloc();
+
+    for (auto i = 0u; i < m_policies.size() - 1; ++i) {
+        dup[i] = static_cast<cynara_admin_policy *>(malloc(sizeof(cynara_admin_policy)));
+        if (dup[i] == nullptr) {
+            free(dup);
+            throw std::bad_alloc();
+        }
+
+        // TODO: check every single strdup for null
+        dup[i]->bucket = strdup(m_policies.at(i)->bucket);
+        dup[i]->client = strdup(m_policies.at(i)->client);
+        dup[i]->user = strdup(m_policies.at(i)->user);
+        dup[i]->privilege = strdup(m_policies.at(i)->privilege);
+        dup[i]->result = m_policies.at(i)->result;
+        if (m_policies.at(i)->result_extra)
+            dup[i]->result_extra = strdup(m_policies.at(i)->result_extra);
+        else
+            dup[i]->result_extra = nullptr;
+    }
+
+    dup[m_policies.size() - 1] = nullptr;
+
+    return dup;
+}
+
 } /* namespace Cynara */

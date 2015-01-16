@@ -45,6 +45,9 @@ const OptionsMap commandlineOptions = {
     { CmdlineOpt::Check,
         { "check", CmdlineOpt::Check, "check",
           "", OptHasArg::NoArgument } },
+    { CmdlineOpt::ListPolicies,
+        { "list-policies", CmdlineOpt::ListPolicies, "list-policies",
+          "", OptHasArg::RequiredArgument } },
 
     { CmdlineOpt::Type,
         { "type", CmdlineOpt::Type, "type=<type>",
