@@ -79,4 +79,40 @@
 #define CYNARA_API_INVALID_COMMANDLINE_PARAM    -12
 /** @}*/
 
+/**
+ * \par Description:
+ * Returns the error string in the user-supplied buffer buf of length buflen.
+ *
+ * \par Purpose:
+ * This function populates passed argument buf with a string that describes the error code
+ * passed in the argument errnum, possibly using the LC_MESSAGES part of the current locale
+ * to select the appropriate language.
+ *
+ * \par Typical use case:
+ * Once after any of API functions returns negative value (if the error message is to be presented
+ * to the user).
+ *
+ * \par Method of function operation:
+ * This function copies error string to memory pointed by argument buf along with termination
+ * character ('\0').
+ *
+ * \par Sync (or) async:
+ * This is a synchronous API.
+ *
+ * \par Important notes:
+ * This function copies error string to memory pointed by argument buf only if the buffer is
+ * of sufficient size (indicated by argument buflen). User is responsible for allocating sufficient
+ * memory for both error string and termination character ('\0').
+ *
+ * \param[in] errnum error number
+ * \param[out] buf buffer for error message
+ * \param[in] buflen buffer size
+ *
+ * \return CYNARA_API_SUCCESS on success, CYNARA_API_OUT_OF_MEMORY, if error message couldn't fit
+ *         into allocated buffer, or CYNARA_API_INVALID_PARAM if errnum is not a valid error number.
+ *
+ * \brief Obtain error message from error number.
+ */
+int cynara_strerror(int errnum, char *buf, size_t buflen);
+
 #endif /* CYNARA_ERROR_H */
