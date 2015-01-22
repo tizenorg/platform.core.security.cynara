@@ -33,7 +33,7 @@ namespace Cynara {
 
 Cyad::Cyad(int argc, char **argv) : m_parser(argc, argv), m_cynaraInitError(CYNARA_API_SUCCESS) {
     try {
-        m_dispatcher.reset(new CommandsDispatcher(m_io, m_adminApiWrapper));
+        m_dispatcher.reset(new CommandsDispatcher(m_io, m_adminApiWrapper, m_errorApiWrapper));
     } catch (const Cynara::AdminLibraryInitializationFailedException &ex) {
         m_cynaraInitError = ex.errorCode();
     }
