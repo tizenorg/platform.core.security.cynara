@@ -87,6 +87,7 @@ SET(CYNARA_TESTS_SOURCES
     cyad/policy_collection.cpp
     cyad/policy_parser.cpp
     helpers.cpp
+    storage/checksum/checksumvalidator.cpp
     storage/performance/bucket.cpp
     storage/storage/policies.cpp
     storage/storage/check.cpp
