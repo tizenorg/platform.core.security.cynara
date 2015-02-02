@@ -29,6 +29,7 @@
 #include <cyad/CommandlineParser/CyadCommandlineParser.h>
 #include <cyad/CommandsDispatcher.h>
 #include <cyad/DispatcherIO.h>
+#include <cyad/ErrorApiWrapper.h>
 
 namespace Cynara {
 
@@ -42,6 +43,7 @@ public:
 
 private:
     AdminApiWrapper m_adminApiWrapper;
+    ErrorApiWrapper m_errorApiWrapper;
     DispatcherIO m_io;
     std::unique_ptr<CommandsDispatcher> m_dispatcher;
     CyadCommandlineParser m_parser;
