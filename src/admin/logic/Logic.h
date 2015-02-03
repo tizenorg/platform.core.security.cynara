@@ -25,12 +25,16 @@
 #define SRC_ADMIN_LOGIC_LOGIC_H_
 
 #include <functional>
+#include <memory>
 
 #include <common/lock/FileLock.h>
 
 #include <api/ApiInterface.h>
 
 namespace Cynara {
+
+class Logic;
+typedef std::unique_ptr<Logic> LogicUniquePtr;
 
 class OnlineLogic;
 class OfflineLogic;

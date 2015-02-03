@@ -94,11 +94,16 @@ int cynara_async_initialize(cynara_async **pp_cynara,
     init_log();
 
     return Cynara::tryCatch([&]() {
-        if (p_conf && p_conf->impl)
-            *pp_cynara = new cynara_async(new Cynara::Logic(callback, user_status_data,
-                                                            *(p_conf->impl)));
-        else
-            *pp_cynara = new cynara_async(new Cynara::Logic(callback, user_status_data));
+        if (p_conf && p_conf->impl) {
+            Cynara::LogicUniquePtr ptr(new Cynara::Logic(callback, user_status_data,
+                                                         *(p_conf->impl)));
+            *pp_cynara = new cynara_async(ptr.get());
+            ptr.release();
+        } else {
+            Cynara::LogicUniquePtr ptr(new Cynara::Logic(callback, user_status_data));
+            *pp_cynara = new cynara_async(ptr.get());
+            ptr.release();
+        }
 
         LOGD("Cynara client async initialized");
 
