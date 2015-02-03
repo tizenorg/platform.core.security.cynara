@@ -23,12 +23,17 @@
 #ifndef SRC_AGENT_LOGIC_LOGIC_H_
 #define SRC_AGENT_LOGIC_LOGIC_H_
 
+#include <memory>
+
 #include <types/Agent.h>
 
 #include <api/ApiInterface.h>
 #include <socket/AgentSocketClient.h>
 
 namespace Cynara {
+
+class Logic;
+typedef std::unique_ptr<Logic> LogicUniquePtr;
 
 class Logic : public ApiInterface {
 public:

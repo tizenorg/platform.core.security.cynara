@@ -32,6 +32,9 @@
 
 namespace Cynara {
 
+class Logic;
+typedef std::unique_ptr<Logic> LogicUniquePtr;
+
 class OnlineLogic;
 class OfflineLogic;
 

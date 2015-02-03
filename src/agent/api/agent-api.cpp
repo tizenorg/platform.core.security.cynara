@@ -54,7 +54,9 @@ int cynara_agent_initialize(cynara_agent **pp_cynara_agent, const char *p_agent_
     init_log();
 
     return Cynara::tryCatch([&]() {
-        *pp_cynara_agent = new cynara_agent(new Cynara::Logic(p_agent_type));
+        Cynara::LogicUniquePtr ptr(new Cynara::Logic(p_agent_type));
+        *pp_cynara_agent = new cynara_agent(ptr.get());
+        ptr.release();
 
         LOGD("Cynara agent initialized");
 
