@@ -16,6 +16,7 @@
 /**
  * @file        src/include/cynara-client.h
  * @author      Lukasz Wojciechowski <l.wojciechow@partner.samsung.com>
+ * @author      Zofia Abramowska <z.abramowska@samsung.com>
  * @version     1.0
  * @brief       This file contains client APIs of Cynara available with libcynara-client.
  */
@@ -234,7 +235,57 @@ int cynara_finish(cynara *p_cynara);
  * or other error code on error.
  */
 int cynara_check(cynara *p_cynara, const char *client, const char *client_session, const char *user,
-        const char *privilege);
+                 const char *privilege);
+
+/**
+ * \par Description:
+ * Check if client, user access for given privilege can be obtained immediately.
+ *
+ * \par Purpose:
+ * This API should be used for a quick check if a user running application identified as client
+ * has access to a privilege.
+ *
+ * \par Typical use case:
+ * An application has some functionalities requiring permission for given privilege. With this API
+ * application can check, if permission is definitely denied, so functionality can be disabled
+ * for use.
+ *
+ * \par Method of function operation:
+ * Client (a process / application) demanding access to a privilege is running as some user.
+ * For such triple an access to a privilege is checked by calling cynara. Unlike cynara_check(),
+ * no matter the defined policy, this API won't trigger any external application launch. If one
+ * would be required, an CYNARA_API_ACCESS_NOT_RESOLVED will be returned. Additional parameter
+ * client_session may be used to distinguish between client session (e.g. for allowing access
+ * only for this particular application launch). When permission is defined as one of simple
+ * predefined policies Allow or Deny cynara_simple_check() will return CYNARA_API_PERMISSION_ALLOWED
+ * or CYNARA_API_PERMISSION_DENIED respectively. Complex policies can be resolved through client
+ * cache if any cynara_check() calls were performed previously.
+ *
+ * \par Sync (or) Async:
+ * This is a synchronous API.
+ *
+ * \par Thread-safety:
+ * This function is NOT thread-safe. If functions from described API are called by multithreaded
+ * application from different threads, they must be put into mutex protected critical section.
+ *
+ * \par Important notes:
+ * No external application will be launched, answer will be taken from cynara database only.
+ * If policy kept in database cannot be resolved yet, then CYNARA_API_ACCESS_NOT_RESOLVED will be
+ * returned.
+ * Call to cynara_check needs cynara structure to be created first with call to cynara_initialize.
+ *
+ * \param[in] p_cynara Cynara structure.
+ * \param[in] client Application or process identifier.
+ * \param[in] client_session Session of client (connection, launch).
+ * \param[in] user User running client.
+ * \param[in] privilege Privilege that is a subject of a check.
+ *
+ * \return CYNARA_API_ACCESS_ALLOWED on access allowed, CYNARA_API_ACCESS_DENIED on access denial,
+ * CYNARA_API_ACCESS_NOT_RESOLVED when decision is not known without usage of external plugins or
+ * agents and negative error code on error.
+ */
+int cynara_simple_check(cynara *p_cynara, const char *client, const char *client_session,
+                        const char *user, const char *privilege);
 
 #ifdef __cplusplus
 }
