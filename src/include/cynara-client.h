@@ -234,7 +234,53 @@ int cynara_finish(cynara *p_cynara);
  * or other error code on error.
  */
 int cynara_check(cynara *p_cynara, const char *client, const char *client_session, const char *user,
-        const char *privilege);
+                 const char *privilege);
+
+/**
+ * \par Description:
+ * Check if client, user access for given privilege can be obtained immediately.
+ *
+ * \par Purpose:
+ * This API should be used for quick check if a user running application identified as client
+ * has access to a privilege.
+ *
+ * \par Typical use case:
+ * A service want to ask trusted process (Cynara), if a client demanding access to some privilege
+ * has proper rights. The answer may not be yet resolved if any additional action is required for
+ * cynara to perform. To get specified answer caller can use cynara_check() function.
+ *
+ * \par Method of function operation:
+ * Client (a process / application) demanding access to a privilege is running as some user.
+ * For such triple an access to a privilege is checked by calling cynara.
+ * Depending on defined policy, an external application may be launched to ask user a question,
+ * e.g. if [s]he wants to allow client to use a privilege. Additional parameter client_session
+ * may be used to distinguish between client session (e.g. for allowing access only for this
+ * particular application launch).
+ *
+ * \par Sync (or) Async:
+ * This is a Synchronous API.
+ *
+ * \par Thread-safeness:
+ * This function is NOT thread-safe. If functions from described API are called by multithreaded
+ * application from different threads, they must be put into mutex protected critical section.
+ *
+ * \par Important notes:
+ * No external application will be launched, answer will be taken from cynara database only.
+ * If policy kept in database cannot be resolved yet, then CYNARA_API_ACCESS_NOT_RESOLVED will be
+ * returned.
+ * Call to cynara_check needs cynara structure to be created first with call to cynara_initialize.
+ *
+ * \param[in] p_cynara Cynara structure.
+ * \param[in] client Application or process identifier.
+ * \param[in] client_session Session of client (connection, launch).
+ * \param[in] user User running client.
+ * \param[in] privilege Privilege that is a subject of a check..
+ *
+ * \return CYNARA_API_ACCESS_ALLOWED on access allowed, CYNARA_API_ACCESS_DENIED on access denial,
+ * CYNARA_API_ACCESS_NOT_RESOLVED when decision is not yet known or negative error code on error.
+ */
+int cynara_simple_check(cynara *p_cynara, const char *client, const char *client_session,
+                        const char *user, const char *privilege);
 
 #ifdef __cplusplus
 }

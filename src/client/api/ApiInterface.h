@@ -37,6 +37,8 @@ public:
 
     virtual int check(const std::string &client, const ClientSession &session,
                       const std::string &user, const std::string &privilege) = 0;
+    virtual int simpleCheck(const std::string &client, const ClientSession &session,
+                             const std::string &user, const std::string &privilege) = 0;
 };
 
 } // namespace Cynara

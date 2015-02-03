@@ -32,6 +32,8 @@
  * result codes beginning with negative codes indicate an error.
  * @{
 */
+/*! \brief  indicating access that cannot be resolved without further actions*/
+#define CYNARA_API_ACCESS_NOT_RESOLVED          3
 
 /*! \brief   indicating access that was checked is allowed */
 #define CYNARA_API_ACCESS_ALLOWED               2
