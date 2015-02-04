@@ -27,6 +27,7 @@
 #include <exceptions/BucketNotExistsException.h>
 #include <exceptions/DefaultBucketDeletionException.h>
 #include <exceptions/DefaultBucketSetNoneException.h>
+#include <exceptions/EmergencyException.h>
 #include <types/pointers.h>
 #include <types/Policy.h>
 #include <types/PolicyBucket.h>
@@ -165,11 +166,23 @@ void Storage::erasePolicies(const PolicyBucketId &bucketId, bool recursive,
 }
 
 void Storage::load(void) {
-    m_backend.load();
+    try {
+        m_backend.load();
+    } catch (const EmergencyException &) {
+        m_emergencyMode->setActive();
+    }
 }
 
 void Storage::save(void) {
     m_backend.save();
+}
+
+void Storage::bindEmergencyMode(const std::shared_ptr<EmergencyMode> &emergencyMode) {
+    m_emergencyMode = emergencyMode;
+}
+
+void Storage::unbindAll(void) {
+    m_emergencyMode.reset();
 }
 
 } // namespace Cynara

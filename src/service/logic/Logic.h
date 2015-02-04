@@ -51,6 +51,10 @@ public:
         m_agentManager = agentManager;
     }
 
+    void bindEmergencyMode(const EmergencyModePtr &emergencyMode) {
+        m_emergencyMode = emergencyMode;
+    }
+
     void bindPluginManager(PluginManagerPtr pluginManager) {
         m_pluginManager = pluginManager;
     }
@@ -65,6 +69,7 @@ public:
 
     void unbindAll(void) {
         m_agentManager.reset();
+        m_emergencyMode.reset();
         m_pluginManager.reset();
         m_storage.reset();
         m_socketManager.reset();
@@ -88,6 +93,7 @@ public:
 private:
     AgentManagerPtr m_agentManager;
     CheckRequestManager m_checkRequestManager;
+    EmergencyModePtr m_emergencyMode;
     PluginManagerPtr m_pluginManager;
     StoragePtr m_storage;
     SocketManagerPtr m_socketManager;

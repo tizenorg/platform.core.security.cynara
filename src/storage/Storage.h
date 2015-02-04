@@ -25,9 +25,11 @@
 #define SRC_STORAGE_STORAGE_H_
 
 #include <map>
+#include <memory>
 #include <string>
 #include <vector>
 
+#include <emergency/EmergencyMode.h>
 #include <types/Policy.h>
 #include <types/PolicyBucket.h>
 #include <types/PolicyBucketId.h>
@@ -41,7 +43,7 @@ namespace Cynara {
 class Storage
 {
 public:
-    Storage(StorageBackend &backend) : m_backend(backend) {}
+    Storage(StorageBackend &backend) : m_backend(backend), m_emergencyMode(nullptr) {}
 
     PolicyResult checkPolicy(const PolicyKey &key,
                              const PolicyBucketId &startBucketId = defaultPolicyBucketId,
@@ -61,11 +63,15 @@ public:
     void load(void);
     void save(void);
 
+    void bindEmergencyMode(const std::shared_ptr<EmergencyMode> &emergencyMode);
+    void unbindAll(void);
+
 protected:
     PolicyResult minimalPolicy(const PolicyBucket &bucket, const PolicyKey &key, bool recursive);
 
 private:
     StorageBackend &m_backend; // backend strategy
+    std::shared_ptr<EmergencyMode> m_emergencyMode;
 };
 
 } // namespace Cynara

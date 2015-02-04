@@ -48,6 +48,7 @@ private:
     StorageBackendPtr m_storageBackend;
     Lockable m_lockFile;
     FileLock m_databaseLock;
+    EmergencyModePtr m_emergencyMode;
 };
 
 } // namespace Cynara

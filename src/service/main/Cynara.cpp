@@ -29,6 +29,7 @@
 #include <exceptions/InitException.h>
 
 #include <agent/AgentManager.h>
+#include <emergency/EmergencyMode.h>
 #include <logic/Logic.h>
 #include <plugin/PluginManager.h>
 #include <sockets/SocketManager.h>
@@ -42,7 +43,8 @@ namespace Cynara {
 
 Cynara::Cynara()
     : m_logic(nullptr), m_socketManager(nullptr), m_storage(nullptr), m_storageBackend(nullptr),
-      m_lockFile(PathConfig::StoragePath::lockFile), m_databaseLock(m_lockFile) {
+      m_lockFile(PathConfig::StoragePath::lockFile), m_databaseLock(m_lockFile),
+      m_emergencyMode(nullptr) {
 }
 
 Cynara::~Cynara() {
@@ -51,6 +53,7 @@ Cynara::~Cynara() {
 
 void Cynara::init(void) {
     m_agentManager = std::make_shared<AgentManager>();
+    m_emergencyMode = std::make_shared<EmergencyMode>();
     m_logic = std::make_shared<Logic>();
     m_pluginManager = std::make_shared<PluginManager>(PathConfig::PluginPath::serviceDir);
     m_socketManager = std::make_shared<SocketManager>();
@@ -58,14 +61,18 @@ void Cynara::init(void) {
     m_storage = std::make_shared<Storage>(*m_storageBackend);
 
     m_logic->bindAgentManager(m_agentManager);
+    m_logic->bindEmergencyMode(m_emergencyMode);
     m_logic->bindPluginManager(m_pluginManager);
     m_logic->bindStorage(m_storage);
     m_logic->bindSocketManager(m_socketManager);
 
     m_socketManager->bindLogic(m_logic);
 
+    m_storage->bindEmergencyMode(m_emergencyMode);
+
     m_databaseLock.lock(); // Wait until database lock can be acquired
     m_storage->load();
+
     m_pluginManager->loadPlugins();
 }
 
@@ -86,7 +93,12 @@ void Cynara::finalize(void) {
         m_socketManager->unbindAll();
     }
 
+    if (m_storage) {
+        m_storage->unbindAll();
+    }
+
     m_agentManager.reset();
+    m_emergencyMode.reset();
     m_logic.reset();
     m_pluginManager.reset();
     m_socketManager.reset();
