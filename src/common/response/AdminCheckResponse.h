@@ -33,9 +33,10 @@ namespace Cynara {
 
 class AdminCheckResponse : public Response {
 public:
-    AdminCheckResponse(const PolicyResult &result, bool bucketValid,
+    AdminCheckResponse(const PolicyResult &result, bool bucketValid, bool dbCorrupted,
                        ProtocolFrameSequenceNumber sequenceNumber) :
-        Response(sequenceNumber), m_result(result), m_bucketValid(bucketValid) {
+        Response(sequenceNumber), m_result(result), m_bucketValid(bucketValid),
+        m_dbCorrupted(dbCorrupted) {
     }
 
     virtual ~AdminCheckResponse() {}
@@ -51,9 +52,14 @@ public:
         return m_bucketValid;
     }
 
+    bool isDbCorrupted(void) const {
+        return m_dbCorrupted;
+    }
+
 private:
     const PolicyResult m_result;
     bool m_bucketValid;
+    bool m_dbCorrupted;
 };
 
 } // namespace Cynara

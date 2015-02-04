@@ -44,6 +44,8 @@ void compare(const Cynara::DescriptionListResponse &resp1,
     }
 }
 
+static const bool DB_OK = false;
+
 } /* namespace anonymous */
 
 using namespace Cynara;
@@ -57,7 +59,7 @@ TEST(ProtocolAdmin, DescriptionListResponse01) {
         PolicyDescription(Types::allow, "allow"),
     };
 
-    auto response = std::make_shared<DescriptionListResponse>(descriptions, SN::min);
+    auto response = std::make_shared<DescriptionListResponse>(descriptions, DB_OK, SN::min);
     auto protocol = std::make_shared<ProtocolAdmin>();
     testResponse(response, protocol);
 }
@@ -67,7 +69,7 @@ TEST(ProtocolAdmin, DescriptionListResponse02) {
         PolicyDescription(Types::bucket, "bucket"),
     };
 
-    auto response = std::make_shared<DescriptionListResponse>(descriptions, SN::min_1);
+    auto response = std::make_shared<DescriptionListResponse>(descriptions, DB_OK, SN::min_1);
     auto protocol = std::make_shared<ProtocolAdmin>();
     testResponse(response, protocol);
 }
@@ -77,7 +79,7 @@ TEST(ProtocolAdmin, DescriptionListResponse03) {
         PolicyDescription(Types::deny, "deny"),
     };
 
-    auto response = std::make_shared<DescriptionListResponse>(descriptions, SN::max);
+    auto response = std::make_shared<DescriptionListResponse>(descriptions, DB_OK, SN::max);
     auto protocol = std::make_shared<ProtocolAdmin>();
     testResponse(response, protocol);
 }
@@ -87,7 +89,7 @@ TEST(ProtocolAdmin, DescriptionListResponse04) {
         PolicyDescription(Types::none, "none"),
     };
 
-    auto response = std::make_shared<DescriptionListResponse>(descriptions, SN::max_1);
+    auto response = std::make_shared<DescriptionListResponse>(descriptions, DB_OK, SN::max_1);
     auto protocol = std::make_shared<ProtocolAdmin>();
     testResponse(response, protocol);
 }
@@ -97,7 +99,7 @@ TEST(ProtocolAdmin, DescriptionListResponse05) {
         PolicyDescription(Types::plugin_type, "plugin"),
     };
 
-    auto response = std::make_shared<DescriptionListResponse>(descriptions, SN::mid);
+    auto response = std::make_shared<DescriptionListResponse>(descriptions, DB_OK, SN::mid);
     auto protocol = std::make_shared<ProtocolAdmin>();
     testResponse(response, protocol);
 }
@@ -113,7 +115,7 @@ TEST(ProtocolAdmin, DescriptionListResponseMultipleDescriptions) {
         PolicyDescription(Types::plugin_type, "plugin"),
     };
 
-    auto response = std::make_shared<DescriptionListResponse>(descriptions, SN::max_2);
+    auto response = std::make_shared<DescriptionListResponse>(descriptions, DB_OK, SN::max_2);
     auto protocol = std::make_shared<ProtocolAdmin>();
     testResponse(response, protocol);
 }
@@ -121,7 +123,7 @@ TEST(ProtocolAdmin, DescriptionListResponseMultipleDescriptions) {
 TEST(ProtocolAdmin, DescriptionListResponseEmptyDescriptions) {
     std::vector<PolicyDescription> descriptions;
 
-    auto response = std::make_shared<DescriptionListResponse>(descriptions, SN::min_2);
+    auto response = std::make_shared<DescriptionListResponse>(descriptions, DB_OK, SN::min_2);
     auto protocol = std::make_shared<ProtocolAdmin>();
     testResponse(response, protocol);
 }
@@ -133,7 +135,7 @@ TEST(ProtocolAdmin, DescriptionListResponseBinary01) {
         PolicyDescription(Types::allow, "allow"),
     };
 
-    auto response = std::make_shared<DescriptionListResponse>(descriptions, SN::min);
+    auto response = std::make_shared<DescriptionListResponse>(descriptions, DB_OK, SN::min);
     auto protocol = std::make_shared<ProtocolAdmin>();
     binaryTestResponse(response, protocol);
 }
@@ -143,7 +145,7 @@ TEST(ProtocolAdmin, DescriptionListResponseBinary02) {
         PolicyDescription(Types::bucket, "bucket"),
     };
 
-    auto response = std::make_shared<DescriptionListResponse>(descriptions, SN::min_1);
+    auto response = std::make_shared<DescriptionListResponse>(descriptions, DB_OK, SN::min_1);
     auto protocol = std::make_shared<ProtocolAdmin>();
     binaryTestResponse(response, protocol);
 }
@@ -153,7 +155,7 @@ TEST(ProtocolAdmin, DescriptionListResponseBinary03) {
         PolicyDescription(Types::deny, "deny"),
     };
 
-    auto response = std::make_shared<DescriptionListResponse>(descriptions, SN::max);
+    auto response = std::make_shared<DescriptionListResponse>(descriptions, DB_OK, SN::max);
     auto protocol = std::make_shared<ProtocolAdmin>();
     binaryTestResponse(response, protocol);
 }
@@ -163,7 +165,7 @@ TEST(ProtocolAdmin, DescriptionListResponseBinary04) {
         PolicyDescription(Types::none, "none"),
     };
 
-    auto response = std::make_shared<DescriptionListResponse>(descriptions, SN::max_1);
+    auto response = std::make_shared<DescriptionListResponse>(descriptions, DB_OK, SN::max_1);
     auto protocol = std::make_shared<ProtocolAdmin>();
     binaryTestResponse(response, protocol);
 }
@@ -173,7 +175,7 @@ TEST(ProtocolAdmin, DescriptionListResponseBinary05) {
         PolicyDescription(Types::plugin_type, "plugin"),
     };
 
-    auto response = std::make_shared<DescriptionListResponse>(descriptions, SN::mid);
+    auto response = std::make_shared<DescriptionListResponse>(descriptions, DB_OK, SN::mid);
     auto protocol = std::make_shared<ProtocolAdmin>();
     binaryTestResponse(response, protocol);
 }
@@ -189,7 +191,7 @@ TEST(ProtocolAdmin, DescriptionListResponseBinaryMultipleDescriptions) {
         PolicyDescription(Types::plugin_type, "plugin"),
     };
 
-    auto response = std::make_shared<DescriptionListResponse>(descriptions, SN::max_2);
+    auto response = std::make_shared<DescriptionListResponse>(descriptions, DB_OK, SN::max_2);
     auto protocol = std::make_shared<ProtocolAdmin>();
     binaryTestResponse(response, protocol);
 }
@@ -197,7 +199,7 @@ TEST(ProtocolAdmin, DescriptionListResponseBinaryMultipleDescriptions) {
 TEST(ProtocolAdmin, DescriptionListResponseBinaryEmptyDescriptions) {
     std::vector<PolicyDescription> descriptions;
 
-    auto response = std::make_shared<DescriptionListResponse>(descriptions, SN::min_2);
+    auto response = std::make_shared<DescriptionListResponse>(descriptions, DB_OK, SN::min_2);
     auto protocol = std::make_shared<ProtocolAdmin>();
     binaryTestResponse(response, protocol);
 }
