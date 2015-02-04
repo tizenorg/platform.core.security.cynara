@@ -36,7 +36,8 @@ public:
         NO_BUCKET,
         NO_POLICY_TYPE,
         NOT_ALLOWED,
-        FAILED
+        FAILED,
+        DB_CORRUPTED
     };
 
     const Code m_code;

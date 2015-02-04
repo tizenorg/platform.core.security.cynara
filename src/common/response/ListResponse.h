@@ -35,9 +35,10 @@ namespace Cynara {
 
 class ListResponse : public Response {
 public:
-    ListResponse(const std::vector<Policy> &policies, bool bucketValid,
+    ListResponse(const std::vector<Policy> &policies, bool bucketValid, bool dbCorrupted,
                  ProtocolFrameSequenceNumber sequenceNumber) :
-        Response(sequenceNumber), m_policies(policies), m_bucketValid(bucketValid) {
+        Response(sequenceNumber), m_policies(policies), m_bucketValid(bucketValid),
+        m_dbCorrupted(dbCorrupted) {
     }
 
     virtual ~ListResponse() {};
@@ -48,6 +49,10 @@ public:
         return m_bucketValid;
     }
 
+    bool isDbCorrupted(void) const {
+        return m_dbCorrupted;
+    }
+
     const std::vector<Policy> &policies(void) const {
         return m_policies;
     }
@@ -55,6 +60,7 @@ public:
 private:
     std::vector<Policy> m_policies;
     bool m_bucketValid;
+    bool m_dbCorrupted;
 };
 
 } // namespace Cynara
