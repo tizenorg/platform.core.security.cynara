@@ -233,17 +233,20 @@ ResponsePtr ProtocolAdmin::deserializeAdminCheckResponse(void) {
     PolicyType result;
     PolicyResult::PolicyMetadata additionalInfo;
     bool bucketValid;
+    bool dbCorrupted;
 
     ProtocolDeserialization::deserialize(m_frameHeader, result);
     ProtocolDeserialization::deserialize(m_frameHeader, additionalInfo);
     ProtocolDeserialization::deserialize(m_frameHeader, bucketValid);
+    ProtocolDeserialization::deserialize(m_frameHeader, dbCorrupted);
 
     const PolicyResult policyResult(result, additionalInfo);
 
-    LOGD("Deserialized AdminCheckResponse: result [%" PRIu16 "], metadata <%s>, bucketValid [%d]",
-         policyResult.policyType(), policyResult.metadata().c_str(), static_cast<int>(bucketValid));
+    LOGD("Deserialized AdminCheckResponse: result [%" PRIu16 "], metadata <%s>, bucketValid [%d], "
+         "dbCorrupted [%d]", policyResult.policyType(), policyResult.metadata().c_str(),
+         static_cast<int>(bucketValid), static_cast<int>(dbCorrupted));
 
-    return std::make_shared<AdminCheckResponse>(policyResult, bucketValid,
+    return std::make_shared<AdminCheckResponse>(policyResult, bucketValid, dbCorrupted,
                                                 m_frameHeader.sequenceNumber());
 }
 
@@ -269,10 +272,14 @@ ResponsePtr ProtocolAdmin::deserializeDescriptionListResponse(void) {
         ProtocolDeserialization::deserialize(m_frameHeader, descriptions[fields].name);
     }
 
-    LOGD("Deserialized DescriptionListResponse: number of descriptions [%" PRIu16 "]",
-         descriptionsCount);
+    bool dbCorrupted;
+    ProtocolDeserialization::deserialize(m_frameHeader, dbCorrupted);
 
-    return std::make_shared<DescriptionListResponse>(descriptions, m_frameHeader.sequenceNumber());
+    LOGD("Deserialized DescriptionListResponse: number of descriptions [%" PRIu16 "], "
+         "dbCorrupted [%d]", descriptionsCount, static_cast<int>(dbCorrupted));
+
+    return std::make_shared<DescriptionListResponse>(descriptions, dbCorrupted,
+                                                     m_frameHeader.sequenceNumber());
 }
 
 ResponsePtr ProtocolAdmin::deserializeListResponse(void) {
@@ -298,13 +305,18 @@ ResponsePtr ProtocolAdmin::deserializeListResponse(void) {
                                         PolicyResult(policyType, metadata)));
     }
 
-    bool isBucketValid;
-    ProtocolDeserialization::deserialize(m_frameHeader, isBucketValid);
+    bool bucketValid;
+    bool dbCorrupted;
+    ProtocolDeserialization::deserialize(m_frameHeader, bucketValid);
+    ProtocolDeserialization::deserialize(m_frameHeader, dbCorrupted);
 
-    LOGD("Deserialized ListResponse: number of policies [%" PRIu16 "], isBucketValid [%d]",
-         policiesCount, isBucketValid);
+    LOGD("Deserialized ListResponse: number of policies [%" PRIu16 "], bucketValid [%d], "
+         "dbCorrupted [%d]", policiesCount, static_cast<int>(bucketValid),
+         static_cast<int>(dbCorrupted));
 
-    return std::make_shared<ListResponse>(policies, isBucketValid, m_frameHeader.sequenceNumber());
+    return std::make_shared<ListResponse>(policies, bucketValid, dbCorrupted,
+                                          m_frameHeader.sequenceNumber());
+
 }
 
 ResponsePtr ProtocolAdmin::extractResponseFromBuffer(BinaryQueuePtr bufferQueue) {
@@ -471,9 +483,10 @@ void ProtocolAdmin::execute(RequestContextPtr context, SetPoliciesRequestPtr req
 
 void ProtocolAdmin::execute(RequestContextPtr context, AdminCheckResponsePtr response) {
     LOGD("Serializing AdminCheckResponse: op [%" PRIu8 "], sequenceNumber [%" PRIu16 "], "
-         "policyType [%" PRIu16 "], metadata <%s>, bucketValid [%d]", OpAdminCheckPolicyResponse,
-         response->sequenceNumber(), response->result().policyType(),
-         response->result().metadata().c_str(), static_cast<int>(response->isBucketValid()));
+         "policyType [%" PRIu16 "], metadata <%s>, bucketValid [%d], dbCorrupted [%d]",
+         OpAdminCheckPolicyResponse, response->sequenceNumber(), response->result().policyType(),
+         response->result().metadata().c_str(), static_cast<int>(response->isBucketValid()),
+         static_cast<int>(response->isDbCorrupted()));
 
     ProtocolFrame frame = ProtocolFrameSerializer::startSerialization(
             response->sequenceNumber());
@@ -482,6 +495,7 @@ void ProtocolAdmin::execute(RequestContextPtr context, AdminCheckResponsePtr res
     ProtocolSerialization::serialize(frame, response->result().policyType());
     ProtocolSerialization::serialize(frame, response->result().metadata());
     ProtocolSerialization::serialize(frame, response->isBucketValid());
+    ProtocolSerialization::serialize(frame, response->isDbCorrupted());
 
     ProtocolFrameSerializer::finishSerialization(frame, *(context->responseQueue()));
 }
@@ -504,8 +518,8 @@ void ProtocolAdmin::execute(RequestContextPtr context, DescriptionListResponsePt
         = static_cast<ProtocolFrameFieldsCount>(response->descriptions().size());
 
     LOGD("Serializing DescriptionListResponse: op [%" PRIu8 "], sequenceNumber [%" PRIu16 "], "
-         "number of descriptions [%" PRIu16 "]", OpDescriptionListResponse,
-         response->sequenceNumber(), descriptionsSize);
+         "number of descriptions [%" PRIu16 "], dbCorrupted [%d]", OpDescriptionListResponse,
+         response->sequenceNumber(), descriptionsSize, response->isDbCorrupted());
 
     ProtocolFrame frame = ProtocolFrameSerializer::startSerialization(response->sequenceNumber());
 
@@ -515,6 +529,8 @@ void ProtocolAdmin::execute(RequestContextPtr context, DescriptionListResponsePt
         ProtocolSerialization::serialize(frame, desc.type);
         ProtocolSerialization::serialize(frame, desc.name);
     }
+    ProtocolSerialization::serialize(frame, response->isDbCorrupted());
+
     ProtocolFrameSerializer::finishSerialization(frame, *(context->responseQueue()));
 }
 
@@ -523,8 +539,9 @@ void ProtocolAdmin::execute(RequestContextPtr context, ListResponsePtr response)
         = static_cast<ProtocolFrameFieldsCount>(response->policies().size());
 
     LOGD("Serializing ListResponse: op [%" PRIu8 "], sequenceNumber [%" PRIu16 "], "
-         "number of policies [%" PRIu16 "], isBucketValid [%d]", OpListResponse,
-         response->sequenceNumber(), policiesSize, response->isBucketValid());
+         "number of policies [%" PRIu16 "], bucketValid [%d], dbCorrupted [%d]", OpListResponse,
+         response->sequenceNumber(), policiesSize, response->isBucketValid(),
+         response->isDbCorrupted());
 
     ProtocolFrame frame = ProtocolFrameSerializer::startSerialization(response->sequenceNumber());
 
@@ -540,6 +557,7 @@ void ProtocolAdmin::execute(RequestContextPtr context, ListResponsePtr response)
         ProtocolSerialization::serialize(frame, policy.result().metadata());
     }
     ProtocolSerialization::serialize(frame, response->isBucketValid());
+    ProtocolSerialization::serialize(frame, response->isDbCorrupted());
 
     ProtocolFrameSerializer::finishSerialization(frame, *(context->responseQueue()));
 }

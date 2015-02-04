@@ -34,14 +34,18 @@ namespace Cynara {
 
 class DescriptionListResponse : public Response {
 public:
-    DescriptionListResponse(const std::vector<PolicyDescription> &descriptions,
+    DescriptionListResponse(const std::vector<PolicyDescription> &descriptions, bool dbCorrupted,
                             ProtocolFrameSequenceNumber sequenceNumber) :
-        Response(sequenceNumber), m_descriptions(descriptions) {
+        Response(sequenceNumber), m_descriptions(descriptions), m_dbCorrupted(dbCorrupted) {
     }
 
     virtual ~DescriptionListResponse() {};
 
     virtual void execute(ResponsePtr self, ResponseTakerPtr taker, RequestContextPtr context) const;
+
+    bool isDbCorrupted(void) const {
+        return m_dbCorrupted;
+    }
 
     const std::vector<PolicyDescription> &descriptions(void) const {
         return m_descriptions;
@@ -49,6 +53,7 @@ public:
 
 private:
     std::vector<PolicyDescription> m_descriptions;
+    bool m_dbCorrupted;
 };
 
 } // namespace Cynara
