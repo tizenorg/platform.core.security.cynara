@@ -26,6 +26,7 @@
 #include "exceptions/BucketNotExistsException.h"
 #include "exceptions/BucketDeserializationException.h"
 #include "exceptions/DefaultBucketDeletionException.h"
+#include "exceptions/EmergencyException.h"
 #include "exceptions/FileNotFoundException.h"
 #include "storage/InMemoryStorageBackend.h"
 #include "storage/StorageBackend.h"
@@ -198,8 +199,8 @@ TEST_F(InMemeoryStorageBackendFixture, load_no_db) {
     auto testDbPath = std::string(CYNARA_TESTS_DIR) + "/empty_db/";
     FakeInMemoryStorageBackend backend(testDbPath);
     EXPECT_CALL(backend, buckets()).WillRepeatedly(ReturnRef(m_buckets));
-    backend.load();
-    ASSERT_DB_VIRGIN(m_buckets);
+    EXPECT_THROW(backend.load(), EmergencyException);
+    ASSERT_DB_EMPTY(m_buckets);
 }
 
 // Database dir contains index with default bucket, but no file for this bucket
@@ -208,8 +209,8 @@ TEST_F(InMemeoryStorageBackendFixture, load_no_default) {
     auto testDbPath = std::string(CYNARA_TESTS_DIR) + "/db2/";
     FakeInMemoryStorageBackend backend(testDbPath);
     EXPECT_CALL(backend, buckets()).WillRepeatedly(ReturnRef(m_buckets));
-    backend.load();
-    ASSERT_DB_VIRGIN(m_buckets);
+    EXPECT_THROW(backend.load(), EmergencyException);
+    ASSERT_DB_EMPTY(m_buckets);
 }
 
 // Database contains index with default bucket and an empty bucket file
@@ -252,8 +253,8 @@ TEST_F(InMemeoryStorageBackendFixture, second_bucket_corrupted) {
     auto testDbPath = std::string(CYNARA_TESTS_DIR) + "/db5/";
     FakeInMemoryStorageBackend backend(testDbPath);
     EXPECT_CALL(backend, buckets()).WillRepeatedly(ReturnRef(m_buckets));
-    backend.load();
-    ASSERT_DB_VIRGIN(m_buckets);
+    EXPECT_THROW(backend.load(), EmergencyException);
+    ASSERT_DB_EMPTY(m_buckets);
 }
 
 /**
