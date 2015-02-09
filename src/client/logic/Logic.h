@@ -57,6 +57,7 @@ private:
     void onDisconnected(void);
     bool ensureConnection(void);
     int requestResult(const PolicyKey &key, PolicyResult &result);
+    int requestSimpleResult(const PolicyKey &key, PolicyResult &result);
 };
 
 } // namespace Cynara
