@@ -390,6 +390,7 @@ fi
 %manifest cynara-db-chsgen.manifest
 %attr(700,root,root) %{_sbindir}/cynara-db-migration
 %attr(700,root,root) %{_sbindir}/cynara-db-chsgen
+%attr(700,root,root) %{_sbindir}/cynara-db-vercmp
 
 %files -n cyad
 %manifest cyad.manifest

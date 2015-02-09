@@ -1,0 +1,97 @@
+#!/bin/sh
+#
+# Copyright (c) 2015 Samsung Electronics Co., Ltd All Rights Reserved
+#
+#    Licensed under the Apache License, Version 2.0 (the "License");
+#    you may not use this file except in compliance with the License.
+#    You may obtain a copy of the License at
+#
+#        http://www.apache.org/licenses/LICENSE-2.0
+#
+#    Unless required by applicable law or agreed to in writing, software
+#    distributed under the License is distributed on an "AS IS" BASIS,
+#    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+#    See the License for the specific language governing permissions and
+#    limitations under the License.
+#
+# @file        migration/cynara-db-vercmp
+# @author      Pawel Wieczorek <p.wieczorek2@samsung.com>
+# @brief       Comparator for Semantic Versioning numbers
+#
+
+##### Constants (these must not be modified by shell)
+
+ARGS=2
+LESS=-1
+EQUAL=0
+GREATER=1
+
+##### Variables, with default values (optional)
+
+MAJOR1=
+MAJOR2=
+MINOR1=
+MINOR2=
+PATCH1=
+PATCH2=
+
+##### Functions
+
+usage() {
+    cat << EOF
+Usage: $0 VERSION1 VERSION2
+
+This script compares two Semantic Versioning numbers
+
+Output:
+  An integer less than, equal to, or greater than zero is printed if VERSION1 is
+  found, respectively, to be less than, to match, or be greater than VERSION2.
+EOF
+}
+
+failure() {
+    usage
+    exit_failure
+}
+
+exit_failure() {
+    exit 1
+}
+
+##### Main
+
+if [ ${ARGS} -ne $# ]; then
+    failure
+fi
+
+# Parse
+i=1
+while [ 2 -ge $i ] ; do
+    eval "ARG=\$$i"
+    eval "MAJOR$i=${ARG%%.*}"
+    eval "TMP=${ARG#*.}"
+    eval "MINOR$i=${TMP%%.*}"
+    eval "PATCH$i=${ARG##*.}"
+    i=$(($i+1))
+done
+
+# Compare
+if [ $MAJOR1 -lt $MAJOR2 ] ; then
+    echo $LESS
+elif [ $MAJOR1 -eq $MAJOR2 ] ; then
+    if [ $MINOR1 -lt $MINOR2 ] ; then
+        echo $LESS
+    elif [ $MINOR1 -eq $MINOR2 ] ; then
+        if [ $PATCH1 -lt $PATCH2 ] ; then
+            echo $LESS
+        elif [ $PATCH1 -eq $PATCH2 ] ; then
+            echo $EQUAL
+        else
+            echo $GREATER
+        fi
+    else
+        echo $GREATER
+    fi
+else
+    echo $GREATER
+fi
