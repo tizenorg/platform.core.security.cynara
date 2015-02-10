@@ -72,6 +72,9 @@ typedef std::shared_ptr<SetPoliciesRequest> SetPoliciesRequestPtr;
 class SignalRequest;
 typedef std::shared_ptr<SignalRequest> SignalRequestPtr;
 
+class SimpleCheckRequest;
+typedef std::shared_ptr<SimpleCheckRequest> SimpleCheckRequestPtr;
+
 } // namespace Cynara
 
 #endif /* SRC_COMMON_REQUEST_POINTERS_H_ */

@@ -41,6 +41,7 @@ public:
     virtual void execute(RequestContextPtr context, CodeResponsePtr response);
     virtual void execute(RequestContextPtr context, DescriptionListResponsePtr response);
     virtual void execute(RequestContextPtr context, ListResponsePtr response);
+    virtual void execute(RequestContextPtr context, SimpleCheckResponsePtr response);
 };
 
 } // namespace Cynara
