@@ -54,6 +54,9 @@ typedef std::shared_ptr<ListResponse> ListResponsePtr;
 class Response;
 typedef std::shared_ptr<Response> ResponsePtr;
 
+class SimpleCheckResponse;
+typedef std::shared_ptr<SimpleCheckResponse> SimpleCheckResponsePtr;
+
 class ResponseTaker;
 typedef std::shared_ptr<ResponseTaker> ResponseTakerPtr;
 typedef std::weak_ptr<ResponseTaker> ResponseTakerWeakPtr;
