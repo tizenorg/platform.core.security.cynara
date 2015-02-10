@@ -81,6 +81,10 @@ void RequestTaker::execute(RequestContextPtr context UNUSED, SignalRequestPtr re
     throw NotImplementedException();
 }
 
+void RequestTaker::execute(RequestContextPtr context UNUSED, SimpleCheckRequestPtr request UNUSED) {
+    throw NotImplementedException();
+}
+
 void RequestTaker::contextClosed(RequestContextPtr context UNUSED) {
     throw NotImplementedException();
 }
