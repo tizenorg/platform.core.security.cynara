@@ -118,10 +118,12 @@ struct ProtocolSerialization {
 
     // bool
     static void serialize(IStream &stream, const bool value) {
-        stream.write(sizeof(value), &value);
+        uint8_t bVal = static_cast<uint8_t>(value);
+        stream.write(sizeof(bVal), &bVal);
     }
     static void serialize(IStream &stream, const bool * const value) {
-        stream.write(sizeof(*value), value);
+        uint8_t bVal = static_cast<uint8_t>(*value);
+        stream.write(sizeof(bVal), &bVal);
     }
 
     // time_t
@@ -142,12 +144,12 @@ struct ProtocolSerialization {
 
     // std::string
     static void serialize(IStream &stream, const std::string &str) {
-        int length = str.size();
+        uint32_t length = htole32(static_cast<uint32_t>(str.size()));
         stream.write(sizeof(length), &length);
         stream.write(length, str.c_str());
     }
     static void serialize(IStream &stream, const std::string * const str) {
-        int length = str->size();
+        uint32_t length = htole32(static_cast<uint32_t>(str->size()));
         stream.write(sizeof(length), &length);
         stream.write(length, str->c_str());
     }
@@ -165,7 +167,7 @@ struct ProtocolSerialization {
     // std::list
     template<typename T>
     static void serialize(IStream &stream, const std::list<T> &list) {
-        int length = list.size();
+        uint32_t length = htole32(static_cast<uint32_t>(list.size()));
         stream.write(sizeof(length), &length);
         for (typename std::list<T>::const_iterator list_iter = list.begin();
                 list_iter != list.end(); list_iter++) {
@@ -180,7 +182,7 @@ struct ProtocolSerialization {
     // std::vector
     template<typename T>
     static void serialize(IStream &stream, const std::vector<T> &vec) {
-        int length = vec.size();
+        uint32_t length = htole32(static_cast<uint32_t>(vec.size()));
         stream.write(sizeof(length), &length);
         for (typename std::vector<T>::const_iterator vec_iter = vec.begin();
                 vec_iter != vec.end(); vec_iter++) {
@@ -206,7 +208,7 @@ struct ProtocolSerialization {
     // std::map
     template<typename K, typename T>
     static void serialize(IStream &stream, const std::map<K, T> &map) {
-        int length = map.size();
+        uint32_t length = htole32(static_cast<uint32_t>(map.size()));
         stream.write(sizeof(length), &length);
         typename std::map<K, T>::const_iterator it;
         for (it = map.begin(); it != map.end(); ++it) {
@@ -303,11 +305,14 @@ struct ProtocolDeserialization {
 
     // bool
     static void deserialize(IStream &stream, bool &value) {
-        stream.read(sizeof(value), &value);
+        uint8_t bVal;
+        stream.read(sizeof(bVal), &bVal);
+        value = static_cast<bool>(bVal);
     }
     static void deserialize(IStream &stream, bool *&value) {
-        value = new bool;
-        stream.read(sizeof(*value), value);
+        uint8_t bVal;
+        stream.read(sizeof(bVal), &bVal);
+        value = new bool(static_cast<bool>(bVal));
     }
 
     // time_t
@@ -330,14 +335,16 @@ struct ProtocolDeserialization {
 
     // std::string
     static void deserialize(IStream &stream, std::string &str) {
-        int length;
+        uint32_t length;
         stream.read(sizeof(length), &length);
+        length = le32toh(length);
         str.resize(length);
         stream.read(length, &str[0]);
     }
     static void deserialize(IStream &stream, std::string *&str) {
-        int length;
+        uint32_t length;
         stream.read(sizeof(length), &length);
+        length = le32toh(length);
         str = new std::string(length, '\0');
         stream.read(length, &str[0]);
     }
@@ -355,9 +362,10 @@ struct ProtocolDeserialization {
     // std::list
     template<typename T>
     static void deserialize(IStream &stream, std::list<T> &list) {
-        int length;
+        uint32_t length;
         stream.read(sizeof(length), &length);
-        for (int i = 0; i < length; ++i) {
+        length = le32toh(length);
+        for (uint32_t i = 0; i < length; ++i) {
             T obj;
             deserialize(stream, obj);
             list.push_back(std::move(obj));
@@ -372,9 +380,10 @@ struct ProtocolDeserialization {
     // std::vector
     template<typename T>
     static void deserialize(IStream &stream, std::vector<T> &vec) {
-        int length;
+        uint32_t length;
         stream.read(sizeof(length), &length);
-        for (int i = 0; i < length; ++i) {
+        length = le32toh(length);
+        for (uint32_t i = 0; i < length; ++i) {
             T obj;
             deserialize(stream, obj);
             vec.push_back(std::move(obj));
@@ -401,9 +410,10 @@ struct ProtocolDeserialization {
     // std::map
     template<typename K, typename T>
     static void deserialize(IStream &stream, std::map<K, T> &map) {
-        int length;
+        uint32_t length;
         stream.read(sizeof(length), &length);
-        for (int i = 0; i < length; ++i) {
+        length = le32toh(length);
+        for (uint32_t i = 0; i < length; ++i) {
             K key;
             T obj;
             deserialize(stream, key);
