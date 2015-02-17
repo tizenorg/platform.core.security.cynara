@@ -58,6 +58,7 @@ SET(CYNARA_SOURCES_FOR_TESTS
     ${CYNARA_SRC}/cyad/CynaraAdminPolicies.cpp
     ${CYNARA_SRC}/helpers/creds-commons/CredsCommonsInner.cpp
     ${CYNARA_SRC}/helpers/creds-commons/creds-commons.cpp
+    ${CYNARA_SRC}/service/main/CmdlineParser.cpp
     ${CYNARA_SRC}/storage/BucketDeserializer.cpp
     ${CYNARA_SRC}/storage/InMemoryStorageBackend.cpp
     ${CYNARA_SRC}/storage/Integrity.cpp
@@ -85,6 +86,7 @@ SET(CYNARA_TESTS_SOURCES
     cyad/policy_collection.cpp
     cyad/policy_parser.cpp
     helpers.cpp
+    service/main/cmdlineparser.cpp
     storage/performance/bucket.cpp
     storage/storage/policies.cpp
     storage/storage/check.cpp
