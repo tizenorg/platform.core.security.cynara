@@ -49,6 +49,7 @@ SET(CYNARA_SOURCES_FOR_TESTS
     ${CYNARA_SRC}/common/types/PolicyDescription.cpp
     ${CYNARA_SRC}/common/types/PolicyResult.cpp
     ${CYNARA_SRC}/common/types/PolicyType.cpp
+    ${CYNARA_SRC}/chsgen/ChecksumGenerator.cpp
     ${CYNARA_SRC}/cyad/AdminPolicyParser.cpp
     ${CYNARA_SRC}/cyad/CommandlineParser/CmdlineErrors.cpp
     ${CYNARA_SRC}/cyad/CommandlineParser/CmdlineOpts.cpp
@@ -70,6 +71,7 @@ SET(CYNARA_SOURCES_FOR_TESTS
 
 SET(CYNARA_TESTS_SOURCES
     TestEventListenerProxy.cpp
+    chsgen/checksumgenerator.cpp
     common/exceptions/bucketrecordcorrupted.cpp
     common/protocols/admin/admincheckrequest.cpp
     common/protocols/admin/admincheckresponse.cpp
@@ -120,6 +122,8 @@ ADD_EXECUTABLE(${TARGET_CYNARA_TESTS}
 )
 
 TARGET_LINK_LIBRARIES(${TARGET_CYNARA_TESTS}
-    ${PKGS_LDFLAGS} ${PKGS_LIBRARIES}
+    ${PKGS_LDFLAGS}
+    ${PKGS_LIBRARIES}
+    crypt
 )
 INSTALL(TARGETS ${TARGET_CYNARA_TESTS} DESTINATION ${BIN_INSTALL_DIR})
