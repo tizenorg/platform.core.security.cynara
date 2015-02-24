@@ -389,11 +389,11 @@ int cynara_async_check_cache(cynara_async *p_cynara, const char *client, const c
  * will be triggered in event loop after socket is ready to send request to cynara service.
  * After request is sent and there is nothing more to send to cynara service, status will change
  * back to CYNARA_STATUS_FOR_READ. Status changes are delivered with cynara_status_callback.
- * When function is succesfully called unique check_id is returned. It is used for matching
+ * When function is successfully called unique check_id is returned. It is used for matching
  * generated request with response, that will be received by registered callback.
  * Because check_id is coded as 16-bit unsigned integer, there can be only 2^16 = 65536 pending
  * requests. When response callback is called either because of getting answer or because
- * of cancel check_id used for taht request is released and can be reused by cynara library.
+ * of cancel check_id used for that request is released and can be reused by cynara library.
  * When maximum of pending requests is reached cynara_async_create_request() fails with
  * CYNARA_API_MAX_PENDING_REQUESTS error code.
  *
@@ -409,7 +409,7 @@ int cynara_async_check_cache(cynara_async *p_cynara, const char *client, const c
  * cynara_async_initialize().
  * Call cynara_async_cancel_request() to cancel pending request.
  * Call cynara_async_process() to receive response.
- * It is guaranteed that if cynara_async_create_request() function suceeds (CYNARA_API_SUCCESS)
+ * It is guaranteed that if cynara_async_create_request() function succeeds (CYNARA_API_SUCCESS)
  * a callback will be called exactly once and that it will receive user_response_data.
  * If function fails (returns negative error code) request won't be generated and won't be pending,
  * callback function won't be ever called and user_response_data won't be remembered by library.
@@ -440,6 +440,75 @@ int cynara_async_create_request(cynara_async *p_cynara, const char *client,
                                 const char *client_session, const char *user, const char *privilege,
                                 cynara_check_id *p_check_id, cynara_response_callback callback,
                                 void *user_response_data);
+
+
+/**
+ * \par Description:
+ * Creates simple access check request to cynara service for (potential) permission to take some
+ * action or access a resource.
+ * Set callback and user_response_data to be called and passed when request processing is finished.
+ *
+ * \par Purpose:
+ * This API should be used to create a quick check request for client identified by a triple
+ * (client, user, privilege) has access to a given privilege.
+ * Response can be received with cynara_async_process().
+ * Check id is returned to pair request with response for canceling purposes.
+ *
+ * \par Typical use case:
+ * An application may use this API to check, if it has (potential) permission to take some action
+ * or access resource in future (permissions may rarely change). The typical use would be to disable
+ * or hide some of functionalities, if they probably could not be used anyways.
+ *
+ * \par Method of function operation:
+ * This function is very similar to cynara_async_create_request() with the difference, that in case
+ * of answer not being one of CYNARA_API_PERMISSION_DENIED or CYNARA_API_PERMISSION_ALLOWED,
+ * no external application will be consulted. Instead, CYNARA_API_ACCESS_NOT_RESOLVED is returned,
+ * meaning, that only creating full request through cynara_async_create_request API would yield
+ * eventual answer.
+ * If access permission cannot be acquired without usage of external agents, callback can be
+ * called with CYNARA_CALL_CAUSE_ANSWER and response value being CYNARA_API_ACCESS_NOT_RESOLVED.
+ *
+ * \par Sync (or) Async:
+ * This is a synchronous API.
+ *
+ * \par Thread-safety:
+ * This function is NOT thread-safe. If functions from described API are called by multithreaded
+ * application from different threads, they must be put into mutex protected critical section.
+ *
+ * \par Important notes:
+ * Call to cynara_async_create_request() needs cynara_async structure to be created first with
+ * cynara_async_initialize().
+ * Call cynara_async_cancel_request() to cancel pending request.
+ * Call cynara_async_process() to receive response.
+ * The answer will be taken from Cynara's database without consulting any external applications.
+ * If the answer cannot be resolved in one of CYNARA_API_ACCESS_ALLOWED or
+ * CYNARA_API_ACCESS_DENIED without communicating with external application, response returned
+ * through callback will have value CYNARA_API_ACCESS_NOT_RESOLVED.
+ *
+ * \param[in] p_cynara cynara_async structure.
+ * \param[in] client Application or process identifier.
+ * \param[in] client_session Client defined session.
+ * \param[in] user User of running client.
+ * \param[in] privilege Privilege that is a subject of a check.
+ * \param[out] p_check_id Placeholder for check id. If NULL, then no check_id is returned.
+ * \param[in] callback Function called when matching response is received.
+ *            If NULL then no callback will be called when response, cancel, finish
+ *            or service not availble error happens.
+ * \param[in] user_response_data User specific data, passed to callback is being only remembered
+ *            by library. Cynara library does not take any actions on this pointer,
+ *            except for giving it back to user in cynara_response_callback.
+ *            Can be NULL.
+ *
+ * \return CYNARA_API_SUCCESS on success,
+ *         CYNARA_API_MAX_PENDING_REQUESTS on too much pending requests,
+ *         or other negative error code on error.
+ * \return CYNARA_API_ACCESS_ALLOWED on access allowed, CYNARA_API_ACCESS_DENIED on access denial,
+ *  or negative error code on error.
+ */
+int cynara_async_create_simple_request(cynara_async *p_cynara, const char *client,
+                                       const char *client_session, const char *user,
+                                       const char *privilege, cynara_check_id *p_check_id,
+                                       cynara_response_callback callback, void *user_response_data);
 
 /**
  * \par Description:
