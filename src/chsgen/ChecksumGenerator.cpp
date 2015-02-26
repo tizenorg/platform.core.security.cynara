@@ -23,6 +23,8 @@
 #include <algorithm>
 #include <cstring>
 #include <iostream>
+#include <memory>
+#include <new>
 #include <stdexcept>
 #include <unistd.h>
 
@@ -65,11 +67,14 @@ int ChecksumGenerator::run(void) {
     } catch (const std::length_error &ex) {
         std::cerr << ex.what() << std::endl;
         return CYNARA_API_UNKNOWN_ERROR;
+    } catch (const std::bad_alloc &ex) {
+        std::cerr << ex.what() << std::endl;
+        return CYNARA_API_OUT_OF_MEMORY;
     }
 }
 
 const std::string ChecksumGenerator::generate(const std::string &data) {
-    auto checksum = crypt(data.c_str(), "$1$");
+    const char *checksum = crypt(data.c_str(), "$1$");
 
     if (nullptr != checksum) {
         return std::string(checksum);
@@ -100,7 +105,15 @@ void ChecksumGenerator::copyFileStream(void) {
 }
 
 void ChecksumGenerator::printRecord(void) const {
-    std::string filename(basename(m_filename.c_str()));
+    std::unique_ptr<char, decltype(free)*> filenameDuplicate(strdup(m_filename.c_str()), free);
+    if (filenameDuplicate == nullptr) {
+        LOGE("Insufficient memory available to allocate duplicate filename: <%s>",
+             m_filename.c_str());
+        throw std::bad_alloc();
+    }
+
+    const char* basename = ::basename(filenameDuplicate.get());
+    std::string filename(basename);
     getBasicFilename(filename);
 
     std::cout << filename << m_fieldSeparator << generate(m_copyStream.str())
