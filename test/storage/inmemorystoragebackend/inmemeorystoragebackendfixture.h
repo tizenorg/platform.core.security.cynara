@@ -89,6 +89,12 @@ protected:
         ASSERT_EQ(Cynara::PredefinedPolicyType::DENY, defaultBucket.defaultPolicy());
     }
 
+    static void ASSERT_DB_EMPTY(Cynara::Buckets &buckets) {
+        using ::testing::IsEmpty;
+        ASSERT_EQ(0, buckets.size());
+        ASSERT_THAT(buckets, IsEmpty());
+    }
+
     virtual ~InMemeoryStorageBackendFixture() {}
 
     const Cynara::PolicyCollection &fullPoliciesCollection(void) {
