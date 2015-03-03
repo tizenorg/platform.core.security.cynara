@@ -35,6 +35,7 @@
 #include <log/log.h>
 #include <config/PathConfig.h>
 #include <exceptions/BucketNotExistsException.h>
+#include <exceptions/DatabaseCorruptedException.h>
 #include <exceptions/DatabaseException.h>
 #include <exceptions/FileNotFoundException.h>
 #include <exceptions/UnexpectedErrorException.h>
@@ -91,7 +92,7 @@ void InMemoryStorageBackend::load(void) {
     } catch (const DatabaseException &) {
         LOGC("Reading cynara database failed.");
         buckets().clear();
-        // TODO: Implement emergency mode toggle
+        throw DatabaseCorruptedException();
     }
     m_checksum.clear();
 
