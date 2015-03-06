@@ -45,10 +45,10 @@ public:
         : m_responseTaker(responseTaker), m_responseQueue(responseQueue) {
     }
 
-    void returnResponse(const RequestContext &self UNUSED, const Response &response) const {
+    void returnResponse(const Response &response) const {
         ResponseTakerPtr taker = m_responseTaker.lock();
         if (taker)
-            response.execute(response, *taker, *this);
+            response.execute(*taker, *this);
     }
 
     BinaryQueuePtr responseQueue(void) const {

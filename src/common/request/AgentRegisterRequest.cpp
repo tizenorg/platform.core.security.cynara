@@ -27,8 +27,7 @@
 
 namespace Cynara {
 
-void AgentRegisterRequest::execute(const Request &self UNUSED, RequestTaker &taker,
-                                   const RequestContext &context) const {
+void AgentRegisterRequest::execute(RequestTaker &taker, const RequestContext &context) const {
     taker.execute(context, *this);
 }
 

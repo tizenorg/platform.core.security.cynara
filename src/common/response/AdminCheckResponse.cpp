@@ -27,8 +27,7 @@
 
 namespace Cynara {
 
-void AdminCheckResponse::execute(const Response &self UNUSED, ResponseTaker &taker,
-                                 const RequestContext &context) const {
+void AdminCheckResponse::execute(ResponseTaker &taker, const RequestContext &context) const {
     taker.execute(context, *this);
 }
 

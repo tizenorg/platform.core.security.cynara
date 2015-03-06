@@ -27,8 +27,7 @@
 
 namespace Cynara {
 
-void EraseRequest::execute(const Request &self UNUSED, RequestTaker &taker,
-                           const RequestContext &context) const {
+void EraseRequest::execute(RequestTaker &taker, const RequestContext &context) const {
     taker.execute(context, *this);
 }
 

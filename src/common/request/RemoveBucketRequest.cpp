@@ -27,8 +27,7 @@
 
 namespace Cynara {
 
-void RemoveBucketRequest::execute(const Request &self UNUSED, RequestTaker &taker,
-                                  const RequestContext &context) const {
+void RemoveBucketRequest::execute(RequestTaker &taker, const RequestContext &context) const {
     taker.execute(context, *this);
 }
 

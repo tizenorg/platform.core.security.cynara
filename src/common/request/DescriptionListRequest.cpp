@@ -27,8 +27,7 @@
 
 namespace Cynara {
 
-void DescriptionListRequest::execute(const Request &self UNUSED, RequestTaker &taker,
-                                     const RequestContext &context) const {
+void DescriptionListRequest::execute(RequestTaker &taker, const RequestContext &context) const {
     taker.execute(context, *this);
 }
 

@@ -27,8 +27,7 @@
 
 namespace Cynara {
 
-void CancelResponse::execute(const Response &self UNUSED, ResponseTaker &taker,
-                             const RequestContext &context) const {
+void CancelResponse::execute(ResponseTaker &taker, const RequestContext &context) const {
     taker.execute(context, *this);
 }
 

@@ -27,8 +27,7 @@
 
 namespace Cynara {
 
-void SignalRequest::execute(const Request &self UNUSED, RequestTaker &taker,
-                            const RequestContext &context) const {
+void SignalRequest::execute(RequestTaker &taker, const RequestContext &context) const {
     taker.execute(context, *this);
 }
 
