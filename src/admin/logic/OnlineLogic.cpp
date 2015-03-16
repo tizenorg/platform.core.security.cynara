@@ -25,6 +25,7 @@
 
 #include <cinttypes>
 #include <memory>
+#include <utility>
 
 #include <cynara-error.h>
 #include <common.h>
