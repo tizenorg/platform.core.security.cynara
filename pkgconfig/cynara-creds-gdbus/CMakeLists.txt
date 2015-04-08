@@ -13,17 +13,15 @@
 #    limitations under the License.
 #
 # @file        CMakeLists.txt
-# @author      Lukasz Wojciechowski <l.wojciechow@partner.samsung.com>
+# @author      Aleksander Zdyb <a.zdyb@samsung.com>
 # @author      Radoslaw Bartosiak <r.bartosiak@samsung.com>
+# @author      Jacek Bukarewicz <j.bukarewicz@samsung.com>
 #
 
-ADD_SUBDIRECTORY(cynara-client)
-ADD_SUBDIRECTORY(cynara-client-async)
-ADD_SUBDIRECTORY(cynara-admin)
-ADD_SUBDIRECTORY(cynara-agent)
-ADD_SUBDIRECTORY(cynara-creds-commons)
-ADD_SUBDIRECTORY(cynara-creds-dbus)
-ADD_SUBDIRECTORY(cynara-creds-gdbus)
-ADD_SUBDIRECTORY(cynara-creds-socket)
-ADD_SUBDIRECTORY(cynara-plugin)
-ADD_SUBDIRECTORY(cynara-session)
+CONFIGURE_FILE(cynara-creds-gdbus.pc.in cynara-creds-gdbus.pc @ONLY)
+
+INSTALL(FILES
+    ${CMAKE_BINARY_DIR}/pkgconfig/cynara-creds-gdbus/cynara-creds-gdbus.pc
+    DESTINATION
+    ${LIB_INSTALL_DIR}/pkgconfig
+    )
