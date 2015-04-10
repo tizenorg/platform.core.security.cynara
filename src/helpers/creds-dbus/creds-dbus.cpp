@@ -37,6 +37,12 @@ int cynara_creds_dbus_get_client(DBusConnection *connection, const char *uniqueN
     if (connection == nullptr || uniqueName == nullptr || client == nullptr)
         return CYNARA_API_INVALID_PARAM;
 
+    if (method == cynara_client_creds::CLIENT_METHOD_DEFAULT) {
+        int ret = cynara_creds_get_default_client_method(&method);
+        if (ret != CYNARA_API_SUCCESS)
+            return ret;
+    }
+
     switch (method) {
         case cynara_client_creds::CLIENT_METHOD_SMACK:
             return getClientSmackLabel(connection, uniqueName, client);
@@ -52,6 +58,12 @@ int cynara_creds_dbus_get_user(DBusConnection *connection, const char *uniqueNam
                                enum cynara_user_creds method, char **user) {
     if (connection == nullptr || uniqueName == nullptr || user == nullptr)
         return CYNARA_API_INVALID_PARAM;
+
+    if (method == cynara_user_creds::USER_METHOD_DEFAULT) {
+        int ret = cynara_creds_get_default_user_method(&method);
+        if (ret != CYNARA_API_SUCCESS)
+            return ret;
+    }
 
     switch (method) {
         case cynara_user_creds::USER_METHOD_UID:
