@@ -18,6 +18,7 @@
  * @author      Lukasz Wojciechowski <l.wojciechow@partner.samsung.com>
  * @author      Radoslaw Bartosiak <r.bartosiak@samsung.com>
  * @author      Aleksander Zdyb <a.zdyb@samsung.com>
+ * @author      Jacek Bukarewicz <j.bukarewicz@samsung.com>
  * @version     1.0
  * @brief       Implementation of external libcynara-creds-commons API
  */
@@ -32,37 +33,41 @@
 
 CYNARA_API
 int cynara_creds_get_default_client_method(enum cynara_client_creds *method) {
-    return Cynara::tryCatch([&] () {
-        int methodCode, ret;
-        static const Cynara::CredentialsMap clientCredsMap{{"smack", CLIENT_METHOD_SMACK},
-                                                           {"pid", CLIENT_METHOD_PID}};
+    static int cachedMethodCode = -1;
+    static const Cynara::CredentialsMap clientCredsMap{{"smack", CLIENT_METHOD_SMACK},
+                                                       {"pid", CLIENT_METHOD_PID}};
 
-        if ((ret = Cynara::CredsCommonsInnerBackend::
-                           getMethodFromConfigurationFile(clientCredsMap,
-                                                          "client_default",
-                                                          methodCode))
-            != CYNARA_API_SUCCESS)
+    if (cachedMethodCode == -1) {
+        int ret = Cynara::tryCatch([&] () {
+            return Cynara::CredsCommonsInnerBackend::
+                      getMethodFromConfigurationFile(clientCredsMap, "client_default",
+                                                     cachedMethodCode);
+        });
+        if (ret != CYNARA_API_SUCCESS)
             return ret;
+    }
+    *method = static_cast<enum cynara_client_creds>(cachedMethodCode);
+    return CYNARA_API_SUCCESS;
 
-        *method = static_cast<enum cynara_client_creds>(methodCode);
-        return CYNARA_API_SUCCESS;
-    });
 }
 
 CYNARA_API
 int cynara_creds_get_default_user_method(enum cynara_user_creds *method) {
-     return Cynara::tryCatch([&] () {
-        int methodCode, ret;
-        static const Cynara::CredentialsMap userCredsMap{{"uid", USER_METHOD_UID},
-                                                         {"gid", USER_METHOD_GID}};
-        if ((ret = Cynara::CredsCommonsInnerBackend::
-                           getMethodFromConfigurationFile(userCredsMap,
-                                                          "user_default",
-                                                          methodCode))
-            != CYNARA_API_SUCCESS)
-            return ret;
+    static int cachedMethodCode = -1;
+    static const Cynara::CredentialsMap userCredsMap{{"uid", USER_METHOD_UID},
+                                                     {"gid", USER_METHOD_GID}};
 
-        *method = static_cast<enum cynara_user_creds>(methodCode);
-        return CYNARA_API_SUCCESS;
-    });
+    if (cachedMethodCode == -1) {
+        int ret = Cynara::tryCatch([&] () {
+            return Cynara::CredsCommonsInnerBackend::
+                                       getMethodFromConfigurationFile(userCredsMap,
+                                                                      "user_default",
+                                                                      cachedMethodCode);
+        });
+        if (ret != CYNARA_API_SUCCESS)
+            return ret;
+    }
+
+    *method = static_cast<enum cynara_user_creds>(cachedMethodCode);
+    return CYNARA_API_SUCCESS;
 }
