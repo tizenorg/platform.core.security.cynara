@@ -53,8 +53,12 @@
 
 #ifndef CYNARA_NO_LOGS
 #include <sstream>
+#ifdef BUILD_WITH_SYSTEMD
 #include <systemd/sd-journal.h>
-#endif
+#else // BUILD_WITH_SYSTEMD
+#include <syslog.h>
+#endif // BUILD_WITH_SYSTEMD
+#endif // CYNARA_NO_LOGS
 
 extern int __log_level;
 
@@ -68,8 +72,14 @@ extern int __log_level;
             } \
         } while (0)
 
-    #define __LOG_N(LEVEL, FORMAT, ...) sd_journal_print(LEVEL, FORMAT, ##__VA_ARGS__)
-    #define __LOG_0(LEVEL, FORMAT, ...) sd_journal_print(LEVEL, "%s", FORMAT)
+#ifdef BUILD_WITH_SYSTEMD
+    #define __LOG_N(LEVEL, FORMAT, ...) sd_journal_print(LEVEL, FORMAT, ##__VA_ARGS__);
+    #define __LOG_0(LEVEL, FORMAT, ...) sd_journal_print(LEVEL, "%s", FORMAT);
+#else // BUILD_WITH_SYSTEMD
+    #define __LOG_N(LEVEL, FORMAT, ...) syslog(LEVEL, FORMAT, ##__VA_ARGS__);
+    #define __LOG_0(LEVEL, FORMAT, ...) syslog(LEVEL, "%s", FORMAT);
+#endif // BUILD_WITH_SYSTEMD
+
 #else // CYNARA_NO_LOGS
     #define __LOG(LEVEL, ...)
 #endif
