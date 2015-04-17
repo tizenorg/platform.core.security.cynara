@@ -25,6 +25,31 @@
 #ifndef CYNARA_COMMON_LOG_H
 #define CYNARA_COMMON_LOG_H
 
+#define __LOG_NARG(...) \
+         __LOG_NARG_(__VA_ARGS__, __LOG_RSEQ_N())
+
+#define __LOG_NARG_(...) \
+         __LOG_ARG_N(__VA_ARGS__)
+
+#define __LOG_ARG_N( \
+          _1, _2, _3, _4, _5, _6, _7, _8, _9,_10, \
+         _11,_12,_13,_14,_15,_16,_17,_18,_19,_20, \
+         _21,_22,_23,_24,_25,_26,_27,_28,_29,_30, \
+         _31,_32,_33,_34,_35,_36,_37,_38,_39,_40, \
+         _41,_42,_43,_44,_45,_46,_47,_48,_49,_50, \
+         _51,_52,_53,_54,_55,_56,_57,_58,_59,_60, \
+         _61,_62,_63,_64,N,...) N
+
+
+#define __LOG_RSEQ_N() \
+         __LOG_N, __LOG_N, __LOG_N, __LOG_N , \
+         __LOG_N, __LOG_N, __LOG_N, __LOG_N, __LOG_N, __LOG_N, __LOG_N, __LOG_N, __LOG_N, __LOG_N, \
+         __LOG_N, __LOG_N, __LOG_N, __LOG_N, __LOG_N, __LOG_N, __LOG_N, __LOG_N, __LOG_N, __LOG_N, \
+         __LOG_N, __LOG_N, __LOG_N, __LOG_N, __LOG_N, __LOG_N, __LOG_N, __LOG_N, __LOG_N, __LOG_N, \
+         __LOG_N, __LOG_N, __LOG_N, __LOG_N, __LOG_N, __LOG_N, __LOG_N, __LOG_N, __LOG_N, __LOG_N, \
+         __LOG_N, __LOG_N, __LOG_N, __LOG_N, __LOG_N, __LOG_N, __LOG_N, __LOG_N, __LOG_N, __LOG_N, \
+         __LOG_N, __LOG_N, __LOG_N, __LOG_N, __LOG_N, __LOG_N, __LOG_N, __LOG_N, __LOG_N, __LOG_0
+
 #ifndef CYNARA_NO_LOGS
 #include <sstream>
 #include <systemd/sd-journal.h>
@@ -35,13 +60,16 @@ extern int __log_level;
 #ifndef CYNARA_NO_LOGS
     #define __LOG(LEVEL, FORMAT, ...) \
         do { \
-            if(LEVEL <= __log_level) { \
+            if (LEVEL <= __log_level) { \
                 std::stringstream __LOG_MACRO_format; \
                 __LOG_MACRO_format << FORMAT; \
-                sd_journal_print(LEVEL, __LOG_MACRO_format.str().c_str(), ##__VA_ARGS__); \
+                __LOG_NARG(_0, ##__VA_ARGS__) (LEVEL, __LOG_MACRO_format.str().c_str(), ##__VA_ARGS__) \
             } \
         } while (0)
-#else
+
+    #define __LOG_N(LEVEL, FORMAT, ...) sd_journal_print(LEVEL, FORMAT, ##__VA_ARGS__);
+    #define __LOG_0(LEVEL, FORMAT, ...) sd_journal_print(LEVEL, "%s", FORMAT);
+#else // CYNARA_NO_LOGS
     #define __LOG(LEVEL, ...)
 #endif
 
