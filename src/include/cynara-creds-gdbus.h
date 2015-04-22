@@ -24,7 +24,15 @@
 #ifndef CYNARA_CREDS_GDBUS_H
 #define CYNARA_CREDS_GDBUS_H
 
+#ifdef __clang__
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-register"
 #include <gio/gio.h>
+#pragma clang diagnostic pop
+#else
+#include <gio/gio.h>
+#endif
+
 #include <sys/types.h>
 
 #include <cynara-creds-commons.h>
