@@ -24,8 +24,12 @@
  */
 
 #include <exception>
+#include <fcntl.h>
 #include <iostream>
 #include <stdlib.h>
+#include <sys/stat.h>
+#include <sys/types.h>
+#include <unistd.h>
 
 #ifdef BUILD_WITH_SYSTEMD
 #include <systemd/sd-daemon.h>
@@ -37,6 +41,48 @@
 #include "CmdlineParser.h"
 #include "Cynara.h"
 
+void daemonize(void) {
+    switch (fork()) {
+        case -1:
+            exit(EXIT_FAILURE);
+        case 0:
+            break;
+        default:
+            exit(EXIT_SUCCESS);
+    }
+
+    if (setsid() == static_cast<pid_t>(-1))
+        exit(EXIT_FAILURE);
+
+    switch (fork()) {
+        case -1:
+            exit(EXIT_FAILURE);
+        case 0:
+            break;
+        default:
+            exit(EXIT_SUCCESS);
+    }
+
+    if (chdir("/") == -1)
+        exit(EXIT_FAILURE);
+
+    int maxfd = sysconf(_SC_OPEN_MAX);
+    if (maxfd == -1)
+        maxfd = 8192;
+
+    int fd;
+    for (fd = 0; fd < maxfd; ++fd)
+        close(fd);
+
+    fd = TEMP_FAILURE_RETRY(open("/dev/null", O_RDWR));
+    if (fd != STDIN_FILENO)
+        exit(EXIT_FAILURE);
+    if (TEMP_FAILURE_RETRY(dup2(STDIN_FILENO, STDOUT_FILENO)) != STDOUT_FILENO)
+        exit(EXIT_FAILURE);
+    if (TEMP_FAILURE_RETRY(dup2(STDIN_FILENO, STDERR_FILENO)) != STDERR_FILENO)
+        exit(EXIT_FAILURE);
+}
+
 int main(int argc, char **argv) {
     try {
         Cynara::CmdlineParser::CmdLineOptions options
@@ -46,9 +92,18 @@ int main(int argc, char **argv) {
         if (options.m_exit)
             return EXIT_SUCCESS;
 
-        init_log();
+        if (options.m_daemon)
+            daemonize();
+        if (options.m_mask != static_cast<mode_t>(-1))
+            umask(options.m_mask);
+        if (options.m_uid != static_cast<uid_t>(-1))
+            if (setuid(options.m_uid) == -1)
+                return EXIT_FAILURE;
+        if (options.m_gid != static_cast<gid_t>(-1))
+            if (setgid(options.m_gid) == -1)
+                return EXIT_FAILURE;
 
-        //todo use other options
+        init_log();
 
         Cynara::Cynara cynara;
         LOGI("Cynara service is starting ...");
