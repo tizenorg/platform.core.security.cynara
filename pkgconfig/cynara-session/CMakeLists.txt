@@ -22,5 +22,5 @@ CONFIGURE_FILE(cynara-session.pc.in cynara-session.pc @ONLY)
 INSTALL(FILES
     ${CMAKE_BINARY_DIR}/pkgconfig/cynara-session/cynara-session.pc
     DESTINATION
-    ${LIB_INSTALL_DIR}/pkgconfig
+    ${LIB_DIR}/pkgconfig
     )

@@ -21,5 +21,5 @@ CONFIGURE_FILE(cynara-plugin.pc.in cynara-plugin.pc @ONLY)
 INSTALL(FILES
     ${CMAKE_BINARY_DIR}/pkgconfig/cynara-plugin/cynara-plugin.pc
     DESTINATION
-    ${LIB_INSTALL_DIR}/pkgconfig
+    ${LIB_DIR}/pkgconfig
     )

@@ -22,5 +22,5 @@ CONFIGURE_FILE(cynara-creds-commons.pc.in cynara-creds-commons.pc @ONLY)
 INSTALL(FILES
     ${CMAKE_BINARY_DIR}/pkgconfig/cynara-creds-commons/cynara-creds-commons.pc
     DESTINATION
-    ${LIB_INSTALL_DIR}/pkgconfig
+    ${LIB_DIR}/pkgconfig
     )

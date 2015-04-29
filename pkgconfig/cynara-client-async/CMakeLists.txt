@@ -21,5 +21,5 @@ CONFIGURE_FILE(cynara-client-async.pc.in cynara-client-async.pc @ONLY)
 INSTALL(FILES
     ${CMAKE_BINARY_DIR}/pkgconfig/cynara-client-async/cynara-client-async.pc
     DESTINATION
-    ${LIB_INSTALL_DIR}/pkgconfig
+    ${LIB_DIR}/pkgconfig
     )

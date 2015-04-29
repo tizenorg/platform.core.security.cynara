@@ -20,5 +20,5 @@
 INSTALL(FILES
     ${CMAKE_SOURCE_DIR}/migration/cynara-db-migration
     DESTINATION
-    ${SBIN_INSTALL_DIR}
+    ${SBIN_DIR}
     )

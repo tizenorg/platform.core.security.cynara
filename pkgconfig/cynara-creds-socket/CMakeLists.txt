@@ -22,5 +22,5 @@ CONFIGURE_FILE(cynara-creds-socket.pc.in cynara-creds-socket.pc @ONLY)
 INSTALL(FILES
     ${CMAKE_BINARY_DIR}/pkgconfig/cynara-creds-socket/cynara-creds-socket.pc
     DESTINATION
-    ${LIB_INSTALL_DIR}/pkgconfig
+    ${LIB_DIR}/pkgconfig
     )

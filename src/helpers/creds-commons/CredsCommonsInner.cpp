@@ -29,6 +29,7 @@
 
 #include <log/log.h>
 
+#include <config/PathConfig.h>
 #include <cynara-creds-commons.h>
 #include <cynara-error.h>
 
@@ -37,14 +38,7 @@
 namespace Cynara {
 
 std::string CredsCommonsInnerBackend::credsConfigurationFile(void) {
-    std::string confFile("/etc/cynara/creds.conf");
-#ifdef CYNARA_CONFIGURATION_DIR
-    confFile = std::string(CYNARA_CONFIGURATION_DIR) + std::string("/creds.conf");
-#else
-    LOGW("Cynara compiled without CYNARA_CONFIGURATION_DIR flag."
-         " Using default configuration directory.");
-#endif
-    return confFile;
+    return Cynara::PathConfig::confPath + "/creds.conf";
 }
 // parses stream with configuration skipping comments (from # till the end of line)
 // untill a line of form <non empty key>=<empty or no empty value>

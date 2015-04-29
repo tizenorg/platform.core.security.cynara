@@ -31,5 +31,5 @@ INSTALL(FILES
     ${CYNARA_PATH}/include/cynara-plugin.h
     ${CYNARA_PATH}/include/cynara-policy-types.h
     ${CYNARA_PATH}/include/cynara-session.h
-    DESTINATION ${INCLUDE_INSTALL_DIR}/cynara
+    DESTINATION ${INCLUDE_DIR}/cynara
     )

@@ -21,5 +21,5 @@ CONFIGURE_FILE(cynara-agent.pc.in cynara-agent.pc @ONLY)
 INSTALL(FILES
     ${CMAKE_BINARY_DIR}/pkgconfig/cynara-agent/cynara-agent.pc
     DESTINATION
-    ${LIB_INSTALL_DIR}/pkgconfig
+    ${LIB_DIR}/pkgconfig
     )
