@@ -125,3 +125,10 @@ INSTALL(FILES
     ${COMMON_PATH}/plugin/ExternalPluginInterface.h
     DESTINATION ${INCLUDE_DIR}/cynara/plugin
     )
+
+INSTALL(DIRECTORY
+    ${COMMON_PATH}/plugin/client
+    ${COMMON_PATH}/plugin/service
+    DESTINATION ${LIB_DIR}/${PROJECT_NAME}/plugin
+    PATTERN ".*" EXCLUDE
+    )
