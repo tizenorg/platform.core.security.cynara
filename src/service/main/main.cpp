@@ -36,6 +36,7 @@
 #endif
 
 #include <common.h>
+#include <config/PathConfig.h>
 #include <log/log.h>
 
 #include "CmdlineParser.h"
@@ -105,6 +106,7 @@ int main(int argc, char **argv) {
                 return EXIT_FAILURE;
 
         init_log();
+        Cynara::PathConfig::makeDbPath();
 
         Cynara::Cynara cynara;
         LOGI("Cynara service is starting ...");

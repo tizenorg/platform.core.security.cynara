@@ -29,6 +29,7 @@
 #include <vector>
 
 #include <common.h>
+#include <config/PathConfig.h>
 #include <exceptions/FileLockAcquiringException.h>
 #include <exceptions/TryCatch.h>
 #include <log/log.h>
@@ -66,6 +67,7 @@ int cynara_admin_initialize(struct cynara_admin **pp_cynara_admin) {
     init_log();
 
     return Cynara::tryCatch([&]() {
+        Cynara::PathConfig::makeDbPath();
         try {
             Cynara::LogicUniquePtr ptr(new Cynara::Logic());
             *pp_cynara_admin = new cynara_admin(ptr.get());
