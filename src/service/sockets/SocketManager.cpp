@@ -77,6 +77,8 @@ void SocketManager::init(void) {
     const mode_t adminSocketUMask(0077);
     const mode_t agentSocketUMask(0);
 
+    PathConfig::makeSocketPath();
+
     createDomainSocket(std::make_shared<ProtocolClient>(), PathConfig::SocketPath::client,
                        clientSocketUMask, true);
     createDomainSocket(std::make_shared<ProtocolAdmin>(), PathConfig::SocketPath::admin,

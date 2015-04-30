@@ -221,8 +221,6 @@ rm -rf %{buildroot}
 %make_install
 
 mkdir -p %{buildroot}%{_unitdir}/sockets.target.wants
-mkdir -p %{buildroot}/%{_localstatedir}/%{name}
-
 ln -s ../cynara.socket %{buildroot}%{_unitdir}/sockets.target.wants/cynara.socket
 ln -s ../cynara-admin.socket %{buildroot}%{_unitdir}/sockets.target.wants/cynara-admin.socket
 ln -s ../cynara-agent.socket %{buildroot}%{_unitdir}/sockets.target.wants/cynara-agent.socket
@@ -256,8 +254,6 @@ systemctl daemon-reload
 if [ $1 = 1 ]; then
     systemctl enable %{name}.service
 fi
-
-chsmack -a System %{_localstatedir}/%{name}
 
 systemctl restart %{name}.service
 
@@ -323,7 +319,6 @@ fi
 %attr(-,root,root) %{_unitdir}/cynara-admin.socket
 %attr(-,root,root) %{_unitdir}/sockets.target.wants/cynara-agent.socket
 %attr(-,root,root) %{_unitdir}/cynara-agent.socket
-%dir %attr(700,cynara,cynara) %{_localstatedir}/%{name}
 %dir %attr(755,cynara,cynara) %{_libdir}/%{name}/plugin/service
 
 %files -n cynara-devel

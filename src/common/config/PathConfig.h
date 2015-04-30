@@ -58,6 +58,9 @@ extern const std::string clientDir;
 extern const std::string serviceDir;
 } // namespace PluginPath
 
+void makeSocketPath();
+void makeDbPath();
+
 } // namespace PathConfig
 } // namespace Cynara
 

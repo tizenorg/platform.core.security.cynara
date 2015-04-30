@@ -29,6 +29,7 @@
 #include <vector>
 
 #include <common.h>
+#include <config/PathConfig.h>
 #include <exceptions/FileLockAcquiringException.h>
 #include <exceptions/TryCatch.h>
 #include <log/log.h>
@@ -64,6 +65,7 @@ int cynara_admin_initialize(struct cynara_admin **pp_cynara_admin) {
         return CYNARA_API_INVALID_PARAM;
 
     init_log();
+    Cynara::PathConfig::makeDbPath();
 
     return Cynara::tryCatch([&]() {
         try {

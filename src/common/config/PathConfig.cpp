@@ -21,6 +21,13 @@
  * @brief       This file specifies PathConfig namespace containing values of default cynara paths
  */
 
+#include <sys/stat.h>
+#include <sys/types.h>
+#include <string.h>
+
+#include <exceptions/CannotCreateFileException.h>
+#include <log/log.h>
+
 #include "PathConfig.h"
 
 namespace Cynara {
@@ -89,6 +96,35 @@ namespace PluginPath {
 const std::string clientDir(libraryPath + "plugin/client/");
 const std::string serviceDir(libraryPath + "plugin/service/");
 } // namespace PluginPath
+
+static void makeDir(const std::string &path, mode_t mode) {
+    int ret = mkdir(path.c_str(), mode);
+
+    if (ret < 0) {
+        int err = errno;
+        if (err != EEXIST) {
+            LOGE("'mkdir' function error [%d] : <%s>", err, strerror(err));
+            throw CannotCreateFileException(path);
+        }
+    }
+}
+
+static void makePath(const std::string &path, mode_t mode) {
+    // Create subsequent parent directories
+    // Assume that path is absolute - i.e. starts with '/'
+    for (size_t pos = 0; (pos = path.find("/", pos + 1)) != std::string::npos;)
+        makeDir(path.substr(0, pos).c_str(), mode);
+
+    makeDir(path, mode);
+}
+
+void makeSocketPath() {
+    makePath(clientPath, 0755);
+}
+
+void makeDbPath() {
+    makePath(StoragePath::dbDir, 0700);
+}
 
 } // namespace PathConfig
 } // namespace Cynara
