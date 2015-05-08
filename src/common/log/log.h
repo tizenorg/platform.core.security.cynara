@@ -69,8 +69,12 @@ namespace {
             } \
         } while (0)
 
+#define ERR_SET int __err = errno;
+#define ERR __err
 #else // CYNARA_NO_LOGS
     #define __LOG(LEVEL, ...)
+    #define ERR_SET
+    #define ERR 0
 #endif
 
 #define LOGM(...)  __LOG(LOG_EMERG, __VA_ARGS__)   /* system is unusable */
