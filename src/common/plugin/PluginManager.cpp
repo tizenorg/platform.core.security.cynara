@@ -93,8 +93,7 @@ void PluginManager::loadPlugins(void) {
     int fileAmount = scandir(m_dir.c_str(), &nameList, pluginFilter, alphasort);
 
     if (fileAmount < 0) {
-        auto error = strerror(errno);
-        LOGE("Couldn't scan for plugins in <%s> : <%s>", m_dir.c_str(), error);
+        LOGE("Couldn't scan for plugins in <%s> : <%s>", m_dir.c_str(), strerror(errno));
         return;
     }
 
