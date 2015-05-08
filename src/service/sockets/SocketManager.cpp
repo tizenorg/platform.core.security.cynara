@@ -205,6 +205,7 @@ void SocketManager::readyForAccept(int fd) {
     int clientFd = accept4(fd, (struct sockaddr*) &clientAddr, &clientLen, SOCK_NONBLOCK);
     if (clientFd == -1) {
         int err = errno;
+        (void)err;
         LOGW("Error in accept on socket [%d]: <%s>", fd, strerror(err));
         return;
     }
@@ -276,6 +277,7 @@ int SocketManager::createDomainSocketHelp(const std::string &path, mode_t mask) 
 
     if ((fd = socket(AF_UNIX, SOCK_STREAM, 0)) == -1) {
         int err = errno;
+        (void)err;
         LOGE("Error during UNIX socket creation: <%s>",  strerror(err));
         throw InitException();
     }
@@ -285,6 +287,7 @@ int SocketManager::createDomainSocketHelp(const std::string &path, mode_t mask) 
         flags = 0;
     if (fcntl(fd, F_SETFL, flags | O_NONBLOCK) == -1) {
         int err = errno;
+        (void)err;
         close(fd);
         LOGE("Error setting \"O_NONBLOCK\" on descriptor [%d] with fcntl: <%s>",
              fd, strerror(err));
@@ -307,6 +310,7 @@ int SocketManager::createDomainSocketHelp(const std::string &path, mode_t mask) 
 
     if (bind(fd, (struct sockaddr*)&serverAddress, sizeof(serverAddress)) == -1) {
         int err = errno;
+        (void)err;
         close(fd);
         LOGE("Error in bind socket descriptor [%d] to path <%s>: <%s>",
              fd, path.c_str(), strerror(err));
@@ -317,6 +321,7 @@ int SocketManager::createDomainSocketHelp(const std::string &path, mode_t mask) 
 
     if (listen(fd, 5) == -1) {
         int err = errno;
+        (void)err;
         close(fd);
         LOGE("Error setting listen on file descriptor [%d], path <%s>: <%s>",
              fd, path.c_str(), strerror(err));
