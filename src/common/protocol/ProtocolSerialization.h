@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2011-2014 Samsung Electronics Co., Ltd All Rights Reserved
+ * Copyright (c) 2011-2015 Samsung Electronics Co., Ltd All Rights Reserved
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -30,6 +30,8 @@
 #include <string>
 #include <vector>
 
+#include <cynara-limits.h>
+#include <exceptions/InvalidProtocolException.h>
 #include <protocol/ProtocolOpCode.h>
 
 namespace Cynara {
@@ -90,11 +92,15 @@ struct ProtocolSerialization {
     // std::string
     static void serialize(IStream &stream, const std::string &str) {
         uint32_t length = htole32(static_cast<uint32_t>(str.size()));
+        if (length > CYNARA_MAX_ID_LENGTH)
+            throw InvalidProtocolException(InvalidProtocolException::IdentifierTooLong);
         stream.write(sizeof(length), &length);
         stream.write(str.size(), str.c_str());
     }
     static void serializeNoSize(IStream &stream, const std::string &str) {
         int length = str.size();
+        if (length > CYNARA_MAX_ID_LENGTH)
+            throw InvalidProtocolException(InvalidProtocolException::IdentifierTooLong);
         stream.write(length, str.c_str());
     }
 
@@ -102,6 +108,8 @@ struct ProtocolSerialization {
     template<typename T>
     static void serialize(IStream &stream, const std::vector<T> &vec) {
         uint32_t length = htole32(static_cast<uint32_t>(vec.size()));
+        if (length > CYNARA_MAX_ID_LENGTH)
+            throw InvalidProtocolException(InvalidProtocolException::IdentifierTooLong);
         stream.write(sizeof(length), &length);
         for (typename std::vector<T>::const_iterator vec_iter = vec.begin();
                 vec_iter != vec.end(); vec_iter++) {
@@ -162,10 +170,14 @@ struct ProtocolDeserialization {
         uint32_t length;
         stream.read(sizeof(length), &length);
         length = le32toh(length);
+        if (length > CYNARA_MAX_ID_LENGTH)
+            throw InvalidProtocolException(InvalidProtocolException::IdentifierTooLong);
         str.resize(length);
         stream.read(length, &str[0]);
     }
     static void deserialize(IStream &stream, int length, std::string &str) {
+        if (length > CYNARA_MAX_ID_LENGTH)
+            throw InvalidProtocolException(InvalidProtocolException::IdentifierTooLong);
         str.resize(length);
         stream.read(length, &str[0]);
     }
@@ -176,6 +188,8 @@ struct ProtocolDeserialization {
         uint32_t length;
         stream.read(sizeof(length), &length);
         length = le32toh(length);
+        if (length > CYNARA_MAX_ID_LENGTH)
+            throw InvalidProtocolException(InvalidProtocolException::IdentifierTooLong);
         for (uint32_t i = 0; i < length; ++i) {
             T obj;
             deserialize(stream, obj);
