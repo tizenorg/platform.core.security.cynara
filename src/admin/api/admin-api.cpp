@@ -16,6 +16,7 @@
 /**
  * @file        src/admin/api/admin-api.cpp
  * @author      Lukasz Wojciechowski <l.wojciechow@partner.samsung.com>
+ * @author      Oskar Świtalski <o.switalski@samsung.com>
  * @version     1.0
  * @brief       Implementation of external libcynara-admin API
  */
@@ -42,6 +43,7 @@
 
 #include <cynara-admin.h>
 #include <cynara-error.h>
+#include <cynara-limits.h>
 
 #include <api/ApiInterface.h>
 #include <logic/Logic.h>
@@ -163,6 +165,8 @@ int cynara_admin_set_bucket(struct cynara_admin *p_cynara_admin, const char *buc
         return CYNARA_API_INVALID_PARAM;
     if (!bucket)
         return CYNARA_API_INVALID_PARAM;
+    if (strlen(bucket) > CYNARA_MAX_ID_LENGTH || strlen(extra) > CYNARA_MAX_ID_LENGTH)
+        return CYNARA_API_INVALID_PARAM;
 
     return Cynara::tryCatch([&]() {
 
@@ -203,6 +207,10 @@ int cynara_admin_check(struct cynara_admin *p_cynara_admin,
     if (!client || !user || !privilege)
         return CYNARA_API_INVALID_PARAM;
     if (!result || !result_extra)
+        return CYNARA_API_INVALID_PARAM;
+    if (strlen(start_bucket) > CYNARA_MAX_ID_LENGTH || strlen(client) > CYNARA_MAX_ID_LENGTH)
+        return CYNARA_API_INVALID_PARAM;
+    if (strlen(user) > CYNARA_MAX_ID_LENGTH || strlen(privilege) > CYNARA_MAX_ID_LENGTH)
         return CYNARA_API_INVALID_PARAM;
 
     return Cynara::tryCatch([&]() {
@@ -285,6 +293,10 @@ int cynara_admin_list_policies(struct cynara_admin *p_cynara_admin, const char *
         return CYNARA_API_INVALID_PARAM;
     if (!policies)
         return CYNARA_API_INVALID_PARAM;
+    if (strlen(bucket) > CYNARA_MAX_ID_LENGTH || strlen(client) > CYNARA_MAX_ID_LENGTH)
+        return CYNARA_API_INVALID_PARAM;
+    if (strlen(user) > CYNARA_MAX_ID_LENGTH || strlen(privilege) > CYNARA_MAX_ID_LENGTH)
+        return CYNARA_API_INVALID_PARAM;
 
     return Cynara::tryCatch([&]() {
         Cynara::PolicyKeyFeature::ValueType clientStr;
@@ -356,6 +368,10 @@ int cynara_admin_erase(struct cynara_admin *p_cynara_admin,
     if (!p_cynara_admin || !p_cynara_admin->impl)
         return CYNARA_API_INVALID_PARAM;
     if (!start_bucket || !client || !user || !privilege)
+        return CYNARA_API_INVALID_PARAM;
+    if (strlen(start_bucket) > CYNARA_MAX_ID_LENGTH || strlen(client) > CYNARA_MAX_ID_LENGTH)
+        return CYNARA_API_INVALID_PARAM;
+    if (strlen(user) > CYNARA_MAX_ID_LENGTH || strlen(privilege) > CYNARA_MAX_ID_LENGTH)
         return CYNARA_API_INVALID_PARAM;
 
     return Cynara::tryCatch([&]() {

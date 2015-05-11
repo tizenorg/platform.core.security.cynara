@@ -17,6 +17,7 @@
  * @file        src/client/api/client-api.cpp
  * @author      Lukasz Wojciechowski <l.wojciechow@partner.samsung.com>
  * @author      Zofia Abramowska <z.abramowska@samsung.com>
+ * @author      Oskar Świtalski <o.switalski@samsung.com>
  * @version     1.0
  * @brief       Implementation of external libcynara-client API
  */
@@ -124,6 +125,11 @@ int cynara_check(cynara *p_cynara, const char *client, const char *client_sessio
         return CYNARA_API_INVALID_PARAM;
     if(!client || !client_session || !user || !privilege)
         return CYNARA_API_INVALID_PARAM;
+    if(strlen(client) > CYNARA_MAX_ID_LENGTH || strlen(client_session) > CYNARA_MAX_ID_LENGTH )
+        return CYNARA_API_INVALID_PARAM;
+    if(strlen(user) > CYNARA_MAX_ID_LENGTH || strlen(privilege) > CYNARA_MAX_ID_LENGTH )
+        return CYNARA_API_INVALID_PARAM;
+
 
     return Cynara::tryCatch([&]() {
         std::string clientStr;
@@ -150,6 +156,10 @@ int cynara_simple_check(cynara *p_cynara, const char *client, const char *client
     if (!p_cynara || !p_cynara->impl)
         return CYNARA_API_INVALID_PARAM;
     if (!client || !client_session || !user || !privilege)
+        return CYNARA_API_INVALID_PARAM;
+    if(strlen(client) > CYNARA_MAX_ID_LENGTH || strlen(client_session) > CYNARA_MAX_ID_LENGTH )
+        return CYNARA_API_INVALID_PARAM;
+    if(strlen(user) > CYNARA_MAX_ID_LENGTH || strlen(privilege) > CYNARA_MAX_ID_LENGTH )
         return CYNARA_API_INVALID_PARAM;
 
     return Cynara::tryCatch([&]() {

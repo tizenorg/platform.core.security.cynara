@@ -17,6 +17,7 @@
  * @file        src/client-async/api/client-async-api.cpp
  * @author      Marcin Niesluchowski <m.niesluchow@samsung.com>
  * @author      Zofia Abramowska <z.abramowska@samsung.com>
+ * @author      Oskar Świtalski <o.switalski@samsung.com>
  * @version     1.0
  * @brief       Implementation of external libcynara-client-async API
  */
@@ -124,6 +125,10 @@ int cynara_async_check_cache(cynara_async *p_cynara, const char *client, const c
         return CYNARA_API_INVALID_PARAM;
     if (!client || !client_session || !user || !privilege)
         return CYNARA_API_INVALID_PARAM;
+    if(strlen(client) > CYNARA_MAX_ID_LENGTH || strlen(client_session) > CYNARA_MAX_ID_LENGTH )
+        return CYNARA_API_INVALID_PARAM;
+    if(strlen(user) > CYNARA_MAX_ID_LENGTH || strlen(privilege) > CYNARA_MAX_ID_LENGTH )
+        return CYNARA_API_INVALID_PARAM;
 
     return Cynara::tryCatch([&]() {
         std::string clientStr;
@@ -152,6 +157,10 @@ int cynara_async_create_request(cynara_async *p_cynara, const char *client,
     if (!p_cynara || !p_cynara->impl)
         return CYNARA_API_INVALID_PARAM;
     if (!client || !client_session || !user || !privilege)
+        return CYNARA_API_INVALID_PARAM;
+    if(strlen(client) > CYNARA_MAX_ID_LENGTH || strlen(client_session) > CYNARA_MAX_ID_LENGTH )
+        return CYNARA_API_INVALID_PARAM;
+    if(strlen(user) > CYNARA_MAX_ID_LENGTH || strlen(privilege) > CYNARA_MAX_ID_LENGTH )
         return CYNARA_API_INVALID_PARAM;
 
     return Cynara::tryCatch([&]() {
@@ -187,6 +196,10 @@ int cynara_async_create_simple_request(cynara_async *p_cynara, const char *clien
     if (!p_cynara || !p_cynara->impl)
         return CYNARA_API_INVALID_PARAM;
     if (!client || !client_session || !user || !privilege)
+        return CYNARA_API_INVALID_PARAM;
+    if(strlen(client) > CYNARA_MAX_ID_LENGTH || strlen(client_session) > CYNARA_MAX_ID_LENGTH )
+        return CYNARA_API_INVALID_PARAM;
+    if(strlen(user) > CYNARA_MAX_ID_LENGTH || strlen(privilege) > CYNARA_MAX_ID_LENGTH )
         return CYNARA_API_INVALID_PARAM;
 
     return Cynara::tryCatch([&]() {
