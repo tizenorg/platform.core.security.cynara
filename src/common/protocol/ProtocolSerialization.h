@@ -30,6 +30,8 @@
 #include <string>
 #include <vector>
 
+#include <cynara-limits.h>
+#include <exceptions/InvalidProtocolException.h>
 #include <protocol/ProtocolOpCode.h>
 
 namespace Cynara {
@@ -162,10 +164,14 @@ struct ProtocolDeserialization {
         uint32_t length;
         stream.read(sizeof(length), &length);
         length = le32toh(length);
+        if (length > CYNARA_MAX_ID_LENGTH)
+            throw InvalidProtocolException(InvalidProtocolException::IdentifierTooLong);
         str.resize(length);
         stream.read(length, &str[0]);
     }
     static void deserialize(IStream &stream, int length, std::string &str) {
+        if (length > CYNARA_MAX_ID_LENGTH)
+            throw InvalidProtocolException(InvalidProtocolException::IdentifierTooLong);
         str.resize(length);
         stream.read(length, &str[0]);
     }

@@ -35,6 +35,7 @@ public:
     enum ExceptionType {
         InvalidSignature,
         WrongOpCode,
+        IdentifierTooLong,
         Other
     };
 
@@ -46,6 +47,9 @@ public:
                 break;
             case WrongOpCode:
                 m_message = "Wrong request code";
+                break;
+            case IdentifierTooLong:
+                m_message = "Identifier too long";
                 break;
             case Other:
                 m_message = "Unknown problem";
