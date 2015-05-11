@@ -26,6 +26,7 @@
 
 #include <cynara-admin-types.h>
 #include <cynara-error.h>
+#include <cynara-limits.h>
 #include <cynara-policy-types.h>
 
 #ifdef __cplusplus
@@ -139,6 +140,8 @@ int cynara_admin_finish(struct cynara_admin *p_cynara_admin);
  * When plugin API will be specified, there will be more valid types to pass as result.
  * Numerical values of defines CYNARA_ADMIN_... may change, so usage of defines names is strongly
  * recommended.
+ * Policies size cannot exceed CYNARA_MAX_VECTOR_SIZE and string members length cannot exceed
+ * CYNARA_MAX_ID_LENGTH, otherwise CYNARA_API_INVALID_PARAM will be returned.
  *
  * \param[in] p_cynara_admin cynara admin structure.
  * \param[in] policies NULL terminated array of pointers to policy structures.
@@ -178,6 +181,9 @@ int cynara_admin_set_policies(struct cynara_admin *p_cynara_admin,
  * When plugin API will be specified, there will be more valid types to pass as operation / default
  * policy. Numerical values of defines CYNARA_ADMIN_... may change, so usages of provided consts is
  * strongly recommended.
+ *
+ * String length cannot exceed CYNARA_MAX_ID_LENGTH otherwise CYNARA_API_INVALID_PARAM will be
+ * returned.
  *
  * Default bucket identified with CYNARA_ADMIN_DEFAULT_BUCKET exists always. Its default policy
  * is preset to DENY (can be altered, however). Default bucket cannot be removed.
@@ -226,6 +232,8 @@ int cynara_admin_set_bucket(struct cynara_admin *p_cynara_admin, const char *buc
  * (*result_extra) may be set to NULL, if extra data are not used in matched policy
  * If (*result_extra) is not NULL, it contains a string allocated by cynara admin library
  * with malloc(3) function and must be released with free(3) function.
+ * String length cannot exceed CYNARA_MAX_ID_LENGTH otherwise CYNARA_API_INVALID_PARAM will be
+ * returned.
  *
  * \param[in] p_cynara_admin cynara admin structure.
  * \param[in] start_bucket name of bucket where search would start.
@@ -289,6 +297,10 @@ int cynara_admin_check(struct cynara_admin *p_cynara_admin,
  * \par Sync (or) Async:
  * This is a synchronous API.
  *
+ * \par Important notes:
+ * String length cannot exceed CYNARA_MAX_ID_LENGTH otherwise CYNARA_API_INVALID_PARAM will be
+ * returned.
+ *
  * \param[in] p_cynara_admin cynara admin structure.
  * \param[in] bucket name.
  * \param[in] client filter for client name.
@@ -343,6 +355,10 @@ int cynara_admin_list_policies(struct cynara_admin *p_cynara_admin, const char *
  *
  * \par Sync (or) Async:
  * This is a synchronous API.
+ *
+ * \par Important notes:
+ * String length cannot exceed CYNARA_MAX_ID_LENGTH otherwise CYNARA_API_INVALID_PARAM will be
+ * returned.
  *
  * \param[in] p_cynara_admin cynara admin structure.
  * \param[in] start_bucket name of bucket where erase would start.
