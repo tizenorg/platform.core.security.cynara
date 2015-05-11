@@ -29,6 +29,7 @@
 #include <stdint.h>
 
 #include <cynara-error.h>
+#include <cynara-limits.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -176,7 +177,6 @@ typedef void (*cynara_status_callback) (int old_fd, int new_fd, cynara_async_sta
  *         or negative error code on error.
  */
 int cynara_async_configuration_create(cynara_async_configuration **pp_conf);
-
 
 /**
  * \par Description:
@@ -436,13 +436,13 @@ int cynara_async_check_cache(cynara_async *p_cynara, const char *client, const c
  *
  * \return CYNARA_API_SUCCESS on success,
  *         CYNARA_API_MAX_PENDING_REQUESTS on too much pending requests,
+ *         CYNARA_API_INVALID_PARAM if one of params exceeds CYNARA_MAX_ID_LENGTH,
  *         or other negative error code on error.
  */
 int cynara_async_create_request(cynara_async *p_cynara, const char *client,
                                 const char *client_session, const char *user, const char *privilege,
                                 cynara_check_id *p_check_id, cynara_response_callback callback,
                                 void *user_response_data);
-
 
 /**
  * \par Description:
@@ -503,6 +503,7 @@ int cynara_async_create_request(cynara_async *p_cynara, const char *client,
  *
  * \return CYNARA_API_SUCCESS on success,
  *         CYNARA_API_MAX_PENDING_REQUESTS on too much pending requests,
+ *         CYNARA_API_INVALID_PARAM if one of params exceeds CYNARA_MAX_ID_LENGTH,
  *         or other negative error code on error.
  */
 int cynara_async_create_simple_request(cynara_async *p_cynara, const char *client,

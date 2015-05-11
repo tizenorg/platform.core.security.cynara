@@ -27,6 +27,7 @@
 #include <stddef.h>
 
 #include <cynara-error.h>
+#include <cynara-limits.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -72,7 +73,6 @@ typedef struct cynara_configuration cynara_configuration;
  *         or negative error code on error.
  */
 int cynara_configuration_create(cynara_configuration **pp_conf);
-
 
 /**
  * \par Description:
@@ -230,8 +230,9 @@ int cynara_finish(cynara *p_cynara);
  * \param[in] user User running client.
  * \param[in] privilege Privilege that is a subject of a check..
  *
- * \return CYNARA_API_ACCESS_ALLOWED on access allowed, CYNARA_API_ACCESS_DENIED on access denial
- * or other error code on error.
+ * \return CYNARA_API_ACCESS_ALLOWED on access allowed, CYNARA_API_ACCESS_DENIED on access denial,
+ * CYNARA_API_INVALID_PARAM if one of params exceeds CYNARA_MAX_ID_LENGTH or other error code on
+ * error.
  */
 int cynara_check(cynara *p_cynara, const char *client, const char *client_session, const char *user,
                  const char *privilege);
@@ -280,7 +281,8 @@ int cynara_check(cynara *p_cynara, const char *client, const char *client_sessio
  *
  * \return CYNARA_API_ACCESS_ALLOWED on access allowed, CYNARA_API_ACCESS_DENIED on access denial,
  * CYNARA_API_ACCESS_NOT_RESOLVED when decision is not known without usage of external plugins or
- * agents or negative error code on error.
+ * agents, CYNARA_API_INVALID_PARAM if one of params exceeds CYNARA_MAX_ID_LENGTH or negative error
+ * code on error.
  */
 int cynara_simple_check(cynara *p_cynara, const char *client, const char *client_session,
                         const char *user, const char *privilege);
