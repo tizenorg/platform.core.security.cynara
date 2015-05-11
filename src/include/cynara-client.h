@@ -27,6 +27,7 @@
 #include <stddef.h>
 
 #include <cynara-error.h>
+#include <cynara-limits.h>
 
 #ifdef __cplusplus
 extern "C" {
