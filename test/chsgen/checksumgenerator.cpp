@@ -58,9 +58,9 @@ TEST_F(ChsgenCommandlineTest, noFile) {
     const auto ret = chsgen.run();
     getOutput(out, err);
 
-    ASSERT_EQ(CYNARA_API_INVALID_COMMANDLINE_PARAM, ret);
+    ASSERT_EQ(CYNARA_API_UNKNOWN_ERROR, ret);
     ASSERT_TRUE(out.empty());
-    ASSERT_THAT(err, StartsWith("File " + std::string() + " not found or corrupted badly"));
+    ASSERT_THAT(err, StartsWith("File not found: " + std::string()));
 }
 
 /**
