@@ -29,8 +29,15 @@
 
 namespace Cynara {
 
-const std::string PolicyKeyFeature::m_wildcardValue = CYNARA_ADMIN_WILDCARD;
-const std::string PolicyKeyFeature::m_anyValue = CYNARA_ADMIN_ANY;
+const std::string &PolicyKeyFeature::wildcardValue() {
+    static const std::string value(CYNARA_ADMIN_WILDCARD);
+    return value;
+}
+
+const std::string &PolicyKeyFeature::anyValue() {
+    static const std::string value(CYNARA_ADMIN_ANY);
+    return value;
+}
 
 const std::string &PolicyKeyFeature::toString(void) const {
     return value();
