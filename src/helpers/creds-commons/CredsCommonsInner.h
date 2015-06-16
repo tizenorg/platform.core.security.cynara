@@ -16,13 +16,15 @@
 /**
  * @file        src/helpers/creds-commons/CredsCommonsInner.h
  * @author      Radoslaw Bartosiak <r.bartosiak@samsung.com>
- * @version     1.0
+ * @version     1.1
  * @brief       Declaration of internal credential commons functions
  */
 
 #ifndef SRC_HELPERS_CREDS_COMMONS_CREDSCOMMONSINNER_H_
 #define SRC_HELPERS_CREDS_COMMONS_CREDSCOMMONSINNER_H_
 
+#include <istream>
+#include <fstream>
 #include <map>
 #include <string>
 
@@ -32,12 +34,13 @@ typedef std::map<std::string, int> CredentialsMap;
 
 class CredsCommonsInnerBackend {
     public:
-        static std::string credsConfigurationFile(void);
+        static int credsConfigurationFile(std::ifstream &f);
         static bool getKeyAndValue(std::istream &f, const std::locale &loc, std::string &key,
                                    std::string &value);
         static bool interpretValue(const CredentialsMap &methodCodeMap, int &method,
                                    const std::string &value, bool &occurred);
-        static int getMethodFromConfigurationFile(const CredentialsMap &methodCodeMap,
+        static int getMethodFromConfigurationFile(std::istream &f,
+                                                  const CredentialsMap &methodCodeMap,
                                                   const std::string &methodName, int &method);
     private:
         // trim from the start
