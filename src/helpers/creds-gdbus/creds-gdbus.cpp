@@ -21,42 +21,63 @@
  */
 
 #include <attributes/attributes.h>
+#include <cstring>
 
 #include <cynara-creds-commons.h>
 #include <cynara-creds-gdbus.h>
 #include <cynara-error.h>
 
 namespace {
-int call_dbus_daemon_method_str(GDBusConnection *connection, const gchar *methodName,
-                                const gchar *arg, gchar **result) {
+
+struct Credentials
+{
+    Credentials() : m_pid(-1), m_uid(-1), m_securityLabel(nullptr) {}
+    ~Credentials() { g_free(m_securityLabel); }
+
+    bool isPidSet() const { return m_pid != (guint32)-1; }
+    bool isUidSet() const { return m_uid != (guint32)-1; }
+    bool isSecurityLabelSet() const { return m_securityLabel != nullptr; }
+
+    guint32 m_pid;
+    guint32 m_uid;
+    gchar *m_securityLabel;
+};
+
+int get_connection_credentials(GDBusConnection *connection, const gchar *uniqueId,
+                               Credentials &credentials)
+{
     GVariant *reply = g_dbus_connection_call_sync(connection,
-                "org.freedesktop.DBus", "/org/freedesktop/DBus", "org.freedesktop.DBus",
-                methodName, g_variant_new("(s)", arg), G_VARIANT_TYPE("(s)"),
-                G_DBUS_CALL_FLAGS_NONE, -1, NULL, NULL);
+                        "org.freedesktop.DBus", "/org/freedesktop/DBus", "org.freedesktop.DBus",
+                        "GetConnectionCredentials", g_variant_new("(s)", uniqueId),
+                        G_VARIANT_TYPE("(a{sv})"), G_DBUS_CALL_FLAGS_NONE, -1, NULL, NULL);
 
-    if (reply != NULL) {
-        g_variant_get(reply, "(s)", result);
-        g_variant_unref(reply);
-        return CYNARA_API_SUCCESS;
-    } else {
+    if (reply == nullptr)
         return CYNARA_API_UNKNOWN_ERROR;
-    }
-}
 
-int call_dbus_daemon_method_u32(GDBusConnection *connection, const gchar *methodName,
-                                const gchar *arg, guint32 *result) {
-    GVariant *reply = g_dbus_connection_call_sync(connection,
-                "org.freedesktop.DBus", "/org/freedesktop/DBus", "org.freedesktop.DBus",
-                methodName, g_variant_new("(s)", arg), G_VARIANT_TYPE("(u)"),
-                G_DBUS_CALL_FLAGS_NONE, -1, NULL, NULL);
+    GVariantIter *iter;
+    gchar *key;
+    GVariant *value;
+    g_variant_get (reply, "(a{sv})", &iter);
 
-    if (reply != NULL) {
-        g_variant_get(reply, "(u)", result);
-        g_variant_unref(reply);
-        return CYNARA_API_SUCCESS;
-    } else {
-        return CYNARA_API_UNKNOWN_ERROR;
+    while (g_variant_iter_next(iter, "{&sv}", &key, &value)) {
+        if (!strcmp(key, "ProcessID")) {
+            credentials.m_pid = g_variant_get_uint32 (value);
+        } else if (!strcmp(key, "UnixUserID")) {
+            credentials.m_uid = g_variant_get_uint32 (value);
+        } else if (!strcmp(key, "LinuxSecurityLabel")) {
+            gsize n_elements;
+            const gchar *label = static_cast<const gchar *>(g_variant_get_fixed_array(value,
+                    &n_elements, 1));
+            if (label != nullptr)
+                credentials.m_securityLabel = g_strdup(label);
+        }
+
+        g_variant_unref(value);
     }
+
+    g_variant_iter_free(iter);
+    g_variant_unref(reply);
+    return CYNARA_API_SUCCESS;
 }
 }
 
@@ -74,20 +95,26 @@ int cynara_creds_gdbus_get_client(GDBusConnection *connection, const gchar *uniq
             return ret;
     }
 
+    Credentials credentials;
     switch (method) {
         case cynara_client_creds::CLIENT_METHOD_SMACK:
-            ret = call_dbus_daemon_method_str(connection, "GetConnectionSmackContext", uniqueName,
-                      client);
+            ret = get_connection_credentials(connection, uniqueName, credentials);
+            if (ret != CYNARA_API_SUCCESS)
+                return ret;
+            if (!credentials.isSecurityLabelSet())
+                return CYNARA_API_UNKNOWN_ERROR;
+
+            *client = g_strdup(credentials.m_securityLabel);
             break;
         case cynara_client_creds::CLIENT_METHOD_PID:
-        {
-            guint32 pid;
-            ret = call_dbus_daemon_method_u32(connection, "GetConnectionUnixProcessID",
-                                              uniqueName, &pid);
-            if (ret == CYNARA_API_SUCCESS)
-                *client = g_strdup_printf("%u", pid);
+            ret = get_connection_credentials(connection, uniqueName, credentials);
+            if (ret != CYNARA_API_SUCCESS)
+                return ret;
+            if (!credentials.isPidSet())
+                return CYNARA_API_UNKNOWN_ERROR;
+
+            *client = g_strdup_printf("%u", credentials.m_pid);
             break;
-        }
         default:
             return CYNARA_API_METHOD_NOT_SUPPORTED;
     }
@@ -97,11 +124,13 @@ int cynara_creds_gdbus_get_client(GDBusConnection *connection, const gchar *uniq
 CYNARA_API
 int cynara_creds_gdbus_get_user(GDBusConnection *connection, const gchar *uniqueName,
                                 enum cynara_user_creds method, gchar **user) {
+    int ret;
+
     if (connection == nullptr || uniqueName == nullptr || user == nullptr)
         return CYNARA_API_INVALID_PARAM;
 
     if (method == cynara_user_creds::USER_METHOD_DEFAULT) {
-        int ret = cynara_creds_get_default_user_method(&method);
+        ret = cynara_creds_get_default_user_method(&method);
         if (ret != CYNARA_API_SUCCESS)
             return ret;
     }
@@ -109,26 +138,34 @@ int cynara_creds_gdbus_get_user(GDBusConnection *connection, const gchar *unique
     if (method != cynara_user_creds::USER_METHOD_UID)
         return CYNARA_API_METHOD_NOT_SUPPORTED;
 
-    guint32 uid;
-    int ret = call_dbus_daemon_method_u32(connection, "GetConnectionUnixUser", uniqueName, &uid);
-    if (ret == CYNARA_API_SUCCESS) {
-        *user = g_strdup_printf("%u", uid);
-    }
+    Credentials credentials;
+    ret = get_connection_credentials(connection, uniqueName, credentials);
+    if (ret != CYNARA_API_SUCCESS)
+        return ret;
+
+    if (!credentials.isUidSet())
+        return CYNARA_API_UNKNOWN_ERROR;
+
+    *user = g_strdup_printf("%u", credentials.m_uid);
 
     return ret;
 }
 
 CYNARA_API
-int cynara_creds_gdbus_get_pid(GDBusConnection *connection, const char *uniqueName, pid_t *pid) {
+int cynara_creds_gdbus_get_pid(GDBusConnection *connection, const gchar *uniqueName, pid_t *pid) {
     if (connection == nullptr || uniqueName == nullptr || pid == nullptr)
         return CYNARA_API_INVALID_PARAM;
 
-    guint32 pidU32;
-    int ret = call_dbus_daemon_method_u32(connection, "GetConnectionUnixProcessID", uniqueName,
-                                          &pidU32);
-    if (ret == CYNARA_API_SUCCESS) {
-        *pid = static_cast<pid_t>(pidU32);
-    }
+    Credentials credentials;
+    int ret = get_connection_credentials(connection, uniqueName, credentials);
+    if (ret != CYNARA_API_SUCCESS)
+        return ret;
+
+    if (!credentials.isPidSet())
+        return CYNARA_API_UNKNOWN_ERROR;
+
+    if (ret == CYNARA_API_SUCCESS)
+        *pid = credentials.m_pid;
 
     return ret;
 }
