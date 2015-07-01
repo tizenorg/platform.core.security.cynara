@@ -32,6 +32,7 @@ BuildRequires: zip
 BuildRequires: pkgconfig(libsystemd-daemon)
 BuildRequires: pkgconfig(libsystemd-journal)
 BuildRequires: pkgconfig(libsmack)
+BuildRequires: pkgconfig(audit)
 %{?systemd_requires}
 
 %global user_name %{name}
@@ -213,7 +214,8 @@ export LDFLAGS+="-Wl,--rpath=%{_libdir}"
         -DDATA_ROOT_DIR:PATH=%{_datadir} \
         -DSYSTEMD_UNIT_DIR:PATH=%{_unitdir} \
         -DSOCKET_DIR:PATH=/run/%{name} \
-        -DDB_FILES_SMACK_LABEL="System"
+        -DDB_FILES_SMACK_LABEL="System" \
+        -DAUDITING=YES
 make %{?jobs:-j%jobs}
 
 %install
@@ -310,7 +312,7 @@ fi
 %files
 %manifest cynara.manifest
 %license LICENSE
-%attr(755,root,root) %{_bindir}/cynara
+%caps(cap_audit_write=ei) %attr(755,root,root) %{_bindir}/cynara
 %attr(-,root,root) %{_unitdir}/cynara.service
 %attr(-,root,root) %{_unitdir}/cynara.target
 %attr(-,root,root) %{_unitdir}/sockets.target.wants/cynara.socket

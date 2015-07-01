@@ -19,6 +19,9 @@ User=cynara
 Group=cynara
 NoNewPrivileges=true
 
+Capabilities=cap_audit_write=ip
+SecureBits=keep-caps
+
 #Environment="CYNARA_LOG_LEVEL=LOG_DEBUG"
 #Environment="CYNARA_AUDIT_LEVEL=ALL"
 
