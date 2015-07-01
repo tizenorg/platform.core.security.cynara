@@ -21,7 +21,11 @@
  * @brief       This file implements privilege check logging utility.
  */
 
-#ifdef BUILD_WITH_SYSTEMD
+#include <memory>
+
+#if defined AUDITING
+#include <libaudit.h>
+#elif defined BUILD_WITH_SYSTEMD
 #include <systemd/sd-journal.h>
 #else
 #include <syslog.h>
@@ -35,11 +39,20 @@ AuditLog::AuditLog() : m_logLevel(AL_DENY) {
     init();
 }
 
+AuditLog::~AuditLog() {
+#if defined AUDITING
+    audit_close(m_auditFd);
+#endif
+}
+
 void AuditLog::init(void) {
     char *env_val = getenv("CYNARA_AUDIT_LEVEL");
     if (env_val) {
         m_logLevel = stringToLevel(env_val);
     }
+#if defined AUDITING
+    this->m_auditFd = audit_open();
+#endif
 }
 
 AuditLog::AuditLevel AuditLog::stringToLevel(const std::string &name) {
@@ -81,7 +94,28 @@ void AuditLog::log(const PolicyKey &policyKey, const PolicyResult &policyResult)
     if (m_logLevel == AL_ALL || (m_logLevel == AL_DENY && policyType == PPT::DENY) ||
         (m_logLevel == AL_ALLOW && policyType == PPT::ALLOW) ||
         (m_logLevel == AL_OTHER && policyType != PPT::ALLOW && policyType != PPT::DENY)) {
-#ifdef BUILD_WITH_SYSTEMD
+#if defined AUDITING
+            auto encodePKF = [] (const char *key, const PolicyKeyFeature &pkf) -> char * {
+                return audit_encode_nv_string(key, pkf.toString().c_str(), 0);
+            };
+
+            std::unique_ptr<char> client(encodePKF("client", policyKey.client()), free);
+            std::unique_ptr<char> user(encodePKF("user", policyKey.user()), free);
+            std::unique_ptr<char> privilege(encodePKF("privilege", policyKey.privilege()), free);
+
+            // TODO: Consider informational logging in case of audit write failure
+            if (client && user && privilege) {
+                char msg[MAX_AUDIT_MESSAGE_LENGTH];
+                auto printRet = snprintf(msg, MAX_AUDIT_MESSAGE_LENGTH,
+                                         "app=Cynara %s %s %s policy_type=%" PRIu16,
+                                         client, user, privilege, policyResult.policyType());
+                if (printRet >= 0 && printRet < MAX_AUDIT_MESSAGE_LENGTH) {
+                    audit_log_user_message(m_auditFd, AUDIT_TRUSTED_APP, msg,
+                                           nullptr, nullptr, nullptr,
+                                           policyType != PPT::DENY);
+                }
+            }
+#elif defined BUILD_WITH_SYSTEMD
             sd_journal_send("MESSAGE=%s;%s;%s => %s", policyKey.client().toString().c_str(),
                             policyKey.user().toString().c_str(),
                             policyKey.privilege().toString().c_str(),
