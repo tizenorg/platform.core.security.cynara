@@ -32,6 +32,7 @@ namespace Cynara {
 class AuditLog {
 public:
     AuditLog();
+    ~AuditLog();
 
     void log(const PolicyKey &policyKey, const PolicyResult &policyResult);
 
@@ -45,6 +46,10 @@ private:
     } AuditLevel;
 
     int m_logLevel;
+
+#if defined(AUDITING)
+    int m_auditFd = -1;
+#endif
 
     void init(void);
     static AuditLevel stringToLevel(const std::string &name);
