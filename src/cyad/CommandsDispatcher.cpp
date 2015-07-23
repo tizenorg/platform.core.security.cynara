@@ -74,9 +74,8 @@ int CommandsDispatcher::execute(HelpCyadCommand &) {
 
 int CommandsDispatcher::execute(ErrorCyadCommand &result) {
     m_io.cerr() << "There was an error in command-line options:" << std::endl;
-    m_io.cerr() << result.message() << std::endl;
+    m_io.cerr() << result.message() << ", use '-h' or '--help' to print help message" << std::endl;
 
-    m_io.cerr() << std::endl << CmdlineOpts::makeHelp() << std::endl;
     return CYNARA_API_INVALID_COMMANDLINE_PARAM;
 }
 
