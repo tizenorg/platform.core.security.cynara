@@ -37,15 +37,13 @@ BuildRequires: pkgconfig(libsmack)
 %global user_name %{name}
 %global group_name %{name}
 
-%if !%{defined build_type}
+%if 0%{!?build_type:1}
 %define build_type RELEASE
 %endif
 
-%if %{?build_type} == "DEBUG"
-
+%if "%{?build_type}" == "DEBUG"
 BuildRequires: libdw-devel
 BuildRequires: pkgconfig(libunwind)
-
 %endif
 
 %description
@@ -194,7 +192,7 @@ cp -a %{SOURCE1014} .
 export CXXFLAGS="$CXXFLAGS -DTIZEN_DEBUG_ENABLE"
 %endif
 
-%if %{?build_type} == "DEBUG"
+%if "%{?build_type}" == "DEBUG"
 export CXXFLAGS="$CXXFLAGS -Wp,-U_FORTIFY_SOURCE"
 %endif
 
