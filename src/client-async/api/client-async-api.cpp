@@ -17,6 +17,7 @@
  * @file        src/client-async/api/client-async-api.cpp
  * @author      Marcin Niesluchowski <m.niesluchow@samsung.com>
  * @author      Zofia Abramowska <z.abramowska@samsung.com>
+ * @author      Oskar Świtalski <o.switalski@samsung.com>
  * @version     1.0
  * @brief       Implementation of external libcynara-client-async API
  */
@@ -111,7 +112,7 @@ int cynara_async_initialize(cynara_async **pp_cynara,
 
 CYNARA_API
 void cynara_async_finish(cynara_async *p_cynara) {
-    if (!p_cynara->impl->isFinishPermitted())
+    if (!p_cynara || !p_cynara->impl->isFinishPermitted())
         return;
 
     delete p_cynara;
