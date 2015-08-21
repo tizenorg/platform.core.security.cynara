@@ -72,7 +72,7 @@ typedef enum {
  * application from different threads, they must be put into protected critical section.
  *
  * \par Important notes:
- * Structure cynara_agent created by this function should be released with cynara_agent_finish.
+ * Structure cynara_agent created by this function should be released with cynara_agent_finish().
  *
  * \param[out] pp_cynara_agent Place holder for created cynara_agent structure.
  * \param[in]  p_agent_type Type (name) of agent used by cynara for communication agent<->plugin.

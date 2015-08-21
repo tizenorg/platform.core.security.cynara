@@ -19,6 +19,7 @@
  * @author      Zofia Abramowska <z.abramowska@samsung.com>
  * @version     1.0
  * @brief       This file contains client APIs of Cynara available with libcynara-client.
+ * @example     client-api.cpp.example
  */
 
 #ifndef CYNARA_CLIENT_H
@@ -137,10 +138,10 @@ int cynara_configuration_set_cache_size(cynara_configuration *p_conf, size_t cac
  * Create structured used in following API calls.
  *
  * \par Purpose:
- * This API must be used by prior calling cynara_check function.
+ * This API must be used by prior calling cynara_check() function.
  *
  * \par Typical use case:
- * Once before a service can call cynara_check.
+ * Once before a service can call cynara_check().
  *
  * \par Method of function operation:
  * This API initializes inner library structures and in case of success
@@ -222,7 +223,7 @@ int cynara_finish(cynara *p_cynara);
  *
  * \par Important notes:
  * An external application may be launched to allow user interaction in granting or denying access.
- * Call to cynara_check needs cynara structure to be created first with call to cynara_initialize().
+ * Call to cynara_check() needs cynara structure to be created first with call to cynara_initialize().
  * String length cannot exceed CYNARA_MAX_ID_LENGTH, otherwise CYNARA_API_INVALID_PARAM will be
  * returned.
  *

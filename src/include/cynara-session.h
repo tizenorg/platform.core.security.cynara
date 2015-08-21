@@ -20,6 +20,7 @@
  * @author      Lukasz Wojciechowski <l.wojciechow@partner.samsung.com>
  * @version     1.0
  * @brief       This file contains Cynara session helper APIs.
+ * @example     session-api.cpp.example
  */
 
 
@@ -38,11 +39,11 @@ extern "C" {
  *
  * \par Purpose:
  * This function can be used to create session string identifier used in cynara_check()
- * and cynara_async_check() functions defined in  client libraries.
+ * and cynara_async_create_request() functions defined in  client libraries.
  *
  * \par Typical use case:
- * The function is called before the call of one of ...check() functions.
- * Returned string is used as client_session param in ...check() function.
+ * The function is called before the call of cynara_check() or cynara_async_create_request() function.
+ * Returned string is used as client_session param in cynara_check() or cynara_async_create_request() function.
  * String is released with free() function.
  *
  * \par Method of function operation:
@@ -64,33 +65,6 @@ extern "C" {
  *         or NULL on error.
  */
 char *cynara_session_from_pid(pid_t client_pid);
-
-/* //sample code
- *
- * (...)
- *
- * //create client session
- * char *client_session;
- * client_session = cynara_session_from_pid(client_pid);
- * if (!client_session) {
- *     //use another way to create session or abandon request sending
- * }
- *
- * //check access (details of this function can be found in cynara-client.h)
- * int ret = cynara_check(p_cynara, client, client_session, user, privilege);
- *
- * //release client_session memory
- * free(client_session);
- *
- * //handle check answer
- * if (ret < 0) {
- *     //handle error
- * } else {
- *     //handle response
- * }
- *
- * (...)
- */
 
 #ifdef __cplusplus
 }
