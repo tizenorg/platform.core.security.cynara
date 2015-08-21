@@ -60,11 +60,11 @@ public:
      * Enum indicating status of calling plugin method.
      */
     enum class PluginStatus {
-        SUCCESS,                /** < update() finished successfully*/
-        ANSWER_READY,           /** < check() returns answer immediately through argument*/
-        ANSWER_NOTREADY,        /** < check() cannot return answer immediately,
-                                    < communication with agent is required */
-        ERROR                   /** < either check() or update() fails */
+        SUCCESS,                /**<  update() finished successfully*/
+        ANSWER_READY,           /**<  check() returns answer immediately through argument*/
+        ANSWER_NOTREADY,        /**<  check() cannot return answer immediately,
+                                      communication with agent is required */
+        ERROR                   /**<  either check() or update() fails */
     };
 
     /**

@@ -77,11 +77,11 @@ extern "C" {
  * \param[out] method Placeholder for system default client feature
  *                     (like CLIENT_METHOD_SMACK, CLIENT_METHOD_PID)
  *
- * \return CYNARA_API_SUCCESS on success
+ * \return CYNARA_API_SUCCESS on success \n
  *         CYNARA_API_CONFIGURATION_ERROR if the configuration file can not be opened or
- *                                        there are errors in configuration file.
- *         CYNARA_API_OUT_OF_MEMORY if there is error in memory allocation.
- *         CYNARA_API_UNKNOWN_ERROR if there is other error.
+ *                                        there are errors in configuration file. \n
+ *         CYNARA_API_OUT_OF_MEMORY if there is error in memory allocation. \n
+ *         CYNARA_API_UNKNOWN_ERROR if there is other error. \n
  *
  */
 int cynara_creds_get_default_client_method(enum cynara_client_creds *method);
@@ -117,11 +117,11 @@ int cynara_creds_get_default_client_method(enum cynara_client_creds *method);
  * \param[out] method Placeholder for system default user feature
  * (like USER_METHOD_UID, USER_METHOD_GID)
  *
- * \return CYNARA_API_SUCCESS on success
+ * \return CYNARA_API_SUCCESS on success \n
  *         CYNARA_API_CONFIGURATION_ERROR if the configuration file can not be opened or
- *                                        there are errors in configuration file.
- *         CYNARA_API_OUT_OF_MEMORY if there is error in memory allocation.
- *         CYNARA_API_UNKNOWN_ERROR if there is other error.
+ *                                        there are errors in configuration file. \n
+ *         CYNARA_API_OUT_OF_MEMORY if there is error in memory allocation. \n
+ *         CYNARA_API_UNKNOWN_ERROR if there is other error. \n
  */
 int cynara_creds_get_default_user_method(enum cynara_user_creds *method);
 

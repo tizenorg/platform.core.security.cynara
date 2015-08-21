@@ -20,6 +20,7 @@
  * @version     1.0
  * @brief       This file contains asynchronous client APIs of Cynara available
  *              with libcynara-client-asynchronous.
+ * @example     cynara-client-async.example
  */
 
 #ifndef CYNARA_CLIENT_ASYNC_H
@@ -81,12 +82,13 @@ typedef enum {
 /**
  * \brief Response_callback is registered once in cynara_async_create_request() or
  * cynara_async_create_simple_request() and will be triggered exactly once in 4 kinds of situations:
- * 1) after response is received from cynara service (CYNARA_CALL_CAUSE_ANSWER)
- * 2) when request is canceled with cynara_async_cancel_request() (CYNARA_CALL_CAUSE_CANCEL)
- * 3) when request was pending for response, but cynara_async_finish() was called
+ * * after response is received from cynara service (CYNARA_CALL_CAUSE_ANSWER)
+ * * when request is canceled with cynara_async_cancel_request() (CYNARA_CALL_CAUSE_CANCEL)
+ * * when request was pending for response, but cynara_async_finish() was called
  *    (CYNARA_CALL_CAUSE_FINISH)
- * 4) when connection to cynara service was broken and cannot be established again
- *    - probably cynara is unoperational (CYNARA_CALL_CAUSE_SERVICE_NOT_AVAILABLE)
+ * * when connection to cynara service was broken and cannot be established again -
+ *   probably cynara is unoperational (CYNARA_CALL_CAUSE_SERVICE_NOT_AVAILABLE)
+ *
  * API functions called during this callback with CYNARA_CALL_CAUSE_SERVICE_NOT_AVAILABLE
  * or CYNARA_CALL_CAUSE_FINISH cause will return CYNARA_API_OPERATION_NOT_ALLOWED.
  * cynara_async_finish() will be ignored if called from within this callback.
@@ -113,10 +115,12 @@ typedef void (*cynara_response_callback) (cynara_check_id check_id, cynara_async
  * \brief Callback used by cynara async API when status of cynara socket is changed in
  * cynara_async_initialize(), cynara_async_create_request(), cynara_async_create_simple_request(),
  * cynara_async_process(), cynara_async_cancel_request() or cynara_async_finish().
+ *
  * File descriptor changes every time cynara library connects or disconnects cynara service.
  * Status change is triggered when check_request or cancel needs to be send to
  * cynara service or sending data has finished and there is nothing more to send to cynara
  * service.
+ *
  * Note, that provided file descriptor is used internally by libcynara-client-async
  * so user should not use it in other way than waiting on it in event loop.
  * In particular user should not write to, read from or close this fd.
@@ -336,7 +340,7 @@ void cynara_async_finish(cynara_async *p_cynara);
  * If cache is invalid it is cleared and call returns same as access not found.
  * Additional parameter client_session
  * may be used to distinguish between client session (e.g. for allowing access only for this
- * particular application launch). EMpty string "" can be used, when session differentation
+ * particular application launch). Empty string "" can be used, when session differentation
  * is not needed.
  *
  * \par Sync (or) Async:
@@ -347,13 +351,16 @@ void cynara_async_finish(cynara_async *p_cynara);
  * application from different threads, they must be put into protected critical section.
  *
  * \par Important notes:
+ * \parblock
  * Call to cynara_async_check_cache() needs cynara_async structure to be created first.
  * Use cynara_async_initialize() before calling this function. cynara_async_check_cache() called
  * from within cynara_status_callback or cynara_response_callback with
  * CYNARA_CALL_CAUSE_SERVICE_NOT_AVAILABLE or CYNARA_CALL_CAUSE_FINISH cause will return
  * CYNARA_API_OPERATION_NOT_ALLOWED.
+ *
  * String length cannot exceed CYNARA_MAX_ID_LENGTH, otherwise CYNARA_API_INVALID_PARAM will be
  * returned.
+ * \endparblock
  *
  * \param[in] p_cynara cynara_async structure.
  * \param[in] client Application or process identifier.
@@ -387,20 +394,24 @@ int cynara_async_check_cache(cynara_async *p_cynara, const char *client, const c
  * to this callback.
  *
  * \par Method of function operation:
+ * \parblock
  * Client (a process / application) requesting access to a privilege is running as some user.
  * For such triple (client, user, privilege) a request event is created and added to pending
  * requests for cynara_async_process() to process.
+ *
  * Socket status will be changed to CYNARA_STATUS_FOR_RW, to ensure that cynara_async_process()
  * will be triggered in event loop after socket is ready to send request to cynara service.
  * After request is sent and there is nothing more to send to cynara service, status will change
  * back to CYNARA_STATUS_FOR_READ. Status changes are delivered with cynara_status_callback.
  * When function is successfully called unique check_id is returned. It is used for matching
  * generated request with response, that will be received by registered callback.
+ *
  * Because check_id is coded as 16-bit unsigned integer, there can be only 2^16 = 65536 pending
  * requests. When response callback is called either because of getting answer or because
  * of cancel check_id used for that request is released and can be reused by cynara library.
  * When maximum of pending requests is reached cynara_async_create_request() fails with
  * CYNARA_API_MAX_PENDING_REQUESTS error code.
+ * \endparblock
  *
  * \par Sync (or) Async:
  * This is an asynchronous API.
@@ -410,20 +421,26 @@ int cynara_async_check_cache(cynara_async *p_cynara, const char *client, const c
  * application from different threads, they must be put into protected critical section.
  *
  * \par Important notes:
- * Call to cynara_async_create_request() needs cynara_async structure to be created first with
- * cynara_async_initialize().
- * Call cynara_async_cancel_request() to cancel pending request.
- * Call cynara_async_process() to receive response.
+ * \parblock
+ *  * Call cynara_async_create_request() needs cynara_async structure to be created first with
+ *    cynara_async_initialize().
+ *  * Call cynara_async_cancel_request() to cancel pending request.
+ *  * Call cynara_async_process() to receive response.
+ *
  * It is guaranteed that if cynara_async_create_request() function succeeds (CYNARA_API_SUCCESS)
  * a callback will be called exactly once and that it will receive user_response_data.
+ *
  * If function fails (returns negative error code) request won't be generated and won't be pending,
  * callback function won't be ever called and user_response_data won't be remembered by library.
+ *
  * Also no check_id will be generated and *p_check_id value should be ignored.
  * cynara_async_create_request() called from within cynara_status_callback or
  * cynara_response_callback with CYNARA_CALL_CAUSE_SERVICE_NOT_AVAILABLE or CYNARA_CALL_CAUSE_FINISH
  * cause will return CYNARA_API_OPERATION_NOT_ALLOWED.
+ *
  * String length cannot exceed CYNARA_MAX_ID_LENGTH ,otherwise CYNARA_API_INVALID_PARAM will be
  * returned.
+ * \endparblock
  *
  * \param[in] p_cynara cynara_async structure.
  * \param[in] client Application or process identifier.
@@ -466,13 +483,16 @@ int cynara_async_create_request(cynara_async *p_cynara, const char *client,
  * or hide some of functionalities if they probably could not be used anyways.
  *
  * \par Method of function operation:
+ * \parblock
  * This function is very similar to cynara_async_create_request() with the difference, that in case
  * of answer not being one of CYNARA_API_PERMISSION_DENIED or CYNARA_API_PERMISSION_ALLOWED,
  * no external application will be consulted. Instead, CYNARA_API_ACCESS_NOT_RESOLVED is returned
  * by a callback, meaning, that only creating full request through cynara_async_create_request() API
  * would yield eventual answer.
+ *
  * If access permission cannot be acquired without usage of external agents, callback can be
  * called with CYNARA_CALL_CAUSE_ANSWER and response value being CYNARA_API_ACCESS_NOT_RESOLVED.
+ * \endparblock
  *
  * \par Sync (or) Async:
  * This is a synchronous API.
@@ -482,16 +502,20 @@ int cynara_async_create_request(cynara_async *p_cynara, const char *client,
  * application from different threads, they must be put into mutex protected critical section.
  *
  * \par Important notes:
- * Call to cynara_async_create_simple_request() needs cynara_async structure to be created first
- * with cynara_async_initialize().
- * Call cynara_async_cancel_request() to cancel pending request.
- * Call cynara_async_process() to send request and receive response.
+ * \parblock
+ *  * Call cynara_async_create_simple_request() needs cynara_async structure to be created first
+ *    with cynara_async_initialize().
+ *  * Call cynara_async_cancel_request() to cancel pending request.
+ *  * Call cynara_async_process() to send request and receive response.
+ *
  * The answer will be taken from cynara's database without consulting any external applications.
  * If the answer cannot be resolved in one of CYNARA_API_ACCESS_ALLOWED or
  * CYNARA_API_ACCESS_DENIED without communicating with external application, response returned
  * through callback will have value CYNARA_API_ACCESS_NOT_RESOLVED.
+ *
  * String length cannot exceed CYNARA_MAX_ID_LENGTH, otherwise CYNARA_API_INVALID_PARAM will be
  * returned.
+ * \endparblock
  *
  * \param[in] p_cynara cynara_async structure.
  * \param[in] client Application or process identifier.
@@ -529,13 +553,16 @@ int cynara_async_create_simple_request(cynara_async *p_cynara, const char *clien
  * When event loop will return readiness on cynara socket, client should use this API.
  *
  * \par Method of function operation:
+ * \parblock
  * This API sends pending requests, receives all responses and reacts when cynara
  * has disconnected. If cynara has disconnected all values in cache become invalid. During these
  * operations status of cynara socket may change, so cynara_status_callback callback will be
  * triggered to indicate these changes. cynara_response_callback callback will be triggered with
  * cynara_async_call_cause::CYNARA_CALL_CAUSE_ANSWER as cause param when response is available.
+ *
  * If cynara has disconnected it will be triggered with
  * cynara_async_call_cause::CYNARA_CALL_CAUSE_SERVICE_NOT_AVAILABLE as cause param.
+ * \endparblock
  *
  * \par Sync (or) Async:
  * This is an asynchronous API.
@@ -571,13 +598,17 @@ int cynara_async_process(cynara_async *p_cynara);
  * request creation with cynara_async_create_request() or cynara_async_create_simple_request().
  *
  * \par Method of function operation:
+ * \parblock
  * Cancels request created by cynara_async_create_request() or cynara_async_create_simple_request()
  * call.
+ *
  * cynara_status_callback callback may be triggered to be able to send cancel to cynara.
  * cynara_response_callback callback will be triggered with with
  * cynara_async_call_cause::CYNARA_CALL_CAUSE_CANCEL as cause param.
+ *
  * If given id is not valid (was not requested or response callback was already delivered)
  * cynara_async_cancel_request() returns CYNARA_API_INVALID_PARAM.
+ * \endparblock
  *
  * \par Sync (or) Async:
  * This is a synchronous API.
@@ -599,103 +630,6 @@ int cynara_async_process(cynara_async *p_cynara);
  *         or negative error code on error.
  */
 int cynara_async_cancel_request(cynara_async *p_cynara, cynara_check_id check_id);
-
-/*
- *  Example of usage:
- *
- *  void change_status(int old_fd, int new_fd, cynara_async_status status, void *user_status_data)
- *  {
- *      // unregister using old_fd
- *      ...
- *      //register using new_fd and new status
- *  }
- *
- *  int process_response(int check_id, cynara_async_call_cause cause, int response,
- *                       void *user_response_data)
- *  {
- *      switch (cause) {
- *      case cynara_async_call_cause::CYNARA_CALL_CAUSE_ANSWER:
- *          // handle answer from cynara service - use response value
- *          break;
- *      case cynara_async_call_cause::CYNARA_CALL_CAUSE_CANCEL:
- *          // handle canceled request
- *          break;
- *      case cynara_async_call_cause::CYNARA_CALL_CAUSE_FINISH:
- *          // handle finish of client async
- *          break;
- *      case cynara_async_call_cause::CYNARA_CALL_CAUSE_SERVICE_NOT_AVAILABLE:
- *          // handle disconnection
- *      }
- *      ...
- *      free_user_response_data(user_response_data);
- *  }
- *
- *  void main_process
- *  {
- *      //initialize all required objects
- *      cynara_async *p_cynara;
- *      int ret;
- *      //change_status will be called passing file descriptor connected to cynara server
- *      if ((ret = cynara_async_initalize(&p_cynara, NULL, change_status, &fd_sets)) !=
- *            CYNARA_API_SUCCESS) {
- *          // handle error
- *      }
- *
- *      //start event loop
- *      event_process(fd_sets, ...)
- *
- *      //event loop stopped, clean-up, before closing program
- *      cynara_async_finish(p_cynara);
- *  }
- *
- *  void event_process(fd_sets, ...)
- *  {
- *      //event loop of user choice
- *      select(..., fd_sets.read, fd_sets.write) {
- *         ...
- *         if(active_socket == cynara_socket) {
- *             if(cynara_async_process(p_cynara) != CYNARA_API_SUCCESS) {
- *                // handle error
- *             }
- *         } else if (active_socket == some_client_socket) {
- *             //processing clients, which may require cynara checks
- *             ...
- *             int ret = cynara_async_check_cache(p_cynara, client, client_session, user,
- *                                                privilege);
- *             switch(ret) {
- *             case CYNARA_API_ACCESS_ALLOWED:
- *                 // allow client
- *                 break;
- *             case CYNARA_API_ACCESS_DENIED:
- *                 // deny client
- *                 break;
- *             case CYNARA_API_CACHE_MISS:
- *                 // not in cache - prepare data that will be passed to callback
- *                 allocate_user_response_data(&user_response_data);
- *
- *                 // create request
- *                 ret = cynara_async_create_request(p_cynara,
- *                                                   client, client_session, user, privilege,
- *                                                   &check_id,
- *                                                   process_response, user_response_data);
- *                 if(ret != CYNARA_API_SUCCESS) {
- *                     free_user_response_data(user_response_data);
- *                     // handle error
- *                 }
- *             default:
- *                 // handle error
- *             }
- *             ...
- *             // waiting for some request too long
- *             if (ret = cynara_async_cancel_request(p_cynara, check_id)) != CYNARA_API_SUCCESS) {
- *                 // handle error
- *             }
- *         }
- *         ...
- *      }
- *      ...
- *  }
- */
 
 #ifdef __cplusplus
 }
