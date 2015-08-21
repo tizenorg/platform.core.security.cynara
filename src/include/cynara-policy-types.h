@@ -25,7 +25,7 @@
 
 /**
  * \name Operation Codes
- * operation codes that define action type to be taken in below defined functions
+ * Operation codes that define action type to be taken in below defined functions
  * they are used mostly to define policy result
  * @{
  */
