@@ -19,6 +19,7 @@
  * \author      Zofia Abramowska <z.abramowska@samsung.com>
  * \version     1.0
  * \brief       This file contains administration APIs of cynara available with libcynara-admin.
+ * \example     admin-api.cpp
  */
 
 #ifndef CYNARA_ADMIN_H
@@ -33,8 +34,8 @@ extern "C" {
 #endif
 
 /**
- * \name cynara_admin
- * forward declaration of structure allowing initialization of library
+ * @struct cynara_admin
+ * Forward declaration of structure allowing initialization of library
  * and usage of all libcynara-admin API functions
  */
 struct cynara_admin;
@@ -60,8 +61,8 @@ struct cynara_admin;
  * This is a synchronous API.
  *
  * \par Important notes:
- * Structure cynara_admin created by cynara_admin_initialize call should be released with
- * cynara_admin_finish.
+ * Structure cynara_admin created by cynara_admin_initialize() call should be released with
+ * cynara_admin_finish().
  *
  * \param[out] pp_cynara_admin address of pointer for created cynara_admin structure.
  *
@@ -73,7 +74,7 @@ int cynara_admin_initialize(struct cynara_admin **pp_cynara_admin);
 
 /**
  * \par Description:
- * Releases cynara-admin library and destroys structure created with cynara_admin_initialize
+ * Releases cynara-admin library and destroys structure created with cynara_admin_initialize()
  * function.
  *
  * \par Purpose:
@@ -90,9 +91,9 @@ int cynara_admin_initialize(struct cynara_admin **pp_cynara_admin);
  *
  * \par Important notes:
  * No invocations of cynara-admin library API functions are allowed after call to
- * cynara_admin_finish.
+ * cynara_admin_finish().
  *
- * \param[in] p_cynara_admin cynara_admin structure created in cynara_admin_initialize.
+ * \param[in] p_cynara_admin cynara_admin structure created in cynara_admin_initialize().
  *
  * \return CYNARA_API_SUCCESS on success, or error code otherwise.
  *
@@ -128,7 +129,7 @@ int cynara_admin_finish(struct cynara_admin *p_cynara_admin);
  * In case of CYNARA_ADMIN_BUCKET, a bucket-pointing policy is updated or inserted into cynara
  * database.
  * In case of CYNARA_ADMIN_DELETE, a policy is removed from cynara database.
- * One call of cynara_admin_set_policies can manage many different policies in different buckets.
+ * One call of cynara_admin_set_policies() can manage many different policies in different buckets.
  *
  * However, considered buckets must exist before referring to them in policies.
  *
