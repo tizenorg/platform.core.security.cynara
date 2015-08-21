@@ -18,6 +18,7 @@
  * @author      Jacek Bukarewicz <j.bukarewicz@samsung.com>
  * @version     1.0
  * @brief       This file contains Cynara credentials helper APIs for gdbus clients.
+ * @example     cynara-creds-gdbus.example
  */
 
 
@@ -39,11 +40,11 @@ extern "C" {
  * unique name at the other side of the dbus connection.
  *
  * \par Purpose:
- * Client identification string is required for cynara_check() and cynara_async_check() functions.
+ * Client identification string is required for cynara_check() and cynara_async_create_request() functions.
  *
  * \par Typical use case:
- * The function is called before the call of one of ...check() functions.
- * Returned string is used as client parameter in ...check() function.
+ * The function is called before the call of cynara_check() or cynara_async_create_request() function.
+ * Returned string is used as client parameter in cynara_check() or cynara_async_create_request() function.
  * String is released with g_free() function when it is no longer needed.
  *
  * \par Method of function operation:
@@ -83,11 +84,11 @@ int cynara_creds_gdbus_get_client(GDBusConnection *connection, const gchar *uniq
  * at the other side of socket.
  *
  * \par Purpose:
- * User identification string is required for cynara_check() and cynara_async_check() functions.
+ * User identification string is required for cynara_check() and cynara_async_create_request() functions.
  *
  * \par Typical use case:
- * The function is called before the call of one of ...check() functions.
- * Returned string is used as user parameter in ...check() function.
+ * The function is called before the call of cynara_check() or cynara_async_create_request() function.
+ * Returned string is used as user parameter in cynara_check() or cynara_async_create_request() function.
  * String is released with g_free() function when it is no longer needed.
  *
  * \par Method of function operation:
@@ -128,7 +129,7 @@ int cynara_creds_gdbus_get_user(GDBusConnection *connection, const gchar *unique
  * \par Purpose:
  * PID may be used for client_session creation with cynara_helper_session_from_pid() function
  * from libcynara-helper-session library. Client_session is needed for cynara_check()
- * and cynara_async_check() functions.
+ * and cynara_async_create_request() functions.
  *
  * \par Typical use case:
  * The function is called before the call of cynara_helper_session_from_pid() function.
