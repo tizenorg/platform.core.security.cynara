@@ -24,6 +24,10 @@
 #ifndef CYNARA_CREDS_GDBUS_H
 #define CYNARA_CREDS_GDBUS_H
 
+#if __cplusplus > 199711L
+#define register      // Deprecated in C++11.
+#endif  // #if __cplusplus > 199711L
+
 #include <gio/gio.h>
 #include <sys/types.h>
 
