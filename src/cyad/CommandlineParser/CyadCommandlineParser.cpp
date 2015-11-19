@@ -16,6 +16,7 @@
 /**
  * @file        src/cyad/CommandlineParser/CyadCommandlineParser.cpp
  * @author      Aleksander Zdyb <a.zdyb@samsung.com>
+ * @author      Oskar Świtalski <o.switalski@samsung.com>
  * @version     1.0
  * @brief       Commandline parser for Cyad
  */
@@ -353,7 +354,8 @@ std::shared_ptr<CyadCommand> CyadCommandlineParser::parseListPolicies(const std:
     std::vector<CmdlineOpt> opts = {
         CmdlineOpt::Client,
         CmdlineOpt::User,
-        CmdlineOpt::Privilege
+        CmdlineOpt::Privilege,
+        CmdlineOpt::All
     };
 
     const auto longOpts = Opts::makeLongOptions(opts);
@@ -371,6 +373,14 @@ std::shared_ptr<CyadCommand> CyadCommandlineParser::parseListPolicies(const std:
             case CmdlineOpt::User:
             case CmdlineOpt::Privilege:
                 values[opt] = optarg;
+                break;
+            case CmdlineOpt::All:
+                if (values[CmdlineOpt::Client].empty())
+                    values[CmdlineOpt::Client] = CYNARA_ADMIN_ANY;
+                if (values[CmdlineOpt::User].empty())
+                    values[CmdlineOpt::User] = CYNARA_ADMIN_ANY;
+                if (values[CmdlineOpt::Privilege].empty())
+                    values[CmdlineOpt::Privilege] = CYNARA_ADMIN_ANY;
                 break;
             case ':': // Missing argument
                 return sharedError(Err::argumentMissing(CmdlineOpt::ListPolicies));
