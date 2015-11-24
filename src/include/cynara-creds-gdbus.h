@@ -19,6 +19,7 @@
  * @author      Oskar Switalski <o.switalski@samsung.com>
  * @version     1.0
  * @brief       This file contains Cynara credentials helper APIs for gdbus clients.
+ * @example     cynara-creds-gdbus.example
  */
 
 
