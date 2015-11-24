@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2014 Samsung Electronics Co., Ltd All Rights Reserved
+ *  Copyright (c) 2014-2015 Samsung Electronics Co., Ltd All Rights Reserved
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -18,6 +18,7 @@
  * \author      Lukasz Wojciechowski <l.wojciechow@partner.samsung.com>
  * \author      Aleksander Zdyb <a.zdyb@samsung.com>
  * \author      Zofia Abramowska <z.abramowska@samsung.com>
+ * \author      Oskar Switalski <o.switalski@samsung.com>
  * \version     1.0
  * \brief       This file contains structs and consts for cynara admin.
  */
@@ -30,13 +31,27 @@ extern "C" {
 #endif
 
 /**
- * \name cynara_admin_policy
- * defines single policy
- * bucket - is the name of bucket, in which policy is placed
- * client, user, privilege - defines policy key
- * result - defines result of policy
- * result_extra - not always used, may contain some additional result data
- *                like e.g. name of bucket in case result == CYNARA_ADMIN_BUCKET
+ * \struct cynara_admin_policy
+ * \brief Defines single policy
+ *
+ * \var cynara_admin_policy::bucket
+ * Name of bucket, in which policy is placed
+ *
+ * \var cynara_admin_policy::client
+ * Identifier of client (application)
+ *
+ * \var cynara_admin_policy::user
+ * Identifier of user
+ *
+ * \var cynara_admin_policy::privilege
+ * Privilege name
+ *
+ * \var cynara_admin_policy::result
+ * Result of policy
+ *
+ * \var cynara_admin_policy::result_extra
+ * Not always used, may contain some additional result data
+ * like e.g. name of bucket in case result == CYNARA_ADMIN_BUCKET
  */
 struct cynara_admin_policy {
     char *bucket;
@@ -50,10 +65,14 @@ struct cynara_admin_policy {
 };
 
 /**
- * \name cynara_admin_policy_descr
- * describes policy of type given with result
- * result - result of policy to describe
- * name - name of given policy result
+ * \struct cynara_admin_policy_descr
+ * \brief Describes policy of type given with result
+ *
+ * \var cynara_admin_policy_descr::result
+ * Result of policy to describe
+ *
+ * \var cynara_admin_policy_descr::name
+ * Name of given policy result
  */
 
 struct cynara_admin_policy_descr {
@@ -63,25 +82,27 @@ struct cynara_admin_policy_descr {
 
 /**
  * \name Wildcard
- * definition of WILDCARD, that can replace client, user or privilege name.
+ * Can replace client, user or privilege name.
  * WILDCARD matches any string during check procedure from libcynara-client.
  */
 #define CYNARA_ADMIN_WILDCARD "*"
 
 /**
  * \name Name of Default Bucket
- * definition of name for default bucket - the one that check starts in.
- * default bucket cannot be removed, although its default policy
+ * Default bucket - the one that check starts in.
+ * Default bucket cannot be removed, although its default policy
  * (which originally is set to DENY) can be changed.
  */
 #define CYNARA_ADMIN_DEFAULT_BUCKET ""
 
 /**
  * \name Any
- * definition of ANY, that can replace client, user or privilege name.
+ * Can replace client, user or privilege name.
  * ANY matches any string (including WILDCARD) during:
+ *
  * * policy removal with cynara_admin_erase() function
  * * listing policies from a single bucket.
+ *
  * Using ANY as default policy for bucket or as policy type of inserted policy record
  * is forbidden and will cause CYNARA_API_INVALID_PARAM error.
  */

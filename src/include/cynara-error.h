@@ -30,7 +30,7 @@
 
 /**
  * \name Return Codes
- * exported by the foundation API.
+ * Exported by the foundation API.
  * result codes beginning with negative codes indicate an error.
  * @{
 */

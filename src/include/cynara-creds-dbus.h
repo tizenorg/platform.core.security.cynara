@@ -17,6 +17,7 @@
  * @file        src/include/cynara-creds-dbus.h
  * @author      Lukasz Wojciechowski <l.wojciechow@partner.samsung.com>
  * @author      Radoslaw Bartosiak <r.bartosiak@samsung.com>
+ * @author      Oskar Switalski <o.switalski@samsung.com>
  * @version     1.0
  * @brief       This file contains Cynara credentials helper APIs for dbus clients.
  */
@@ -40,11 +41,11 @@ extern "C" {
  * unique name at the other side of the dbus connection.
  *
  * \par Purpose:
- * Client identification string is required for cynara_check() and cynara_async_check() functions.
+ * Client identification string is required for cynara_check() and cynara_async_create_request() functions.
  *
  * \par Typical use case:
- * The function is called before the call of one of ...check() functions.
- * Returned string is used as client parameter in ...check() function.
+ * The function is called before the call of cynara_check() or cynara_async_create_request() function.
+ * Returned string is used as client parameter in cynara_check() or cynara_async_create_request() function.
  * String is released with free() function when it is no longer needed.
  *
  * \par Method of function operation:
@@ -68,13 +69,13 @@ extern "C" {
  * \param[in] method Method of client identifier creation
  * \param[out] client Placeholder for allocated string containing client id
  *
- * \return CYNARA_API_SUCCESS on success
+ * \return CYNARA_API_SUCCESS on success \n
  *         CYNARA_API_INVALID_PARAM when client is NULL or uniqueName or client has wrong
- *                                  value (i.e NULL or non-existing)
- *         CYNARA_API_METHOD_NOT_SUPPORTED when requested method is not supported
+ *                                  value (i.e NULL or non-existing) \n
+ *         CYNARA_API_METHOD_NOT_SUPPORTED when requested method is not supported \n
  *         CYNARA_API_CONFIGURATION_ERROR if the configuration file can not be opened or
- *                                        there are errors in configuration file.
- *         CYNARA_API_OUT_OF_MEMORY when there was error allocating memory
+ *                                        there are errors in configuration file. \n
+ *         CYNARA_API_OUT_OF_MEMORY when there was error allocating memory \n
  */
 int cynara_creds_dbus_get_client(DBusConnection *connection, const char *uniqueName,
                                  enum cynara_client_creds method, char **client);
@@ -85,11 +86,11 @@ int cynara_creds_dbus_get_client(DBusConnection *connection, const char *uniqueN
  * at the other side of socket.
  *
  * \par Purpose:
- * User identification string is required for cynara_check() and cynara_async_check() functions.
+ * User identification string is required for cynara_check() and cynara_async_create_request() functions.
  *
  * \par Typical use case:
- * The function is called before the call of one of ...check() functions.
- * Returned string is used as user parameter in ...check() function.
+ * The function is called before the call of cynara_check() or cynara_async_create_request() function.
+ * Returned string is used as user parameter in cynara_check() or cynara_async_create_request() function.
  * String is released with free() function when it is no longer needed.
  *
  * \par Method of function operation:
@@ -113,13 +114,13 @@ int cynara_creds_dbus_get_client(DBusConnection *connection, const char *uniqueN
  * \param[in] method Method of client identifier creation
  * \param[out] user Placeholder for allocated string containing user id
  *
- * \return CYNARA_API_SUCCESS on success
+ * \return CYNARA_API_SUCCESS on success \n
  *         CYNARA_API_INVALID_PARAM when user is NULL or connection is not valid DBus connection or
- *                                  uniqueName does not represent a process conected to the DBus
- *         CYNARA_API_METHOD_NOT_SUPPORTED when requested method is not supported
+ *                                  uniqueName does not represent a process conected to the DBus \n
+ *         CYNARA_API_METHOD_NOT_SUPPORTED when requested method is not supported \n
  *         CYNARA_API_CONFIGURATION_ERROR if the configuration file can not be opened or
- *                                        there are errors in configuration file.
- *         CYNARA_API_OUT_OF_MEMORY when there was error allocating memory
+ *                                        there are errors in configuration file. \n
+ *         CYNARA_API_OUT_OF_MEMORY when there was error allocating memory \n
  */
 int cynara_creds_dbus_get_user(DBusConnection *connection, const char *uniqueName,
                                enum cynara_user_creds method, char **user);
@@ -131,7 +132,7 @@ int cynara_creds_dbus_get_user(DBusConnection *connection, const char *uniqueNam
  * \par Purpose:
  * PID may be used for client_session creation with cynara_helper_session_from_pid() function
  * from libcynara-helper-session library. Client_session is needed for cynara_check()
- * and cynara_async_check() functions.
+ * and cynara_async_create_request() functions.
  *
  * \par Typical use case:
  * The function is called before the call of cynara_helper_session_from_pid() function.
@@ -152,10 +153,10 @@ int cynara_creds_dbus_get_user(DBusConnection *connection, const char *uniqueNam
  * \param[in] uniqueName DBus identifier of the client invoked by the user
  * \param[out] pid Placeholder for PID returned by function
  *
- * \return CYNARA_API_SUCCESS on success
- *         CYNARA_API_INVALID_PARAM when socket_fd is not valid connected socket descriptor
- *         CYNARA_API_UNKNOWN_ERROR when system function fails in incredible situation
- *         CYNARA_API_OUT_OF_MEMORY when there was error allocating memory
+ * \return CYNARA_API_SUCCESS on success \n
+ *         CYNARA_API_INVALID_PARAM when socket_fd is not valid connected socket descriptor \n
+ *         CYNARA_API_UNKNOWN_ERROR when system function fails in incredible situation \n
+ *         CYNARA_API_OUT_OF_MEMORY when there was error allocating memory \n
  */
 int cynara_creds_dbus_get_pid(DBusConnection *connection, const char *uniqueName, pid_t *pid);
 
