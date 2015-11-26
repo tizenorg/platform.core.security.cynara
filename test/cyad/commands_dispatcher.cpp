@@ -348,7 +348,7 @@ TEST_F(CyadCommandlineDispatcherTest, listPoliciesTwo) {
 
     dispatcher.execute(command);
 
-    ASSERT_EQ("bucket;cli;usr;privilege;0;metadata\nbucket-2;cli;usr;privilege;65535;\n",
+    ASSERT_EQ("bucket;cli;usr;privilege;deny;metadata\nbucket-2;cli;usr;privilege;allow;\n",
               m_io.coutRaw().str());
 }
 
