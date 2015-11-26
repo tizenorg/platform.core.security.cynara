@@ -182,7 +182,8 @@ int CommandsDispatcher::execute(CheckCyadCommand &command) {
                                                      &result, &resultExtra);
 
     if (ret == CYNARA_API_SUCCESS) {
-        m_io.cout() << result << ";";
+        m_io.cout() << (command.humanize() ? m_policyTranslator.humanize(result) :
+                                             std::to_string(result)) << ";";
 
         if (resultExtra != nullptr) {
             m_io.cout() << resultExtra;
@@ -211,12 +212,13 @@ int CommandsDispatcher::execute(ListPoliciesCyadCommand &command) {
                                                             client, user, privilege,
                                                             &policies);
 
-    auto printPolicy = [this] (cynara_admin_policy *p) {
+    auto printPolicy = [this, command] (cynara_admin_policy *p) {
         m_io.cout() << p->bucket << ";"
                     << p->client << ";"
                     << p->user << ";"
                     << p->privilege << ";"
-                    << p->result << ";";
+                    << (command.humanize() ? m_policyTranslator.humanize(p->result) :
+                                             std::to_string(p->result)) << ";";
         if (p->result_extra != nullptr) {
             m_io.cout() << p->result_extra;
         }

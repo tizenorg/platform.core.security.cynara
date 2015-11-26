@@ -90,7 +90,11 @@ const OptionsMap commandlineOptions = {
 
     { CmdlineOpt::Help,
         { "help", CmdlineOpt::Help, "help",
-          "print help message", OptHasArg::NoArgument, OptIsReq::NotRequired } }
+          "print help message", OptHasArg::NoArgument, OptIsReq::NotRequired } },
+    { CmdlineOpt::Human,
+        { "human-readable", CmdlineOpt::Human, "human-readable",
+          "print policies in human readable format", OptHasArg::NoArgument,
+          OptIsReq::NotRequired } }
 };
 
 std::vector<option> makeLongOptions(const std::vector<CmdlineOpt> &opts) {
@@ -182,6 +186,7 @@ std::string makeHelp(void) {
     helpStr << opt(CmdlineOpt::Client) << std::endl;
     helpStr << opt(CmdlineOpt::User) << std::endl;
     helpStr << opt(CmdlineOpt::Privilege) << std::endl;
+    helpStr << opt(CmdlineOpt::Human) << std::endl;
     helpStr << std::endl;
 
     helpStr << head("Policies list options", CmdlineOpt::ListPolicies) << std::endl;
@@ -190,6 +195,7 @@ std::string makeHelp(void) {
     helpStr << opt(CmdlineOpt::User) << std::endl;
     helpStr << opt(CmdlineOpt::Privilege) << std::endl;
     helpStr << opt(CmdlineOpt::All) << std::endl;
+    helpStr << opt(CmdlineOpt::Human) << std::endl;
     helpStr << std::endl;
 
     helpStr << head("Policies descriptions list options", CmdlineOpt::ListPoliciesDesc)
