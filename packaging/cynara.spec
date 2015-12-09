@@ -143,8 +143,8 @@ Base library for cynara credentials helpers
 %package -n libcynara-creds-dbus
 Summary:    Cynara credentials helpers library for dbus clients
 BuildRequires: pkgconfig(dbus-1)
-Requires:   dbus
 Requires:   libcynara-creds-commons = %{version}-%{release}
+Recommends: dbus
 
 %description -n libcynara-creds-dbus
 Cynara credentials helpers library for dbus clients
