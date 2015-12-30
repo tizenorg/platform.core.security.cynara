@@ -15,8 +15,8 @@ Sockets=cynara-admin.socket
 Sockets=cynara-agent.socket
 
 UMask=0000
-User=cynara
-Group=cynara
+#User=cynara
+#Group=cynara
 NoNewPrivileges=true
 
 #Environment="CYNARA_LOG_LEVEL=LOG_DEBUG"
