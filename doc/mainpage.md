@@ -10,7 +10,7 @@ Functions of Cynara are:
 * simple, single function API - for checking policies
 * thin client library - to make access control even more simple
 * ability to use external agent
-(in case of policies that can't be full processed in cynara and plugins)
+(in case of policies that can't be full processed in Cynara and plugins)
 
 
 # API
@@ -22,7 +22,7 @@ Cynara service uses separate Unix Domain Sockets for handling each type of API.
 
 
 ## Client
-Both synchronous and asynchronous client API for cynara is available. It is provided by
+Both synchronous and asynchronous client API for Cynara is available. It is provided by
 libcynara-client and libcynara-clienty-async libraries.
 
 [Details of client synchronous API](@ref cynara-client.h)
@@ -30,33 +30,35 @@ libcynara-client and libcynara-clienty-async libraries.
 [Details of client asynchronous API](@ref cynara-client-async.h)
 
 To enhance client performance a simple LRU Cache was implemented for both synchronous and
-asynchronous client API. Cache is available since cynara 0.2.0 version.
+asynchronous client API. Cache is available since Cynara 0.2.0 version.
 
 [Details of cache](https://wiki.tizen.org/wiki/Security:Cynara:API:client-cache)
 
-On Tizen 3.0 application context - information that identify application and user that runs it
-are defined by SMACK label and UID. There are helpers libraries for different IPC. They will make
-obtaining these information easier. They are described below in credentials section.
+Application context is built of: application identifier and user identifier that due to great
+flexibility can be defined as any distribution wants. Tizen 3.0 is the first distribution that
+started to use Cynara and it has choosen to use SMACK label for application identification and
+string coded UID for user recognition.
 
-There might be a problem, if IPC between application and service do not provide UID and SMACK label
-of application. The only way to obtain application context is probably reading it from /proc/PID
+There might be a problem, if IPC between application and service do not provide creditionals of an
+application. The only way to obtain application context is probably reading it from /proc/PID
 (service needs RX to application SMACK label for that).
 
 Direct ways of getting these information is described on [wiki][1], but users are strongly
 recommended to use credential helpers libraries.
 
-[1]: http://wiki.tizen.org/wiki/Security:Cynara:ApplicationCredentials
+[1]: https://wiki.tizen.org/wiki/Security:Cynara:ApplicationCredentials
 
 
 ## Admin
-Admin API is the only way to change policy kept in cynara. Its usage needs root privileges on Tizen.
-This restriction guarantees that no unprivileged process can play with cynara policy.
-On Tizen 3.0 SecurityManager is a service dedicated to make changes to cynara and probably should
-be the only user of cynara's admin interface. Processes that would like to change cynara policy
-(e.g. installers) should use libsecurity-manager-client library instead of direct cynara calls.
+Admin API is the only way to change policy kept in Cynara. Its usage needs root privileges. This
+restriction guarantees that no unprivileged process can play with Cynara policy.
 
 [Details of admin API](@ref cynara-admin.h)
 
+### Tizen
+On Tizen 3.0 SecurityManager is a service dedicated to make changes to Cynara and probably should
+be the only user of cynara's admin interface. Processes that would like to change Cynara policy
+(e.g. installers) should use libsecurity-manager-client library instead of direct Cynara calls.
 
 ## Plugins
 ### Description
@@ -68,10 +70,10 @@ and service-side plugins.
 
 ### Client plugin
 Client plugins are responsible for interpreting external policy types, which can be delivered
-to client as cynara response, and translate them to [CYNARA_API_ACCESS_ALLOWED][2] or
+to client as Cynara response, and translate them to [CYNARA_API_ACCESS_ALLOWED][2] or
 [CYNARA_API_ACCESS_DENIED][3]. Plugins are only allowed to interpret policy types declared by
 overridden [4] method. Client plugins usually come together with service plugin (for e.g. askuser
-agent – available in tizen.org [repository][5]).
+agent – available in tizen.org [repository][5] or [GitHub][6]).
 
 [2]: @ref CYNARA_API_ACCESS_ALLOWED
 [3]: @ref CYNARA_API_ACCESS_DENIED
@@ -81,17 +83,18 @@ agent – available in tizen.org [repository][5]).
 Service plugins are responsible for interpreting external policy types. Communication with Cynara's
 agant extensions could be required for this to work. Plugins are only allowed to interpret policy
 types declared by overridden [4] method. Service plugins usually come together with Cynara agent
-extension (for e.g. askuser agent – available in tizen.org [repository][5]).
+extension (for e.g. askuser agent – available in tizen.org [repository][5] or [GitHub][6]).
 
 [Details of plugin API](@ref cynara-plugin.h)
 
 [4]: @ref Cynara::ExternalPluginInterface::getSupportedPolicyDescr "getSupportedPolicyDescr()"
 [5]: https://review.tizen.org/gerrit/#/admin/projects/platform/core/security/askuser
+[6]: https://github.com/samsung/askuser
 
 
 ## Protocols
-[Description of protocol for communication with cynara][6]
-[6]: https://wiki.tizen.org/wiki/Security:Cynara:Protocols
+[Description of protocol for communication with cynara][7]
+[7]: https://wiki.tizen.org/wiki/Security:Cynara:Protocols
 
 
 ## Credentials
