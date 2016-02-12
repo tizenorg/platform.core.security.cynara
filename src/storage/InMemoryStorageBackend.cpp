@@ -98,13 +98,17 @@ void InMemoryStorageBackend::load(void) {
     postLoadCleanup(isBackupValid);
 }
 
-void InMemoryStorageBackend::save(void) {
+void InMemoryStorageBackend::saveBackup(void) {
     std::string checksumFilename = m_dbPath + PathConfig::StoragePath::checksumFilename;
     auto chsStream = std::make_shared<std::ofstream>();
     openDumpFileStream<std::ofstream>(*chsStream,
             checksumFilename + PathConfig::StoragePath::backupFilenameSuffix);
 
     dumpDatabase(chsStream);
+}
+
+void InMemoryStorageBackend::save(void) {
+    saveBackup();
 
     m_integrity.syncDatabase(buckets(), true);
     m_integrity.createBackupGuard();
