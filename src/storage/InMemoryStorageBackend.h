@@ -80,6 +80,7 @@ protected:
             const PolicyBucketId &bucketId, const std::shared_ptr<std::ofstream> &chsStream);
 
     virtual void postLoadCleanup(bool isBackupValid);
+    void saveBackup(void);
 
 private:
     std::string m_dbPath;
