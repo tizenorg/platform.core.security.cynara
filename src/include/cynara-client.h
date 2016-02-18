@@ -136,7 +136,7 @@ int cynara_configuration_set_cache_size(cynara_configuration *p_conf, size_t cac
 /**
  * \par Description:
  * Initialize cynara-client library with given configuration.
- * Create structured used in following API calls.
+ * Create structure used in following API calls.
  *
  * \par Purpose:
  * This API must be used by prior calling cynara_check() function.
