@@ -27,9 +27,13 @@
 #include <new>
 #include <stdexcept>
 #include <string>
-#include <unistd.h>
+#include <vector>
+#include <sstream>
+#include <iomanip>
 
 #include <cynara-error.h>
+
+#include <md5.h>
 
 #include "ChecksumGenerator.h"
 
@@ -58,21 +62,19 @@ int ChecksumGenerator::run(void) {
 }
 
 const std::string ChecksumGenerator::generate(const std::string &data) {
-    const char *checksum = crypt(data.c_str(), "$1$");
+    MD5Context context;
+    std::vector<u_int8_t> result(MD5_DIGEST_LENGTH);
+    MD5Init(&context);
+    MD5Update(&context, reinterpret_cast<const u_int8_t *>(data.data()), data.size());
+    MD5Final(result.data(), &context);
 
-    if (nullptr != checksum) {
-        return std::string(checksum);
-    } else {
-        int err = errno;
-        if (err == ENOSYS) {
-            std::cerr << "'crypt' function was not implemented; error [" << err << "] : <"
-                << strerror(err) << ">" << std::endl;
-        } else {
-            std::cerr << "'crypt' function error [" << err << "] : <" << strerror(err) << ">"
-                << std::endl;
-        }
-        throw std::runtime_error(strerror(err));
-    }
+    std::stringstream output;
+    output << std::setfill('0') << std::hex;
+
+    for (int i=0; i<MD5_DIGEST_LENGTH; ++i)
+        output << std::setw(2) << (int)result[i];
+
+    return output.str();
 };
 
 void ChecksumGenerator::openFileStream(void) {

@@ -86,6 +86,8 @@ void daemonize(void) {
 
 int main(int argc, char **argv) {
     try {
+        init_log();
+        LOGI("Cynara executable");
         Cynara::CmdlineParser::CmdLineOptions options
             = Cynara::CmdlineParser::handleCmdlineOptions(argc, argv);
         if (options.m_error)
@@ -104,7 +106,7 @@ int main(int argc, char **argv) {
             if (setgid(options.m_gid) == -1)
                 return EXIT_FAILURE;
 
-        init_log();
+//        init_log();
 
         Cynara::Cynara cynara;
         LOGI("Cynara service is starting ...");
