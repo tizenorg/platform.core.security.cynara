@@ -27,7 +27,9 @@
 #include <memory>
 #include <new>
 #include <sstream>
-#include <unistd.h>
+#include <iomanip>
+
+#include <md5.h>
 
 #include <config/PathConfig.h>
 #include <exceptions/ChecksumRecordCorruptedException.h>
@@ -58,19 +60,19 @@ void ChecksumValidator::load(std::istream &stream) {
 };
 
 const std::string ChecksumValidator::generate(const std::string &data) {
-    const char *checksum = crypt(data.c_str(), "$1$");
+    MD5Context context;
+    std::vector<u_int8_t> result(MD5_DIGEST_LENGTH);
+    MD5Init(&context);
+    MD5Update(&context, reinterpret_cast<const u_int8_t *>(data.data()), data.size());
+    MD5Final(result.data(), &context);
 
-    if (nullptr != checksum) {
-        return checksum;
-    }
+    std::stringstream output;
+    output << std::setfill('0') << std::hex;
 
-    int err = errno;
-    if (err == ENOSYS) {
-        LOGE("'crypt' function was not implemented; error [%d] : <%s>", err, strerror(err));
-    } else {
-        LOGE("'crypt' function error [%d] : <%s>", err, strerror(err));
-    }
-    throw UnexpectedErrorException(err, strerror(err));
+    for (int i=0; i<MD5_DIGEST_LENGTH; ++i)
+        output << std::setw(2) << (int)result[i];
+
+    return output.str();
 };
 
 void ChecksumValidator::compare(std::istream &stream, const std::string &pathname,
