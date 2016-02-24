@@ -37,7 +37,7 @@ public:
     int run(void);
 
 private:
-    static const std::string generate(const std::string &data);
+    const std::string generate(const std::string &data) const;
 
     void openFileStream(void);
     void copyFileStream(void);
@@ -47,6 +47,7 @@ private:
     std::ifstream m_inputStream;
     std::stringstream m_copyStream;
     std::string m_pathname;
+    std::string m_algorithm;
     static const char m_fieldSeparator;
     static const char m_recordSeparator;
     static const std::string m_backupFilenameSuffix;
