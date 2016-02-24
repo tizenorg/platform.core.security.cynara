@@ -73,7 +73,7 @@ const std::string ChecksumGenerator::generate(const std::string &data) {
         }
         throw std::runtime_error(strerror(err));
     }
-};
+}
 
 void ChecksumGenerator::openFileStream(void) {
     m_inputStream.open(m_pathname);
