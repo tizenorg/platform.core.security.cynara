@@ -23,6 +23,8 @@
 #include <cstring>
 #include <sstream>
 
+#include <log/log.h>
+
 #include <exceptions/InvalidBucketIdException.h>
 #include <types/PolicyCollection.h>
 #include <types/PolicyKeyHelpers.h>

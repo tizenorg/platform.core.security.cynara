@@ -27,9 +27,14 @@
 #include <new>
 #include <stdexcept>
 #include <string>
+//#include <vector>
+//#include <sstream>
+//#include <iomanip>
 #include <unistd.h>
 
 #include <cynara-error.h>
+
+//#include <md5.h>
 
 #include "ChecksumGenerator.h"
 
@@ -73,7 +78,20 @@ const std::string ChecksumGenerator::generate(const std::string &data) {
         }
         throw std::runtime_error(strerror(err));
     }
-};
+//    MD5Context context;
+//    std::vector<u_int8_t> result(MD5_DIGEST_LENGTH);
+//    MD5Init(&context);
+//    MD5Update(&context, reinterpret_cast<const u_int8_t *>(data.data()), data.size());
+//    MD5Final(result.data(), &context);
+//
+//    std::stringstream output;
+//    output << std::setfill('0') << std::hex;
+//
+//    for (int i=0; i<MD5_DIGEST_LENGTH; ++i)
+//        output << std::setw(2) << (int)result[i];
+//
+//    return output.str();
+}
 
 void ChecksumGenerator::openFileStream(void) {
     m_inputStream.open(m_pathname);

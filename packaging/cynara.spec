@@ -23,6 +23,7 @@ Source1014:    cynara-db-chsgen.manifest
 Requires:      default-ac-domains
 Requires:      libcynara-commons = %{version}-%{release}
 Requires(pre): cynara-db-migration >= %{version}-%{release}
+Requires(pre): coreutils
 Requires(post):   smack
 Requires(postun): cynara-db-migration >= %{version}-%{release}
 BuildRequires: cmake
