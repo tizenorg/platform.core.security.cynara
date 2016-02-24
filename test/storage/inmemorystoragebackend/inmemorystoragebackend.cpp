@@ -219,7 +219,7 @@ TEST_F(InMemoryStorageBackendFixture, load_no_default) {
 TEST_F(InMemoryStorageBackendFixture, load_default_only) {
     using ::testing::ReturnRef;
     using ::testing::Return;
-    auto testDbPath = Cynara::PathConfig::testsPath + "/db3/";
+    auto testDbPath = Cynara::PathConfig::testsPath + "/db11_md5/";
     FakeInMemoryStorageBackend backend(testDbPath);
     EXPECT_CALL(backend, buckets()).WillRepeatedly(ReturnRef(m_buckets));
     EXPECT_CALL(backend, postLoadCleanup(false)).WillOnce(Return());
@@ -234,7 +234,7 @@ TEST_F(InMemoryStorageBackendFixture, load_2_buckets) {
     using ::testing::Return;
     using ::testing::IsEmpty;
 
-    auto testDbPath = Cynara::PathConfig::testsPath + "/db4/";
+    auto testDbPath = Cynara::PathConfig::testsPath + "/db12/";
 
     FakeInMemoryStorageBackend backend(testDbPath);
     EXPECT_CALL(backend, buckets()).WillRepeatedly(ReturnRef(m_buckets));
@@ -276,7 +276,7 @@ TEST_F(InMemoryStorageBackendFixture, load_from_backup) {
     using ::testing::IsEmpty;
     using ::testing::InSequence;
 
-    auto testDbPath = Cynara::PathConfig::testsPath + "/db6/";
+    auto testDbPath = Cynara::PathConfig::testsPath + "/db13/";
     FakeInMemoryStorageBackend backend(testDbPath);
 
     {
