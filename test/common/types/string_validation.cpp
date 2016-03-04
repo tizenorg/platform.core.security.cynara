@@ -40,16 +40,16 @@ TEST(StringValidation, emptyString) {
 }
 
 TEST(StringValidation, maxString) {
-    char maxString[CYNARA_MAX_ID_LENGTH];
-    memset(maxString,' ', CYNARA_MAX_ID_LENGTH - 1);
+    char maxString[CYNARA_MAX_ID_LENGTH + 1] = {0};
+    memset(maxString,' ', CYNARA_MAX_ID_LENGTH);
 
     EXPECT_TRUE(isStringValid(maxString));
     EXPECT_TRUE(isExtraStringValid(maxString));
 }
 
 TEST(StringValidation, overMaxString) {
-    char maxString[CYNARA_MAX_ID_LENGTH + 1];
-    memset(maxString,' ', CYNARA_MAX_ID_LENGTH);
+    char maxString[CYNARA_MAX_ID_LENGTH + 2] = {0};
+    memset(maxString,' ', CYNARA_MAX_ID_LENGTH + 1);
 
     EXPECT_FALSE(isStringValid(maxString));
     EXPECT_FALSE(isExtraStringValid(maxString));
