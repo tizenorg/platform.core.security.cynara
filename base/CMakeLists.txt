@@ -1,0 +1,29 @@
+SET(TARGET_BASE "cynara-base")
+
+SET(BASE_SRC
+  ${PROJECT_SOURCE_DIR}/base/cynara-base.cpp
+  )
+
+INCLUDE_DIRECTORIES(
+  ${PROJECT_SOURCE_DIR}/base
+  )
+
+ADD_LIBRARY(${TARGET_BASE} SHARED ${BASE_SRC})
+
+SET_TARGET_PROPERTIES(
+  ${TARGET_BASE}
+  PROPERTIES
+      COMPILE_FLAGS "-fPIC"
+      SOVERSION 0.0.1
+      VERSION 0.1.0
+  )
+
+TARGET_LINK_LIBRARIES(${TARGET_BASE})
+
+INSTALL(TARGETS ${TARGET_BASE} DESTINATION /usr/lib)
+INSTALL(FILES ${PROJECT_SOURCE_DIR}/base/cynara-base.h DESTINATION /usr/include )
+
+CONFIGURE_FILE(cynara-base.pc.in cynara-base.pc @ONLY)
+
+INSTALL(FILES ${PROJECT_SOURCE_DIR}/base/cynara-base.pc DESTINATION /usr/lib/pkgconfig )
+
