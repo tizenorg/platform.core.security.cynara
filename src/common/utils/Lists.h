@@ -14,15 +14,15 @@
  *  limitations under the License
  */
 /**
- * @file        src/admin/logic/Utility.h
+ * @file        src/common/utils/Lists.h
  * @author      Zofia Abramowska <z.abramowska@samsung.com>
  * @version     1.0
  * @brief       This file contains implementation of utility function for managing null pointer
  *              terminated lists.
  */
 
-#ifndef SRC_ADMIN_LOGIC_UTILITY_H_
-#define SRC_ADMIN_LOGIC_UTILITY_H_
+#ifndef SRC_COMMON_UTILS_UTILITY_H_
+#define SRC_COMMON_UTILS_UTILITY_H_
 
 #include <cstdlib>
 #include <functional>
@@ -66,4 +66,4 @@ static int createNullTerminatedArray(const std::vector<V> &vectorized, T ***arra
 
 } // namespace Cynara
 
-#endif /* SRC_ADMIN_LOGIC_UTILITY_H_ */
+#endif /* SRC_COMMON_UTILS_UTILITY_H_ */

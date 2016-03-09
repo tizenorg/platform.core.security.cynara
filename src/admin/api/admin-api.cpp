@@ -49,7 +49,7 @@
 #include <api/ApiInterface.h>
 #include <logic/Logic.h>
 #include <logic/OnlineLogic.h>
-#include <logic/Utility.h>
+#include <utils/Lists.h>
 
 struct cynara_admin {
     Cynara::ApiInterface *impl;
