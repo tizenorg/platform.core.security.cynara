@@ -37,7 +37,7 @@ public:
 };
 
 ACTION_P(AssignInt, param) { *static_cast<int*>(arg1) = param; }
-ACTION_P(AssignString, param) { strcpy(static_cast<char*>(arg1), param); }
+ACTION_P(AssignString, param) { strncpy(static_cast<char*>(arg1), param, strlen(static_cast<char*>(arg1))); }
 
 TEST(Serialization, maxString) {
     using ::testing::_;
