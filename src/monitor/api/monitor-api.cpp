@@ -126,6 +126,7 @@ int cynara_monitor_entries_get(cynara_monitor *p_cynara_monitor,
         return CYNARA_API_INVALID_PARAM;
 
     return Cynara::tryCatch([&]() {
+        monitor_entries[0] = nullptr;
         std::vector<Cynara::MonitorEntry> entriesVector;
 
         auto ret = p_cynara_monitor->impl->entriesGet(entriesVector);

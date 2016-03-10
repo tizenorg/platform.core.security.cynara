@@ -50,6 +50,8 @@
 #include <request/EraseRequest.h>
 #include <request/InsertOrUpdateBucketRequest.h>
 #include <request/ListRequest.h>
+#include <request/MonitorGetEntriesRequest.h>
+#include <request/MonitorGetFlushRequest.h>
 #include <request/RemoveBucketRequest.h>
 #include <request/RequestContext.h>
 #include <request/SetPoliciesRequest.h>
@@ -62,6 +64,7 @@
 #include <response/CodeResponse.h>
 #include <response/DescriptionListResponse.h>
 #include <response/ListResponse.h>
+#include <response/MonitorGetEntriesResponse.h>
 #include <response/SimpleCheckResponse.h>
 #include <types/Policy.h>
 
@@ -451,6 +454,15 @@ void Logic::execute(const RequestContext &context, const SimpleCheckRequest &req
     m_auditLog.log(request.key(), result);
     context.returnResponse(SimpleCheckResponse(retValue, result,
                                                request.sequenceNumber()));
+}
+
+void Logic::execute(const RequestContext &context, const MonitorGetEntriesRequest &request) {
+    (void)context;
+    (void)request;
+}
+void Logic::execute(const RequestContext &context, const MonitorGetFlushRequest &request) {
+    context.returnResponse(MonitorGetEntriesResponse(std::vector<MonitorEntry>(),
+                           request.sequenceNumber()));
 }
 
 void Logic::checkPoliciesTypes(const std::map<PolicyBucketId, std::vector<Policy>> &policies,

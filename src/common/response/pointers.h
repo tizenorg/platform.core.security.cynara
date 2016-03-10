@@ -52,6 +52,9 @@ typedef std::shared_ptr<DescriptionListResponse> DescriptionListResponsePtr;
 class ListResponse;
 typedef std::shared_ptr<ListResponse> ListResponsePtr;
 
+class MonitorGetEntriesResponse;
+typedef std::shared_ptr<MonitorGetEntriesResponse> MonitorGetEntriesResponsePtr;
+
 class Response;
 typedef std::shared_ptr<Response> ResponsePtr;
 

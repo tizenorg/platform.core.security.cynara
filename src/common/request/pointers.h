@@ -55,6 +55,12 @@ typedef std::shared_ptr<InsertOrUpdateBucketRequest> InsertOrUpdateBucketRequest
 class ListRequest;
 typedef std::shared_ptr<ListRequest> ListRequestPtr;
 
+class MonitorGetEntriesRequest;
+typedef std::shared_ptr<MonitorGetEntriesRequest> MonitorGetEntriesRequestPtr;
+
+class MonitorGetFlushRequest;
+typedef std::shared_ptr<MonitorGetFlushRequest> MonitorGetFlushRequestPtr;
+
 class RemoveBucketRequest;
 typedef std::shared_ptr<RemoveBucketRequest> RemoveBucketRequestPtr;
 
