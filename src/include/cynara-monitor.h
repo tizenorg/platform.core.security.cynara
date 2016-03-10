@@ -109,7 +109,8 @@ void cynara_monitor_configuration_destroy(cynara_monitor_configuration *p_conf);
  *
  * \par Purpose:
  * This API is used to change default number of monitor entries stored on server side
- * before returning them to client of libcynara-monitor.
+ * before returning them to client of libcynara-monitor. The upper limit of buffer size
+ * is 65525.
  *
  * \par Typical use case:
  * Once after cynara_configuration is created with cynara_monitor_configuration_create()

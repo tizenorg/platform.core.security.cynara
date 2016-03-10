@@ -20,8 +20,8 @@
  * @brief       This file defines MonitorEntry type
  */
 
-#ifndef SRC_COMMON_TYPES_MONITORENTRY_H_
-#define SRC_COMMON_TYPES_MONITORENTRY_H_
+#ifndef SRC_COMMON_TYPES_MONITORENTRY_H
+#define SRC_COMMON_TYPES_MONITORENTRY_H
 
 #include <time.h>
 
@@ -55,4 +55,4 @@ public:
 
 } // namespace Cynara
 
-#endif /* SRC_COMMON_TYPES_MONITORENTRY_H_ */
+#endif /* SRC_COMMON_TYPES_MONITORENTRY_H */

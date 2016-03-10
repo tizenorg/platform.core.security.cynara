@@ -21,11 +21,13 @@
  */
 
 #include <new>
+#include <limits>
 
 #include <api/ApiInterface.h>
 #include <common.h>
 #include <configuration/MonitorConfiguration.h>
 #include <exceptions/TryCatch.h>
+#include <types/ProtocolFields.h>
 #include <cynara-error.h>
 #include <cynara-monitor.h>
 #include <log/log.h>
@@ -80,6 +82,9 @@ int cynara_monitor_configuration_set_buffer_size(cynara_monitor_configuration *p
                                                  size_t buffer_size) {
     if (!p_conf || !p_conf->impl)
         return CYNARA_API_INVALID_PARAM;
+    if (buffer_size > std::numeric_limits<Cynara::ProtocolFrameFieldsCount>::max()) {
+        return CYNARA_API_INVALID_PARAM;
+    }
 
     return Cynara::tryCatch([&]() {
         p_conf->impl->setBufferSize(buffer_size);
