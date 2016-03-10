@@ -76,6 +76,7 @@ mkdir -p %{buildroot}%{_unitdir}/sockets.target.wants
 ln -s ../cynara.socket %{buildroot}%{_unitdir}/sockets.target.wants/cynara.socket
 ln -s ../cynara-admin.socket %{buildroot}%{_unitdir}/sockets.target.wants/cynara-admin.socket
 ln -s ../cynara-agent.socket %{buildroot}%{_unitdir}/sockets.target.wants/cynara-agent.socket
+ln -s ../cynara-monitor-get.socket %{buildroot}%{_unitdir}/sockets.target.wants/cynara-monitor-get.socket
 
 %pre
 if [ $1 -gt 1 ] ; then
@@ -123,6 +124,8 @@ fi
 %attr(-,root,root) %{_unitdir}/cynara-admin.socket
 %attr(-,root,root) %{_unitdir}/sockets.target.wants/cynara-agent.socket
 %attr(-,root,root) %{_unitdir}/cynara-agent.socket
+%attr(-,root,root) %{_unitdir}/sockets.target.wants/cynara-monitor-get.socket
+%attr(-,root,root) %{_unitdir}/cynara-monitor-get.socket
 %dir %attr(700,cynara,cynara) %{_localstatedir}/%{name}
 %dir %attr(755,cynara,cynara) %{_libdir}/%{name}/plugin/service
 
