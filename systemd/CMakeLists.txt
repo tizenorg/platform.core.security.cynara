@@ -22,6 +22,7 @@ INSTALL(FILES
     ${CMAKE_SOURCE_DIR}/systemd/cynara.socket
     ${CMAKE_SOURCE_DIR}/systemd/cynara-admin.socket
     ${CMAKE_SOURCE_DIR}/systemd/cynara-agent.socket
+    ${CMAKE_SOURCE_DIR}/systemd/cynara-monitor-get.socket
     DESTINATION
     ${SYSTEMD_UNIT_DIR}
 )
