@@ -93,7 +93,7 @@ int cynara_strerror(int errnum, char *buf, size_t buflen) {
     if (buflen < strlen(message) + 1)
         return CYNARA_API_BUFFER_TOO_SHORT;
 
-    strcpy(buf, message);
+    strncpy(buf, message, strlen(message));
 
     return CYNARA_API_SUCCESS;
 }

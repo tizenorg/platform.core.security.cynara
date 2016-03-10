@@ -300,7 +300,7 @@ int SocketManager::createDomainSocketHelp(const std::string &path, mode_t mask) 
              "[%zu] bytes long", path.c_str(), path.length(), sizeof(serverAddress));
         throw InitException();
     }
-    strcpy(serverAddress.sun_path, path.c_str());
+    strncpy(serverAddress.sun_path, path.c_str(), path.size());
     unlink(serverAddress.sun_path);
 
     mode_t originalUmask;

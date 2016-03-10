@@ -204,12 +204,13 @@ void OfflineLogic::labelDatabaseFiles(void)
 {
 #ifdef DB_FILES_SMACK_LABEL
    DIR           *dbDirectory;
-   struct dirent *directoryEntry;
+   struct dirent *directoryPtr = NULL;
+   struct dirent entry;
 
    dbDirectory = opendir(PathConfig::StoragePath::dbDir.c_str());
    if (dbDirectory) {
-       while ((directoryEntry = readdir(dbDirectory)) != NULL) {
-           std::string f = PathConfig::StoragePath::dbDir + directoryEntry->d_name;
+       while(readdir_r(dbDirectory, &entry, &directoryPtr) && directoryPtr) {
+           std::string f = PathConfig::StoragePath::dbDir + directoryPtr->d_name;
            if (smack_set_label_for_path(f.c_str(), XATTR_NAME_SMACK, 1, DB_FILES_SMACK_LABEL) < 0) {
                LOGE("Failed to set label for database file: " << f);
            }
