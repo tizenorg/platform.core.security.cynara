@@ -29,4 +29,7 @@
 /*! \brief Maximum size of vector accepted by Cynara */
 #define CYNARA_MAX_VECTOR_SIZE                  4096
 
+/*! \brief Maximum size of monitor entries buffer accepted by Cynara */
+#define CYNARA_MAX_MONITOR_BUFFER_SIZE          65525
+
 #endif /* CYNARA_LIMITS_H */
