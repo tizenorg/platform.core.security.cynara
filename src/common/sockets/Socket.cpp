@@ -139,7 +139,7 @@ Socket::ConnectionStatus Socket::connectSocket(void) {
         throw InitException();
     }
 
-    strcpy(clientAddr.sun_path, m_socketPath.c_str());
+    strncpy(clientAddr.sun_path, m_socketPath.c_str(), m_socketPath.size());
 
     LOGD("ClientAddr.sun_path <%s>", clientAddr.sun_path);
 

@@ -96,7 +96,8 @@ void Integrity::revalidatePrimaryDatabase(const Buckets &buckets) {
 
 void Integrity::deleteNonIndexedFiles(BucketPresenceTester tester) {
     DIR *dirPtr = nullptr;
-    struct dirent *direntPtr;
+    struct dirent *direntPtr = NULL;
+	struct dirent entry;
 
     if ((dirPtr = opendir(m_dbPath.c_str())) == nullptr) {
         int err = errno;
@@ -114,7 +115,7 @@ void Integrity::deleteNonIndexedFiles(BucketPresenceTester tester) {
                 }
             });
 
-    while (errno = 0, (direntPtr = readdir(dirPtr)) != nullptr) {
+    while (errno = 0, (!readdir_r(dirPtr, &entry, &direntPtr)) && direntPtr) {
         std::string filename = direntPtr->d_name;
         //ignore all special files (working dir, parent dir, index, checksums)
         if (isSpecialDirectory(filename) || isSpecialDatabaseEntry(filename)) {
@@ -147,7 +148,7 @@ void Integrity::deleteNonIndexedFiles(BucketPresenceTester tester) {
 
     if (errno) {
         int err = errno;
-        LOGE("'readdir' function error [%d] : <%s>", err, strerror(err));
+        LOGE("'readdir_r' function error [%d] : <%s>", err, strerror(err));
         throw UnexpectedErrorException(err, strerror(err));
         return;
     }

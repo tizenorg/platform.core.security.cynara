@@ -36,6 +36,8 @@
 
 #include "../../Benchmark.h"
 
+unsigned int seed = time(NULL);
+
 using namespace Cynara;
 
 class PolicyKeyGenerator {
@@ -54,14 +56,14 @@ public:
     }
 
     PolicyKey randomKey(void) const {
-        return { m_clients.at(rand() % m_clients.size()),
-                 m_users.at(rand() % m_users.size()),
-                 m_privileges.at(rand() % m_privileges.size())
+        return { m_clients.at(rand_r(&seed) % m_clients.size()),
+                 m_users.at(rand_r(&seed) % m_users.size()),
+                 m_privileges.at(rand_r(&seed) % m_privileges.size())
         };
     }
 
     char randomChar(void) const {
-        return (std::rand() % ('z' - 'a')) + 'a';
+        return (rand_r(&seed) % ('z' - 'a')) + 'a';
     }
 
     std::string randomKeyFeature(size_t length) const {
