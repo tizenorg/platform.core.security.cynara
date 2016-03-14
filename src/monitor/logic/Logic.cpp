@@ -16,40 +16,150 @@
 /**
  * @file        src/monitor/logic/Logic.cpp
  * @author      Aleksander Zdyb <a.zdyb@samsung.com>
+ * @author      Zofia Abramowska <z.abramowska@samsung.com>
  * @version     1.0
  * @brief       This file contains implementation of Logic class -- main libcynara-monitor class
  */
-
 
 #include <mutex>
 
 #include <cynara-error.h>
 #include <log/log.h>
+#include <request/MonitorGetEntriesRequest.h>
+#include <request/MonitorGetFlushRequest.h>
 #include <types/MonitorEntry.h>
 
 #include "Logic.h"
 
+namespace {
+Cynara::ProtocolFrameSequenceNumber generateSequenceNumber(void) {
+    static Cynara::ProtocolFrameSequenceNumber sequenceNumber = 0;
+    return ++sequenceNumber;
+}
+
+class StatusChangeWrapper {
+public:
+    StatusChangeWrapper(std::mutex &mutex, bool &status) : m_mutex(mutex), m_status(status) {
+        std::lock_guard<std::mutex> lock(m_mutex);
+        m_status = true;
+    }
+    ~StatusChangeWrapper() {
+        std::lock_guard<std::mutex> lock(m_mutex);
+        m_status = false;
+    }
+private:
+    std::mutex &m_mutex;
+    bool &m_status;
+};
+
+} // namespace anonymous
+
 namespace Cynara {
 
-int Logic::entriesGet(std::vector<MonitorEntry> &entries) {
-    std::unique_lock<std::mutex> guard(m_mutexGuard, std::defer_lock);
-    if (!guard.try_lock()) {
-        LOGW("This function is not re-entrant");
-        return CYNARA_API_OPERATION_NOT_ALLOWED;
+int Logic::init(void) {
+    if (!m_notify.init()) {
+        LOGE("Couldn't initialize notification object");
+        return CYNARA_API_UNKNOWN_ERROR;
     }
-
-    std::unique_lock<std::mutex> lock(m_mutexCond);
-    m_go = false;
-    m_conditionVariable.wait(lock, [&]() -> bool { return m_go; });
-    entries.clear();
+    m_client.setNotifyFd(m_notify.getNotifyFd());
     return CYNARA_API_SUCCESS;
 }
 
-int Logic::entriesFlush(void) {
-    std::lock_guard<std::mutex> lock(m_mutexCond);
-    m_go = true;
-    m_conditionVariable.notify_one();
+bool Logic::connect(void) {
+    std::unique_lock<std::mutex> lock(m_mutexCond);
+    if (!m_client.isConnected()) {
+        bool connectRet = m_client.connect();
+        m_connectionResolved = true;
+        if (!connectRet) {
+            LOGE("Cannot connect to Cynara service");
+            return false;
+        }
+    }
+    m_connectedCV.notify_one();
+    return true;
+}
+
+int Logic::sendAndFetch(std::vector<MonitorEntry> &entries) {
+    StatusChangeWrapper status(m_mutexCond, m_isRunning);
+    if (!connect()) {
+        return CYNARA_API_SERVICE_NOT_AVAILABLE;
+    }
+    if (!m_client.sendRequest(MonitorGetEntriesRequest(m_conf.getBufferSize(),
+            generateSequenceNumber()))) {
+        LOGE("Failed sending request to Cynara");
+        return CYNARA_API_UNKNOWN_ERROR;
+    }
+    MonitorSocketClient::Event event;
+    if (!m_client.waitForEvent(event)) {
+        LOGE("Waiting for event failed");
+        return CYNARA_API_SERVICE_NOT_AVAILABLE;
+    }
+    switch(event) {
+    case MonitorSocketClient::Event::FETCH_ENTRIES:
+    {
+        auto responsePtr = m_client.fetchEntries();
+        if (!responsePtr) {
+            LOGE("Error fetching response");
+            return CYNARA_API_UNKNOWN_ERROR;
+        }
+        entries.assign(responsePtr->entries().begin(), responsePtr->entries().end());
+        break;
+    }
+    case MonitorSocketClient::Event::NOTIFY_RETURN:
+        LOGD("Got notification to stop working");
+        break;
+    }
     return CYNARA_API_SUCCESS;
+}
+
+int Logic::entriesGet(std::vector<MonitorEntry> &entries) {
+    std::unique_lock<std::mutex> guard(m_reentrantGuard, std::defer_lock);
+    if (!guard.try_lock()) {
+        LOGE("Function is not reentrant");
+        return CYNARA_API_OPERATION_NOT_ALLOWED;
+    }
+    int ret = sendAndFetch(entries);
+    m_finishedCV.notify_one();
+    return ret;
+}
+
+bool Logic::waitForConnectionResolved(void) {
+    std::unique_lock<std::mutex> lock(m_mutexCond);
+    m_connectedCV.wait(lock, [&] { return m_connectionResolved; });
+    if (!m_client.isConnected()) {
+        LOGE("Cynara monitor is not connected to service.");
+        return false;
+    }
+    return true;
+}
+
+int Logic::entriesFlush(void) {
+    if (!waitForConnectionResolved()) {
+        return CYNARA_API_OPERATION_NOT_ALLOWED;
+    }
+    if (!m_client.sendRequest(MonitorGetFlushRequest(generateSequenceNumber()))) {
+        LOGE("Error sending request to Cynara");
+        return CYNARA_API_UNKNOWN_ERROR;
+    }
+    return CYNARA_API_SUCCESS;
+}
+
+bool Logic::isRunning(void) {
+    std::unique_lock<std::mutex> lock(m_mutexCond);
+    bool isRunning = m_isRunning;
+    return isRunning;
+}
+
+void Logic::notifyFinish(void) {
+    if (!isRunning()) {
+        return;
+    }
+    if (!m_notify.notify()) {
+        LOGE("Failed to notify");
+        return;
+    }
+    std::unique_lock<std::mutex> lock(m_mutexCond);
+    m_finishedCV.wait(lock, [&] {return !m_isRunning;});
 }
 
 } // namespace Cynara
