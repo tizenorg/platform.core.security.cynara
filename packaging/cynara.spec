@@ -64,6 +64,17 @@ export LDFLAGS+="-Wl,--rpath=%{_libdir}"
         -DSYSTEMD_UNIT_DIR:PATH=%{_unitdir} \
         -DSOCKET_DIR:PATH=/run/%{name} \
         -DDB_FILES_SMACK_LABEL="System"
+
+cynara_version=`grep CYNARA_VERSION CMakeCache.txt | cut -f 2 -d "="`
+
+echo "Cynara version from spec is %{version}"
+echo "Cynara version from cmake is ${cynara_version}"
+
+if [ "x%{version}" != "x${cynara_version}" ]; then
+    echo "ERROR: Version missmatch. spec: %{version} cmake: ${cynara_version}";
+    exit 1;
+fi
+
 make %{?jobs:-j%jobs}
 
 %install
