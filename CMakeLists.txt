@@ -23,7 +23,7 @@ CMAKE_MINIMUM_REQUIRED(VERSION 2.8.3)
 PROJECT("cynara")
 
 SET(CYNARA_VERSION
-    0.10.0
+    0.11.0
     CACHE STRING
     "Cynara version")
 
