@@ -33,13 +33,12 @@
 namespace Cynara {
 
 class RequestContext {
-private:
-    ResponseTakerWeakPtr m_responseTaker;
-    BinaryQueueWeakPtr m_responseQueue;
-
 public:
-    RequestContext(ResponseTakerPtr responseTaker, BinaryQueuePtr responseQueue)
-        : m_responseTaker(responseTaker), m_responseQueue(responseQueue) {
+    typedef int ClientId;
+
+    RequestContext(ResponseTakerPtr responseTaker, BinaryQueuePtr responseQueue,
+                   ClientId clientId = -1)
+        : m_responseTaker(responseTaker), m_responseQueue(responseQueue), m_clientId(clientId) {
     }
 
     void returnResponse(const Response &response) const {
@@ -54,6 +53,15 @@ public:
             return bbqPtr;
         throw ContextErrorException();
     }
+
+    ClientId clientId(void) const {
+        return m_clientId;
+    }
+
+private:
+    ResponseTakerWeakPtr m_responseTaker;
+    BinaryQueueWeakPtr m_responseQueue;
+    ClientId m_clientId;
 };
 
 } // namespace Cynara
