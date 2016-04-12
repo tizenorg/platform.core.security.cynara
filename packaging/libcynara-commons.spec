@@ -260,6 +260,7 @@ make %{?jobs:-j%jobs}
 %license LICENSE
 %{_libdir}/libcynara-creds-commons.so.*
 %{_sysconfdir}/%{project_name}/creds.conf
+%dir %attr(700,cynara,cynara) %{_localstatedir}/%{name}
 
 %files -n libcynara-creds-socket
 %manifest libcynara-creds-socket.manifest
