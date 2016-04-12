@@ -215,6 +215,23 @@ make %{?jobs:-j%jobs}
 
 %postun -n libcynara-monitor -p /sbin/ldconfig
 
+%post -n cynara-db-migration
+
+if [ $1 -gt 1 ] ; then
+    # upgrade
+    %{_sbindir}/cynara-db-migration upgrade -f 0.0.0 -t %{version}
+else
+    # install
+    %{_sbindir}/cynara-db-migration install -t %{version}
+fi
+
+%postun -n cynara-db-migration
+
+if [ $1 = 0 ]; then
+    %{_sbindir}/cynara-db-migration uninstall -f %{version}
+    systemctl daemon-reload
+fi
+
 %files -n cynara-devel
 %{_includedir}/cynara/*.h
 %{_includedir}/cynara/attributes/*.h
