@@ -33,6 +33,9 @@ class MonitorEntry {
 public:
     MonitorEntry(const PolicyKey &key, const int &result, const struct timespec &timestamp)
             : m_key(key), m_result(result), m_timestamp(timestamp) {}
+    MonitorEntry(const MonitorEntry &other)  = default;
+    MonitorEntry(MonitorEntry &&other)  = default;
+    MonitorEntry& operator=(const MonitorEntry &other)  = default;
 
 private:
     PolicyKey m_key;
