@@ -26,9 +26,11 @@
 #define SRC_CLIENT_ASYNC_LOGIC_LOGIC_H_
 
 #include <memory>
+#include <vector>
 
 #include <cache/CacheInterface.h>
 #include <configuration/Configuration.h>
+#include <types/MonitorEntry.h>
 #include <types/ProtocolFields.h>
 
 #include <api/ApiInterface.h>
@@ -74,6 +76,7 @@ private:
     SequenceContainer m_sequenceContainer;
     bool m_operationPermitted;
     bool m_inAnswerCancelResponseCallback;
+    std::vector<MonitorEntry> m_monitorEntries;
 
     bool checkCacheValid(void);
     int createRequest(bool simple, const std::string &client, const std::string &session,
@@ -96,6 +99,9 @@ private:
     void onStatusChange(int sock, cynara_async_status status);
     void onServiceNotAvailable(void);
     void onDisconnected(void);
+
+    void updateMonitor(const PolicyKey &policyKey, int result);
+    void flushMonitor();
 };
 
 } // namespace Cynara

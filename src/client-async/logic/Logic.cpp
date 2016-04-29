@@ -36,6 +36,8 @@
 #include <protocol/ProtocolClient.h>
 #include <request/CancelRequest.h>
 #include <request/CheckRequest.h>
+#include <request/MonitorEntryPutRequest.h>
+#include <request/MonitorEntriesPutRequest.h>
 #include <request/SimpleCheckRequest.h>
 #include <response/CancelResponse.h>
 #include <response/CheckResponse.h>
@@ -43,7 +45,13 @@
 #include <sockets/Socket.h>
 
 #include "Logic.h"
+
 namespace Cynara {
+
+static ProtocolFrameSequenceNumber generateSequenceNumber(void) {
+    static ProtocolFrameSequenceNumber sequenceNumber = 0;
+    return ++sequenceNumber;
+}
 
 Logic::Logic(cynara_status_callback callback, void *userStatusData, const Configuration &conf)
     : m_statusCallback(callback, userStatusData), m_cache(conf.getCacheSize()),
@@ -73,7 +81,13 @@ int Logic::checkCache(const std::string &client, const std::string &session,
     if (!checkCacheValid())
         return CYNARA_API_CACHE_MISS;
 
-    return m_cache.get(session, PolicyKey(client, user, privilege));
+    auto ret = m_cache.get(session, PolicyKey(client, user, privilege));
+
+    // TODO: or maybe log CYNARA_API_ACCESS_ALLOWED and CYNARA_API_ACCESS_DENIED only?
+    if (ret != CYNARA_API_CACHE_MISS)
+        updateMonitor({ client, user, privilege }, ret);
+
+    return ret;
 }
 
 int Logic::createCheckRequest(const std::string &client, const std::string &session,
@@ -223,6 +237,9 @@ void Logic::processCheckResponse(const CheckResponse &checkResponse) {
                                  checkResponse.m_resultRef);
     CheckData checkData(std::move(it->second));
     releaseRequest(it);
+
+    // TODO: This is tricky. Updating monitor here makes only successful checks count
+    updateMonitor(checkData.key(), result);
 
     if (!checkData.cancelled()) {
         bool onAnswerCancel = m_inAnswerCancelResponseCallback;
@@ -375,6 +392,32 @@ void Logic::onDisconnected(void) {
     m_cache.clear();
     m_statusCallback.onDisconnected();
     m_operationPermitted = true;
+}
+
+// TODO: This is a copy-paste from synchronous client; check if we can keep DRY here
+void Logic::updateMonitor(const PolicyKey &policyKey, int result) {
+    struct timespec ts;
+    // https://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/commit/?id=da15cfdae03351c689736f8d142618592e3cebc3
+    auto ret = clock_gettime(CLOCK_REALTIME_COARSE, &ts);
+    if (ret != 0) {
+        LOGE("Could not update monitor entries. clock_gettime() failed with [%d]", ret);
+        // TODO: Decide what to do. Something very bad must have happened, if clock_gettime() failed
+        return;
+    }
+
+    if (result != CYNARA_API_ACCESS_ALLOWED)
+        result = CYNARA_API_ACCESS_DENIED;
+
+    m_monitorEntries.push_back({ policyKey, result, ts });
+
+    // TODO: Decide on criteria on when entries are flushed
+    flushMonitor();
+}
+
+void Logic::flushMonitor() {
+    ProtocolFrameSequenceNumber sequenceNumber = generateSequenceNumber();
+    MonitorEntriesPutRequest request(m_monitorEntries, sequenceNumber);
+    m_socketClient.appendRequest(request);
 }
 
 } // namespace Cynara
