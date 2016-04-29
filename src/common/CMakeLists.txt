@@ -53,6 +53,7 @@ SET(COMMON_SOURCES
     ${COMMON_PATH}/request/ListRequest.cpp
     ${COMMON_PATH}/request/MonitorGetEntriesRequest.cpp
     ${COMMON_PATH}/request/MonitorGetFlushRequest.cpp
+    ${COMMON_PATH}/request/MonitorEntriesPutRequest.cpp
     ${COMMON_PATH}/request/RemoveBucketRequest.cpp
     ${COMMON_PATH}/request/RequestTaker.cpp
     ${COMMON_PATH}/request/SetPoliciesRequest.cpp
