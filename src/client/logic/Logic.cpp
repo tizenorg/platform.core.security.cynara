@@ -23,6 +23,7 @@
 
 #include <cinttypes>
 #include <memory>
+#include <ctime>
 
 #include <cache/CapacityCache.h>
 #include <common.h>
@@ -34,6 +35,7 @@
 #include <plugins/NaiveInterpreter.h>
 #include <protocol/Protocol.h>
 #include <protocol/ProtocolClient.h>
+#include <request/MonitorEntriesPutRequest.h>
 #include <request/CheckRequest.h>
 #include <request/pointers.h>
 #include <request/SimpleCheckRequest.h>
@@ -60,6 +62,10 @@ Logic::Logic(const Configuration &conf) :
     }
 }
 
+Logic::~Logic() {
+    flushMonitor();
+}
+
 int Logic::check(const std::string &client, const ClientSession &session, const std::string &user,
                  const std::string &privilege) {
     if (!ensureConnection())
@@ -68,6 +74,7 @@ int Logic::check(const std::string &client, const ClientSession &session, const 
     PolicyKey key(client, user, privilege);
     int ret = m_cache.get(session, key);
     if (ret != CYNARA_API_CACHE_MISS) {
+        updateMonitor(key, ret);
         return ret;
     }
 
@@ -77,6 +84,8 @@ int Logic::check(const std::string &client, const ClientSession &session, const 
         LOGE("Error fetching new entry.");
         return ret;
     }
+
+    updateMonitor(key, ret);
 
     return m_cache.update(session, key, result);
 }
@@ -142,6 +151,7 @@ int Logic::requestResult(const PolicyKey &key, PolicyResult &result) {
          checkResponse->m_resultRef.policyType(),
          checkResponse->m_resultRef.metadata().c_str());
     result = checkResponse->m_resultRef;
+
     return CYNARA_API_SUCCESS;
 }
 
@@ -163,8 +173,41 @@ int Logic::requestSimpleResult(const PolicyKey &key, PolicyResult &result) {
     return CYNARA_API_SUCCESS;
 }
 
+bool Logic::requestMonitorEntriesPut() {
+    ProtocolFrameSequenceNumber sequenceNumber = generateSequenceNumber();
+    MonitorEntriesPutRequest request(m_monitorEntries, sequenceNumber);
+    return m_socketClient.sendAndForget(request);
+}
+
 void Logic::onDisconnected(void) {
     m_cache.clear();
+}
+
+void Logic::updateMonitor(const PolicyKey &policyKey, int result) {
+    struct timespec ts;
+    // https://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/commit/?id=da15cfdae03351c689736f8d142618592e3cebc3
+    auto ret = clock_gettime(CLOCK_REALTIME_COARSE, &ts);
+    if (ret != 0) {
+        LOGE("Could not update monitor entries. clock_gettime() failed with [%d]", ret);
+        // TODO: Decide what to do. Something very bad must have happened, if clock_gettime() failed
+        return;
+    }
+
+    if (result != CYNARA_API_ACCESS_ALLOWED)
+        result = CYNARA_API_ACCESS_DENIED;
+
+    m_monitorEntries.push_back({ policyKey, result, ts });
+
+    // TODO: Decide on criteria on when entries are flushed
+    flushMonitor();
+}
+
+void Logic::flushMonitor() {
+    auto flushSuccess = requestMonitorEntriesPut();
+    if (flushSuccess) {
+        // TODO: Also reset all the flushing conditions
+        m_monitorEntries.clear();
+    }
 }
 
 } // namespace Cynara

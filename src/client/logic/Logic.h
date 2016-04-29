@@ -26,8 +26,10 @@
 
 #include <memory>
 #include <string>
+#include <vector>
 
 #include <sockets/SocketClient.h>
+#include <types/MonitorEntry.h>
 #include <types/PolicyKey.h>
 #include <types/PolicyResult.h>
 
@@ -44,7 +46,7 @@ typedef std::unique_ptr<Logic> LogicUniquePtr;
 class Logic : public ApiInterface {
 public:
     explicit Logic(const Configuration &conf = Configuration());
-    virtual ~Logic() {};
+    virtual ~Logic();
 
     virtual int check(const std::string &client, const ClientSession &session,
                       const std::string &user, const std::string &privilege);
@@ -53,6 +55,7 @@ public:
 private:
     SocketClient m_socketClient;
     CapacityCache m_cache;
+    std::vector<MonitorEntry> m_monitorEntries;
 
     void onDisconnected(void);
     bool ensureConnection(void);
@@ -60,6 +63,10 @@ private:
     std::shared_ptr<Res> requestResponse(const PolicyKey &key);
     int requestResult(const PolicyKey &key, PolicyResult &result);
     int requestSimpleResult(const PolicyKey &key, PolicyResult &result);
+    bool requestMonitorEntriesPut();
+
+    void updateMonitor(const PolicyKey &policyKey, int result);
+    void flushMonitor();
 };
 
 } // namespace Cynara

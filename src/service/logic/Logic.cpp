@@ -50,6 +50,7 @@
 #include <request/EraseRequest.h>
 #include <request/InsertOrUpdateBucketRequest.h>
 #include <request/ListRequest.h>
+#include <request/MonitorEntriesPutRequest.h>
 #include <request/MonitorGetEntriesRequest.h>
 #include <request/MonitorGetFlushRequest.h>
 #include <request/RemoveBucketRequest.h>
