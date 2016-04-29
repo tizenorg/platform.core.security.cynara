@@ -66,10 +66,22 @@ Logic::Logic(cynara_status_callback callback, void *userStatusData, const Config
 
 Logic::~Logic() {
     m_operationPermitted = false;
+
+    for (const auto &entry : m_monitorEntries) {
+        ProtocolFrameSequenceNumber sequenceNumber = generateSequenceNumber();
+        MonitorEntryPutRequest request(entry, sequenceNumber);
+        m_socketClient.appendRequest(request);
+    }
+
+    if (m_socketClient.sendToCynara() != Socket::SendStatus::ALL_DATA_SENT) {
+        LOGW("Some monitor entries were lost");
+    }
+
     for (auto &kv : m_checks) {
         if (!kv.second.cancelled())
             kv.second.callback().onFinish(kv.first);
     }
+
     m_statusCallback.onDisconnected();
 }
 
