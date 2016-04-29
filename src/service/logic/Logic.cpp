@@ -466,6 +466,11 @@ void Logic::execute(const RequestContext &context, const MonitorGetFlushRequest 
                            request.sequenceNumber()));
 }
 
+void Logic::execute(const RequestContext &context, const MonitorEntriesPutRequest &request) {
+    (void) context;
+    (void) request;
+}
+
 void Logic::checkPoliciesTypes(const std::map<PolicyBucketId, std::vector<Policy>> &policies,
                                bool allowBucket, bool allowNone) {
     for (const auto &group : policies) {
