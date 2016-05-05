@@ -1,0 +1,9 @@
+Code-Review+1: Build Bot <b.bot@partner.samsung.com>
+Code-Review+1: Bartlomiej Grzelewski <b.grzelewski@samsung.com>
+Code-Review+2: Aleksander Zdyb <a.zdyb@samsung.com>
+Verified+1: Bartlomiej Grzelewski <b.grzelewski@samsung.com>
+Submitted-by: Aleksander Zdyb <a.zdyb@samsung.com>
+Submitted-at: Thu, 05 May 2016 03:25:43 -0700
+Reviewed-on: https://review.tizen.org/gerrit/65826
+Project: platform/core/security/cynara
+Branch: refs/heads/tizen
