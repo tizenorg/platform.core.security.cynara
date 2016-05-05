@@ -36,6 +36,8 @@ class RequestContext {
 public:
     typedef int ClientId;
 
+    RequestContext() : m_clientId(-1) {}
+
     RequestContext(ResponseTakerPtr responseTaker, BinaryQueuePtr responseQueue,
                    ClientId clientId = -1)
         : m_responseTaker(responseTaker), m_responseQueue(responseQueue), m_clientId(clientId) {
