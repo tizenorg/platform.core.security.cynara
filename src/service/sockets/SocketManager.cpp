@@ -247,7 +247,7 @@ bool SocketManager::handleRead(int fd, const RawBuffer &readbuffer) {
             LOGD("request extracted");
 
             //build context
-            RequestContext context(desc.responseTaker(), desc.writeQueue());
+            RequestContext context(desc.responseTaker(), desc.writeQueue(), fd);
             //pass request to request taker
             req->execute(*requestTaker(), context);
         }
