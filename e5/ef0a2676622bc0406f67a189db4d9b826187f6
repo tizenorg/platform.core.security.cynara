@@ -1,0 +1,8 @@
+Code-Review-1: Build Bot <b.bot@partner.samsung.com>
+Code-Review+2: Zofia Abramowska <z.abramowska@samsung.com>
+Verified+1: Zofia Abramowska <z.abramowska@samsung.com>
+Submitted-by: Zofia Abramowska <z.abramowska@samsung.com>
+Submitted-at: Sat, 07 May 2016 04:01:21 -0700
+Reviewed-on: https://review.tizen.org/gerrit/67959
+Project: platform/core/security/cynara
+Branch: refs/heads/tizen
