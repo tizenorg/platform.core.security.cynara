@@ -72,10 +72,6 @@ public:
         return m_value;
     }
 
-    bool isWildcard(void) const {
-        return m_isWildcard;
-    }
-
     bool isAny(void) const {
         return m_isAny;
     }
@@ -86,15 +82,10 @@ public:
 
 protected:
     explicit PolicyKeyFeature(const ValueType &value) : m_value(value),
-        m_isWildcard(value == wildcardValue()),
         m_isAny(value == anyValue()) {}
 
     static bool anyAny(const PolicyKeyFeature &pkf1, const PolicyKeyFeature &pkf2) {
         return pkf1.isAny() || pkf2.isAny();
-    }
-
-    static bool anyWildcard(const PolicyKeyFeature &pkf1, const PolicyKeyFeature &pkf2) {
-        return pkf1.isWildcard() || pkf2.isWildcard();
     }
 
     static bool valuesMatch(const PolicyKeyFeature &pkf1, const PolicyKeyFeature &pkf2) {
@@ -103,7 +94,6 @@ protected:
 
 private:
     ValueType m_value;
-    bool m_isWildcard;
     bool m_isAny;
 
     const static std::string &wildcardValue(void);
