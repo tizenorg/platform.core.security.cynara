@@ -26,24 +26,21 @@
 
 namespace Cynara {
 
-std::string PolicyKeyHelpers::glueKey(const PolicyKey &key) {
+SharedStringVector PolicyKeyHelpers::glueKey(const PolicyKey &key) {
     return glueKey(key.client(), key.user(), key.privilege());
 }
 
-std::string PolicyKeyHelpers::glueKey(const PolicyKeyFeature &client,
+SharedStringVector PolicyKeyHelpers::glueKey(const PolicyKeyFeature &client,
                                       const PolicyKeyFeature &user,
                                       const PolicyKeyFeature &privilege) {
-    const std::string sep = ";";
-    const std::string c = client.toString();
-    const std::string u = user.toString();
-    const std::string p = privilege.toString();
+    return SharedStringVector {
+        client.toSharedString(),
+        user.toSharedString(),
+        privilege.toSharedString()
+    };
+}
 
-    std::ostringstream glued;
-    glued << c << sep << u << sep << p << sep << c.size() << sep << u.size() << sep << p.size();
-    return glued.str();
-};
-
-std::vector<std::string> PolicyKeyHelpers::keyVariants(const PolicyKey &key) {
+std::vector<SharedStringVector> PolicyKeyHelpers::keyVariants(const PolicyKey &key) {
     const auto &client = key.client();
     const auto &user = key.user();
     const auto &privilege = key.privilege();
