@@ -26,15 +26,16 @@
 #include <vector>
 
 #include <types/PolicyKey.h>
+#include <types/PolicyCollection.h>
 
 namespace Cynara {
 
 class PolicyKeyHelpers {
 public:
-    static std::string glueKey(const PolicyKey &client);
-    static std::string glueKey(const PolicyKeyFeature &client, const PolicyKeyFeature &user,
+    static SharedStringVector glueKey(const PolicyKey &client);
+    static SharedStringVector glueKey(const PolicyKeyFeature &client, const PolicyKeyFeature &user,
                                const PolicyKeyFeature &privilege);
-    static std::vector<std::string> keyVariants(const PolicyKey &key);
+    static std::vector<SharedStringVector> keyVariants(const PolicyKey &key);
 };
 
 } /* namespace Cynara */
