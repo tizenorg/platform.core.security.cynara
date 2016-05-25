@@ -31,6 +31,7 @@
 #include <sys/un.h>
 #include <unistd.h>
 
+#include <exceptions/AccessDeniedException.h>
 #include <exceptions/InitException.h>
 #include <exceptions/NoMemoryException.h>
 #include <exceptions/UnexpectedErrorException.h>
@@ -154,6 +155,9 @@ Socket::ConnectionStatus Socket::connectSocket(void) {
             case ECONNREFUSED:
                 //no one is listening
                 return ConnectionStatus::CONNECTION_FAILED;
+            case EACCES:
+                LOGE("Insufficient permissions to connect to socket");
+                throw AccessDeniedException("Connecting to cynara socket");
             default:
                 close();
                 LOGE("'connect' function error [%d] : <%s>", err, strerror(err));

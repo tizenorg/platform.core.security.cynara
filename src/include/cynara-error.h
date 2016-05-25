@@ -86,6 +86,9 @@
 
 /*! \brief   indicating that database is corrupted */
 #define CYNARA_API_DATABASE_CORRUPTED           -14
+
+/*! \brief   indicating that user doesn't have enough permission to perform action */
+#define CYNARA_API_PERMISSION_DENIED            -15
 /** @}*/
 
 #ifdef __cplusplus

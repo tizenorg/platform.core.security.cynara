@@ -28,6 +28,7 @@
 #include <functional>
 #include <new>
 
+#include <exceptions/AccessDeniedException.h>
 #include <exceptions/InvalidProtocolException.h>
 #include <exceptions/NoMemoryException.h>
 #include <log/log.h>
@@ -48,6 +49,9 @@ int tryCatch(const std::function<int(void)> &func) {
     } catch (const InvalidProtocolException &e) {
         LOGE("%s", e.what());
         return CYNARA_API_INVALID_PARAM;
+    } catch (const AccessDeniedException &e) {
+        LOGE(e.what());
+        return CYNARA_API_PERMISSION_DENIED;
     } catch (const std::exception &e) {
         LOGE("%s", e.what());
         return CYNARA_API_UNKNOWN_ERROR;
