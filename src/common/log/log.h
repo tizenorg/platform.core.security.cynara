@@ -28,11 +28,11 @@
 
 #ifndef CYNARA_NO_LOGS
 #include <sstream>
-#ifdef BUILD_WITH_SYSTEMD
+#ifdef BUILD_WITH_SYSTEMD_JOURNAL
 #include <systemd/sd-journal.h>
-#else // BUILD_WITH_SYSTEMD
+#else // BUILD_WITH_SYSTEMD_JOURNAL
 #include <syslog.h>
-#endif // BUILD_WITH_SYSTEMD
+#endif // BUILD_WITH_SYSTEMD_JOURNAL
 #endif // CYNARA_NO_LOGS
 
 #include <attributes/attributes.h>
@@ -43,20 +43,20 @@ extern int __log_level;
 namespace {
     template <typename ...Args>
     void UNUSED __LOG_FUN(int level, const std::stringstream &format, Args&&... args) {
-#ifdef BUILD_WITH_SYSTEMD
+#ifdef BUILD_WITH_SYSTEMD_JOURNAL
         sd_journal_print(level, format.str().c_str(), std::forward<Args>(args)...);
-#else // BUILD_WITH_SYSTEMD
+#else // BUILD_WITH_SYSTEMD_JOURNAL
         syslog(level, format.str().c_str(), std::forward<Args>(args)...);
-#endif // BUILD_WITH_SYSTEMD
+#endif // BUILD_WITH_SYSTEMD_JOURNAL
     }
 
     template <>
     void UNUSED __LOG_FUN(int level, const std::stringstream &format) {
-#ifdef BUILD_WITH_SYSTEMD
+#ifdef BUILD_WITH_SYSTEMD_JOURNAL
         sd_journal_print(level, "%s", format.str().c_str());
-#else // BUILD_WITH_SYSTEMD
+#else // BUILD_WITH_SYSTEMD_JOURNAL
         syslog(level, "%s", format.str().c_str());
-#endif // BUILD_WITH_SYSTEMD
+#endif // BUILD_WITH_SYSTEMD_JOURNAL
     }
 } // namespace anonymous
 

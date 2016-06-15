@@ -31,7 +31,7 @@
 #include <sys/types.h>
 #include <unistd.h>
 
-#ifdef BUILD_WITH_SYSTEMD
+#ifdef BUILD_WITH_SYSTEMD_DAEMON
 #include <systemd/sd-daemon.h>
 #endif
 
@@ -111,7 +111,7 @@ int main(int argc, char **argv) {
         cynara.init();
         LOGI("Cynara service is started");
 
-#ifdef BUILD_WITH_SYSTEMD
+#ifdef BUILD_WITH_SYSTEMD_DAEMON
         int ret = sd_notify(0, "READY=1");
         if (ret == 0) {
             LOGW("Cynara was not configured to notify its status");
