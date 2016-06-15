@@ -80,7 +80,7 @@ private:
     void createDomainSocket(ProtocolPtr protocol, const std::string &path, mode_t mask,
                             bool client);
     static int createDomainSocketHelp(const std::string &path, mode_t mask);
-#ifdef BUILD_WITH_SYSTEMD
+#ifdef BUILD_WITH_SYSTEMD_DAEMON
     static int getSocketFromSystemD(const std::string &path);
 #endif
     void createSignalSocket(ProtocolPtr protocol);

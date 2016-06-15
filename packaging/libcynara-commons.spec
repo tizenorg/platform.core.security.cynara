@@ -1,3 +1,7 @@
+%if !%{defined with_systemd_journal}
+%define with_systemd_journal 0
+%endif
+
 Name:       libcynara-commons
 Summary:    Cynara service with client libraries
 Version:    0.14.0
@@ -25,6 +29,9 @@ Requires(postun): cynara-db-migration >= %{version}
 BuildRequires: cmake
 BuildRequires: zip
 BuildRequires: pkgconfig(libsmack)
+%if %{with_systemd_journal}
+BuildRequires: pkgconfig(libsystemd-journal)
+%endif
 Summary:       Cynara - cynara commons library
 Obsoletes:     libcynara-storage
 
@@ -166,7 +173,7 @@ export LDFLAGS+="-Wl,--rpath=%{_libdir}"
 %cmake . \
         -DBUILD_TESTS=ON \
         -DBUILD_COMMONS=ON \
-        -DBUILD_WITH_SYSTEMD=OFF \
+        -DBUILD_WITH_SYSTEMD_JOURNAL=%{?with_systemd_journal} \
         -DCMAKE_BUILD_TYPE=%{?build_type} \
         -DCMAKE_VERBOSE_MAKEFILE=ON \
         -DLIB_DIR:PATH=%{_libdir} \
@@ -214,7 +221,7 @@ fi
 /sbin/ldconfig
 if [ $1 = 0 ]; then
     %{_sbindir}/cynara-db-migration uninstall -f %{version}
-    systemctl daemon-reload
+#    systemctl daemon-reload
 fi
 
 %post -n libcynara-creds-commons -p /sbin/ldconfig

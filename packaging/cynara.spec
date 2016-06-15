@@ -1,3 +1,11 @@
+%if !%{defined with_systemd_daemon}
+%define with_systemd_daemon 1
+%endif
+
+%if !%{defined with_systemd_journal}
+%define with_systemd_journal 0
+%endif
+
 Name:       cynara
 Summary:    Cynara service with client libraries
 Version:    0.14.0
@@ -12,10 +20,14 @@ Requires:      libcynara-commons = %{version}
 Requires(post):   smack
 BuildRequires: cmake
 BuildRequires: zip
+%if %{with_systemd_daemon}
 BuildRequires: pkgconfig(libsystemd-daemon)
+%endif
+%if %{with_systemd_journal}
+BuildRequires: pkgconfig(libsystemd-journal)
+%endif
 BuildRequires: pkgconfig(libsmack)
 BuildRequires: pkgconfig(cynara-commons)
-%{?systemd_requires}
 
 %if !%{defined build_type}
 %define build_type RELEASE
@@ -50,7 +62,8 @@ export LDFLAGS+="-Wl,--rpath=%{_libdir}"
 
 %cmake . \
         -DBUILD_TESTS=OFF \
-        -DBUILD_WITH_SYSTEMD=ON \
+        -DBUILD_WITH_SYSTEMD_DAEMON=%{?with_systemd_daemon} \
+        -DBUILD_WITH_SYSTEMD_JOURNAL=%{?with_systemd_journal} \
         -DBUILD_SERVICE=ON \
         -DCMAKE_BUILD_TYPE=%{?build_type} \
         -DCMAKE_VERBOSE_MAKEFILE=ON \
@@ -70,17 +83,20 @@ make %{?jobs:-j%jobs}
 rm -rf %{buildroot}
 %make_install
 
+%if %{with_systemd_daemon}
 mkdir -p %{buildroot}%{_unitdir}/sockets.target.wants
 ln -s ../cynara.socket %{buildroot}%{_unitdir}/sockets.target.wants/cynara.socket
 ln -s ../cynara-admin.socket %{buildroot}%{_unitdir}/sockets.target.wants/cynara-admin.socket
 ln -s ../cynara-agent.socket %{buildroot}%{_unitdir}/sockets.target.wants/cynara-agent.socket
 ln -s ../cynara-monitor-get.socket %{buildroot}%{_unitdir}/sockets.target.wants/cynara-monitor-get.socket
+%endif
 
 %post
 ### Add file capabilities if needed
 ### setcap/getcap binary are useful. To use them you must install libcap and libcap-tools packages
 ### In such case uncomment Requires with those packages
 
+%if %{with_systemd_daemon}
 systemctl daemon-reload
 
 if [ $1 = 1 ]; then
@@ -88,17 +104,21 @@ if [ $1 = 1 ]; then
 fi
 
 systemctl restart %{name}.service
+%endif
 
 %preun
+%if %{with_systemd_daemon}
 if [ $1 = 0 ]; then
     # unistall
     systemctl stop cynara.service
 fi
+%endif
 
 %files
 %manifest cynara.manifest
 %license LICENSE
 %attr(755,root,root) %{_bindir}/cynara
+%if %{with_systemd_daemon}
 %attr(-,root,root) %{_unitdir}/cynara.service
 %attr(-,root,root) %{_unitdir}/cynara.target
 %attr(-,root,root) %{_unitdir}/sockets.target.wants/cynara.socket
@@ -109,5 +129,5 @@ fi
 %attr(-,root,root) %{_unitdir}/cynara-agent.socket
 %attr(-,root,root) %{_unitdir}/sockets.target.wants/cynara-monitor-get.socket
 %attr(-,root,root) %{_unitdir}/cynara-monitor-get.socket
+%endif
 %dir %attr(755,cynara,cynara) %{_libdir}/%{name}/plugin/service
-
