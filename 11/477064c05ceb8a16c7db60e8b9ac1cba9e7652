@@ -1,0 +1,9 @@
+Code-Review+1: Rafal Krypa <r.krypa@samsung.com>
+Code-Review+1: Kim Kidong <kd0228.kim@samsung.com>
+Code-Review+2: Lukasz Wojciechowski <l.wojciechow@partner.samsung.com>
+Verified+1: Tomasz Swierczek <t.swierczek@samsung.com>
+Submitted-by: Tomasz Swierczek <t.swierczek@samsung.com>
+Submitted-at: Tue, 28 Jun 2016 03:21:33 -0700
+Reviewed-on: https://review.tizen.org/gerrit/76986
+Project: platform/core/security/cynara
+Branch: refs/heads/tizen
