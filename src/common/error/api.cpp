@@ -85,6 +85,9 @@ int cynara_strerror(int errnum, char *buf, size_t buflen) {
         case CYNARA_API_DATABASE_CORRUPTED:
             message = "Database corrupted";
             break;
+        case CYNARA_API_PERMISSION_DENIED:
+            message = "Not enough permission to perform action";
+            break;
     }
 
     if (message == nullptr)
