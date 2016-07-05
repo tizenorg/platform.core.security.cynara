@@ -27,6 +27,8 @@
 
 #include <log/log.h>
 
+#include <iostream>
+
 #include "SharedString.h"
 
 namespace Cynara {

@@ -44,7 +44,7 @@ public:
     static StringStorage& getInstance();
     SharedStringInternal* get(const std::string &key);
     void erase(const std::string &key);
-private:
+protected:
     StringStorage(){}
     std::map<std::string, SharedStringUPtr> m_sharedStringMap;
 };
@@ -60,7 +60,7 @@ public:
     const std::string& toString() const;
     virtual ~SharedString();
 
-private:
+protected:
     void addref();
     void unref();
 
