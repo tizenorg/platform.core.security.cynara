@@ -129,6 +129,8 @@ SET(CYNARA_TESTS_SOURCES
     storage/serializer/serialize.cpp
     tests.cpp
     types/policykey.cpp
+    shared-string/SharedStringEx.cpp
+    shared-string/SharedStringTests.cpp
 )
 
 SET(CYNARA_MIGRATION_TOOL_TESTS tools/cynara-db-migration-tests)
