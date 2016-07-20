@@ -14,7 +14,16 @@
 #
 # @file        CMakeLists.txt
 # @author      Lukasz Wojciechowski <l.wojciechow@partner.samsung.com>
+# @author      Radoslaw Bartosiak <r.bartosiak@samsung.com>
 #
+
+IF (NO_NEW_PRIVILEGES)
+    SET(NO_NEW_PRIVILEGES_STRING "NoNewPrivileges=true")
+ELSE()
+    SET(NO_NEW_PRIVILEGES_STRING "\#NoNewPrivileges=true")
+ENDIF()
+
+CONFIGURE_FILE(cynara.service.in cynara.service @ONLY)
 
 INSTALL(FILES
     ${CMAKE_SOURCE_DIR}/systemd/cynara.service

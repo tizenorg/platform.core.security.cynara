@@ -64,7 +64,13 @@ export LDFLAGS+="-Wl,--rpath=%{_libdir}"
         -DSYSTEMD_UNIT_DIR:PATH=%{_unitdir} \
         -DSOCKET_DIR:PATH=/run/%{name} \
         -DDB_FILES_SMACK_LABEL="System" \
-        -DMONITORING=ON
+        -DMONITORING=ON \
+        %if %{?profile} == "wearable"
+        -DNO_NEW_PRIVILEGES=OFF
+        %else
+        -DNO_NEW_PRIVILEGES=ON
+        %endif
+
 make %{?jobs:-j%jobs}
 
 %install
