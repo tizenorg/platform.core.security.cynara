@@ -19,7 +19,7 @@ UMask=0000
 User=cynara
 Group=cynara
 SmackProcessLabel=System
-#NoNewPrivileges=true
+@NO_NEW_PRIVILEGES_STRING@
 
 #Environment="CYNARA_LOG_LEVEL=LOG_DEBUG"
 #Environment="CYNARA_AUDIT_LEVEL=ALL"

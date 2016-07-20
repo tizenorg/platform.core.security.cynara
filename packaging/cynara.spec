@@ -28,6 +28,12 @@ BuildRequires: pkgconfig(libunwind)
 
 %endif
 
+%if %{?profile} == "wearable" && "%{_repository}" == "target-circle"
+%define nonewprivileges OFF
+%else
+%define nonewprivileges ON
+%endif
+
 %description
 service, client libraries (libcynara-client, libcynara-admin),
 agent library, helper libraries (libcynara-session, libcynara-creds-common, libcynara-creds-dbus,
@@ -64,7 +70,9 @@ export LDFLAGS+="-Wl,--rpath=%{_libdir}"
         -DSYSTEMD_UNIT_DIR:PATH=%{_unitdir} \
         -DSOCKET_DIR:PATH=/run/%{name} \
         -DDB_FILES_SMACK_LABEL="System" \
-        -DMONITORING=ON
+        -DMONITORING=ON \
+        -DNO_NEW_PRIVILEGES=%{?nonewprivleges}
+
 make %{?jobs:-j%jobs}
 
 %install
