@@ -77,6 +77,10 @@ ln -s ../cynara-admin.socket %{buildroot}%{_unitdir}/sockets.target.wants/cynara
 ln -s ../cynara-agent.socket %{buildroot}%{_unitdir}/sockets.target.wants/cynara-agent.socket
 ln -s ../cynara-monitor-get.socket %{buildroot}%{_unitdir}/sockets.target.wants/cynara-monitor-get.socket
 
+%if %{?profile} == "wearable"
+cp systemd/cynara.service_wearable %{buildroot}%{_unitdir}/cynara.service
+%endif
+
 %post
 ### Add file capabilities if needed
 ### setcap/getcap binary are useful. To use them you must install libcap and libcap-tools packages
