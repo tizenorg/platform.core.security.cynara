@@ -1,0 +1,11 @@
+prefix=C:/Program Files/cynara
+exec_prefix=${prefix}
+libdir=C:/Program Files/cynara/lib
+includedir=${prefix}/include
+
+Name: cynara-creds-dbus
+Description: cynara-creds package for dbus clients
+Version: 0.14.2
+Requires: dbus-1
+Libs: -L${libdir} -lcynara-creds-dbus -lcynara-creds-commons -lcynara-commons
+Cflags: -I${includedir}/cynara

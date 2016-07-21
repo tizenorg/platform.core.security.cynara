@@ -1,0 +1,11 @@
+prefix=C:/Program Files/cynara
+exec_prefix=${prefix}
+libdir=C:/Program Files/cynara/lib
+includedir=${prefix}/include
+
+Name: cynara-creds-socket
+Description: cynara-creds package for socket clients
+Version: 0.14.2
+Requires:
+Libs: -L${libdir} -lcynara-creds-socket -lcynara-creds-commons -lcynara-commons
+Cflags: -I${includedir}/cynara

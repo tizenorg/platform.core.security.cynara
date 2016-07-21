@@ -1,0 +1,11 @@
+prefix=C:/Program Files/cynara
+exec_prefix=${prefix}
+libdir=C:/Program Files/cynara/lib
+includedir=${prefix}/include
+
+Name: cynara-session
+Description: cynara-session package
+Version: 0.14.2
+Requires:
+Libs: -L${libdir} -lcynara-session -lcynara-commons
+Cflags: -I${includedir}/cynara

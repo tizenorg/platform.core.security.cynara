@@ -44,7 +44,9 @@ ENDIF (NOT BUILD_COMMONS AND NOT BUILD_SERVICE AND NOT BUILD_DBUS)
 ########################## search for packages ################################
 
 #Search the new libsystemd package
+IF (UNIX)
 PKG_CHECK_MODULES(SYSTEMD_DEP QUIET libsystemd)
+ENDIF
 
 #Fallback to the older libsystemd packages
 IF(NOT SYSTEMD_DEP_FOUND)

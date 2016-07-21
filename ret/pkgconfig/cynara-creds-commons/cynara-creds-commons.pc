@@ -1,0 +1,11 @@
+prefix=C:/Program Files/cynara
+exec_prefix=${prefix}
+libdir=C:/Program Files/cynara/lib
+includedir=${prefix}/include
+
+Name: cynara-creds-commons
+Description: Base package for all cynara-creds packages
+Version: 0.14.2
+Requires:
+Libs: -L${libdir} -lcynara-creds-commons -lcynara-commons
+Cflags: -I${includedir}/cynara
