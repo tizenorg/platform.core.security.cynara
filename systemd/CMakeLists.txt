@@ -16,6 +16,22 @@
 # @author      Lukasz Wojciechowski <l.wojciechow@partner.samsung.com>
 #
 
+if (${PROFILE} MATCHES "tv")
+    SET(SOCKET_UNIT_SETTINGS "DefaultDependencies=no\nBefore=sockets.target")
+    SET(SERVICE_UNIT_SETTINGS "DefaultDependencies=no")
+    SET(WANTED_BY "WantedBy=sysinit.target")
+else (${PROFILE} MATCHES "tv")
+    SET(SOCKET_UNIT_SETTINGS "Wants=cynara.target\nBefore=cynara.target")
+    SET(SERVICE_UNIT_SETTINGS "")
+    SET(WANTED_BY "WantedBy=multi-user.target")
+endif (${PROFILE} MATCHES "tv")
+
+CONFIGURE_FILE(cynara.service.in cynara.service @ONLY)
+CONFIGURE_FILE(cynara.socket.in cynara.socket @ONLY)
+CONFIGURE_FILE(cynara-admin.socket.in cynara-admin.socket @ONLY)
+CONFIGURE_FILE(cynara-agent.socket.in cynara-agent.socket @ONLY)
+CONFIGURE_FILE(cynara-monitor-get.socket.in cynara-monitor-get.socket @ONLY)
+
 INSTALL(FILES
     ${CMAKE_SOURCE_DIR}/systemd/cynara.service
     ${CMAKE_SOURCE_DIR}/systemd/cynara.target
