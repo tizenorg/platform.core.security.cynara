@@ -1,5 +1,7 @@
 [Unit]
 Description=Cynara service
+DefaultDependencies=no
+After=sysinit.target
 
 [Service]
 ExecStart=/usr/bin/cynara
@@ -25,4 +27,4 @@ SmackProcessLabel=System
 #Environment="CYNARA_AUDIT_LEVEL=ALL"
 
 [Install]
-WantedBy=multi-user.target
+WantedBy=sysinit.target
