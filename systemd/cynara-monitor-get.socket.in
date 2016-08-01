@@ -8,8 +8,7 @@ SmackLabelIPOut=@
 Service=cynara.service
 
 [Unit]
-Wants=cynara.target
-Before=cynara.target
+@SOCKET_UNIT_SETTINGS@
 
 [Install]
 WantedBy=sockets.target

@@ -64,7 +64,8 @@ export LDFLAGS+="-Wl,--rpath=%{_libdir}"
         -DSYSTEMD_UNIT_DIR:PATH=%{_unitdir} \
         -DSOCKET_DIR:PATH=/run/%{name} \
         -DDB_FILES_SMACK_LABEL="System" \
-        -DMONITORING=ON
+        -DMONITORING=ON \
+        -DPROFILE=%{profile}
 make %{?jobs:-j%jobs}
 
 %install
@@ -77,6 +78,14 @@ ln -s ../cynara-admin.socket %{buildroot}%{_unitdir}/sockets.target.wants/cynara
 ln -s ../cynara-agent.socket %{buildroot}%{_unitdir}/sockets.target.wants/cynara-agent.socket
 ln -s ../cynara-monitor-get.socket %{buildroot}%{_unitdir}/sockets.target.wants/cynara-monitor-get.socket
 
+%if "%{?profile}" == "tv"
+    mkdir -p %{buildroot}%{_unitdir}/sysinit.target.wants
+    ln -s ../cynara.service %{buildroot}%{_unitdir}/sysinit.target.wants/cynara.service
+%else
+    mkdir -p %{buildroot}%{_unitdir}/multi-user.target.wants
+    ln -s ../cynara.service %{buildroot}%{_unitdir}/multi-user.target.wants/cynara.service
+%endif
+
 %post
 ### Add file capabilities if needed
 ### setcap/getcap binary are useful. To use them you must install libcap and libcap-tools packages
@@ -84,15 +93,15 @@ ln -s ../cynara-monitor-get.socket %{buildroot}%{_unitdir}/sockets.target.wants/
 
 systemctl daemon-reload
 
-if [ $1 = 1 ]; then
-    systemctl enable %{name}.service
-fi
+#if [ $1 = 1 ]; then
+#    systemctl enable %{name}.service
+#fi
 
 systemctl restart %{name}.service
 
 %preun
 if [ $1 = 0 ]; then
-    # unistall
+    # uninstall
     systemctl stop cynara.service
 fi
 
@@ -111,4 +120,10 @@ fi
 %attr(-,root,root) %{_unitdir}/sockets.target.wants/cynara-monitor-get.socket
 %attr(-,root,root) %{_unitdir}/cynara-monitor-get.socket
 %dir %attr(755,cynara,cynara) %{_libdir}/%{name}/plugin/service
+
+%if "%{?profile}" == "tv"
+    %attr(-,root,root) %{_unitdir}/sysinit.target.wants/cynara.service
+%else
+    %attr(-,root,root) %{_unitdir}/multi-user.target.wants/cynara.service
+%endif
 
