@@ -92,7 +92,7 @@ systemctl restart %{name}.service
 
 %preun
 if [ $1 = 0 ]; then
-    # unistall
+    # uninstall
     systemctl stop cynara.service
 fi
 
